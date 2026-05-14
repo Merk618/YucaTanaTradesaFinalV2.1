@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERIDIAN · Morning Market Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --gold: #C9A96E;
+  --gold-light: #E8C98A;
+  --gold-dark: #8B6914;
+  --obsidian: #0A0A0C;
+  --carbon: #111115;
+  --graphite: #1A1A20;
+  --slate: #252530;
+  --smoke: #32323F;
+  --mist: #4A4A5A;
+  --silver: #8A8A9A;
+  --pearl: #C8C8D8;
+  --white: #F0F0F5;
+  --up: #4ADE80;
+  --down: #F87171;
+  --neutral: #94A3B8;
+  --lead: #22D3EE;
+  --lag: #FB923C;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--obsidian);
+  color: var(--pearl);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  cursor: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+body.meridian-ready { opacity: 1; }
+body.native-cursor,
+body.native-cursor * { cursor: auto !important; }
+body.native-cursor a,
+body.native-cursor button { cursor: pointer !important; }
+
+/* CUSTOM CURSOR */
+.cursor {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: width 0.16s ease, height 0.16s ease;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+.cursor-ring {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,169,110,0.4);
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: width 0.16s ease, height 0.16s ease, border-color 0.16s ease;
+  will-change: transform;
+}
+.cursor.is-hover { width: 14px; height: 14px; }
+.cursor-ring.is-hover { width: 46px; height: 46px; border-color: rgba(201,169,110,0.7); }
+body.native-cursor .cursor,
+body.native-cursor .cursor-ring { display: none; }
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0.5;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--obsidian); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); }
+
+/* HEADER */
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.5rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(201,169,110,0.08);
+  backdrop-filter: blur(24px);
+  background: rgba(10,10,12,0.7);
+  animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.logo span { font-style: italic; font-weight: 400; }
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--silver);
+  letter-spacing: 0.1em;
+}
+
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--up);
+}
+.live-dot::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--up);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8rem 3rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(201,169,110,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(201,169,110,0.03) 0%, transparent 50%);
+}
+
+.hero-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.data-shimmer {
+  display: inline-block;
+  width: 84px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    rgba(201,169,110,0.08) 25%,
+    rgba(232,201,138,0.24) 50%,
+    rgba(201,169,110,0.08) 75%);
+  background-size: 280px 100%;
+  animation: dataSweep 1.35s linear infinite;
+  vertical-align: middle;
+}
+.data-shimmer.sm { width: 46px; height: 10px; }
+.data-shimmer.lg { width: 116px; height: 22px; }
+.awaiting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(201,169,110,0.22);
+  background: rgba(201,169,110,0.06);
+  padding: 0.28rem 0.55rem;
+}
+.awaiting-copy {
+  color: var(--silver);
+  letter-spacing: 0.04em;
+}
+@keyframes dataSweep {
+  0% { background-position: -280px 0; }
+  100% { background-position: 280px 0; }
+}
+
+.hero-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  margin-bottom: 0.25rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 300;
+  color: var(--silver);
+  letter-spacing: 0.02em;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.65s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.hero-meta-grid {
+  display: flex;
+  gap: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hero-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--mist);
+  text-transform: uppercase;
+}
+
+.hero-stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--mist);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeUp 1s 1.2s ease forwards;
+}
+
+.hero-scroll::after {
+  content: '';
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine { 0%, 100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; } 50% { opacity: 1; transform: scaleY(1); } }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* MAIN LAYOUT */
+.main { padding: 0 3rem 6rem; max-width: 1400px; margin: 0 auto; }
+
+/* SECTION */
+.section {
+  margin-bottom: 6rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.section.visible { opacity: 1; transform: translateY(0); }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201,169,110,0.12);
+}
+
+.section-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 0.02em;
+}
+
+.section-title em { font-style: italic; color: var(--gold); }
+
+.section-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201,169,110,0.2), transparent);
+}
+
+/* MACRO PULSE */
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(201,169,110,0.1);
+  border: 1px solid rgba(201,169,110,0.1);
+  margin-bottom: 2rem;
+}
+
+.macro-card {
+  background: var(--carbon);
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.macro-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.macro-card:hover { background: var(--graphite); }
+.macro-card:hover::before { transform: scaleX(1); }
+
+.mc-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--mist);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.mc-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.mc-change {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.mc-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--mist);
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.mc-up { color: var(--up); }
+.mc-dn { color: var(--down); }
+.mc-nx { color: var(--neutral); }
+
+.macro-note {
+  background: var(--graphite);
+  border: 1px solid rgba(201,169,110,0.1);
+  border-left: 3px solid var(--gold);
+  padding: 1.5rem 2rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--pearl);
+  line-height: 1.7;
+}
+
+.macro-note strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* SECTOR BOARD */
+.sector-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sector-table thead tr {
+  border-bottom: 1px solid rgba(201,169,110,0.2);
+}
+
+.sector-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--mist);
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 400;
+}
+
+.sector-table td {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--pearl);
+  transition: background 0.2s ease;
+}
+
+.sector-table tr:hover td { background: rgba(201,169,110,0.03); }
+
+.sector-table tr td:first-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--mist);
+}
+
+.sector-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--white);
+}
+
+.trend-bar {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.trend-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--smoke);
+}
+
+.trend-pip.hot { background: var(--up); }
+.trend-pip.warm { background: var(--gold); }
+
+.status-pill {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+}
+
+.pill-lead { background: rgba(74,222,128,0.08); color: var(--up); border: 1px solid rgba(74,222,128,0.2); }
+.pill-neutral { background: rgba(148,163,184,0.06); color: var(--neutral); border: 1px solid rgba(148,163,184,0.15); }
+.pill-lag { background: rgba(248,113,113,0.06); color: var(--down); border: 1px solid rgba(248,113,113,0.15); }
+
+/* STOCKS GRID */
+.stocks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: rgba(201,169,110,0.08);
+  border: 1px solid rgba(201,169,110,0.08);
+}
+
+.stock-card {
+  background: var(--carbon);
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: background 0.3s ease;
+}
+
+.stock-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stock-card:hover { background: var(--graphite); }
+.stock-card:hover::after { opacity: 1; }
+
+.stock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.stock-ticker {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.stock-name {
+  font-size: 0.75rem;
+  color: var(--mist);
+  margin-top: 0.1rem;
+  font-weight: 400;
+}
+
+.stock-gain {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.stock-why {
+  font-size: 0.85rem;
+  color: var(--silver);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.stock-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stock-rsi {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mist);
+  letter-spacing: 0.05em;
+}
+
+.action-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+}
+
+.act-buy { background: rgba(74,222,128,0.08); color: var(--up); border: 1px solid rgba(74,222,128,0.2); }
+.act-hold { background: rgba(148,163,184,0.06); color: var(--neutral); border: 1px solid rgba(148,163,184,0.15); }
+.act-watch { background: rgba(201,169,110,0.08); color: var(--gold); border: 1px solid rgba(201,169,110,0.25); }
+.act-trim { background: rgba(251,146,60,0.06); color: var(--lag); border: 1px solid rgba(251,146,60,0.2); }
+
+/* ROTATION */
+.rotation-box {
+  background: var(--graphite);
+  border: 1px solid rgba(201,169,110,0.1);
+  padding: 2.5rem;
+}
+
+.rot-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.rot-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--mist);
+  width: 100px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.rot-in, .rot-out {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  padding: 0.3rem 0.9rem;
+  border-radius: 2px;
+  transition: transform 0.2s ease;
+}
+.rot-in:hover, .rot-out:hover { transform: translateY(-1px); }
+
+.rot-in { background: rgba(74,222,128,0.08); color: var(--up); border: 1px solid rgba(74,222,128,0.2); }
+.rot-out { background: rgba(248,113,113,0.06); color: var(--down); border: 1px solid rgba(248,113,113,0.2); }
+
+.rot-note {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(201,169,110,0.1);
+  font-size: 0.9rem;
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+.rot-note strong { color: var(--gold); font-weight: 600; }
+
+/* WATCHLIST */
+.watchlist-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.watchlist-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--mist);
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(201,169,110,0.15);
+}
+
+.wrow {
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.2s ease;
+}
+
+.wrow:hover { background: rgba(201,169,110,0.025); }
+
+.wrow td {
+  padding: 1rem;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.w-ticker {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.w-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--mist);
+  letter-spacing: 0.05em;
+}
+
+.w-note {
+  font-size: 0.8rem;
+  color: var(--silver);
+  line-height: 1.5;
+}
+
+/* OPTIONS */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.opt-card {
+  background: var(--graphite);
+  border: 1px solid rgba(201,169,110,0.1);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.opt-card:hover {
+  border-color: rgba(201,169,110,0.25);
+  transform: translateY(-3px);
+}
+
+.opt-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.opt-card.calls::before { background: linear-gradient(90deg, transparent, var(--up), transparent); }
+.opt-card.puts::before { background: linear-gradient(90deg, transparent, var(--down), transparent); }
+
+.opt-ticker {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.opt-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.opt-calls { color: var(--up); }
+.opt-puts { color: var(--down); }
+.opt-both { color: var(--gold); }
+
+.opt-detail {
+  font-size: 0.82rem;
+  color: var(--silver);
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+/* GAME PLAN */
+.gameplan {
+  background: var(--carbon);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-top: 3px solid var(--gold);
+  padding: 3rem 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.gameplan::before {
+  content: '"';
+  position: absolute;
+  top: -1rem;
+  left: 2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12rem;
+  color: rgba(201,169,110,0.04);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.gameplan-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  font-weight: 300;
+  color: var(--white);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  position: relative;
+}
+
+.gameplan-text em { font-style: italic; color: var(--gold); }
+
+/* ALERT BANNER */
+.alert-banner {
+  background: rgba(251,146,60,0.06);
+  border: 1px solid rgba(251,146,60,0.2);
+  border-left: 3px solid var(--lag);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--lag);
+  letter-spacing: 0.05em;
+}
+
+.alert-banner strong { font-weight: 600; }
+
+.alert-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--lag);
+  flex-shrink: 0;
+  animation: pulse 1.5s infinite;
+}
+
+/* FOOTER */
+footer {
+  padding: 3rem;
+  border-top: 1px solid rgba(201,169,110,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+}
+
+.footer-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--mist);
+  letter-spacing: 0.1em;
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* DIVIDER */
+.gold-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
+  margin: 2rem 0;
+  opacity: 0.3;
+}
+
+/* TICKER TAPE */
+.ticker-wrap {
+  overflow: hidden;
+  background: var(--carbon);
+  border-top: 1px solid rgba(201,169,110,0.08);
+  border-bottom: 1px solid rgba(201,169,110,0.08);
+  padding: 0.6rem 0;
+  margin-bottom: 3rem;
+}
+
+.ticker-tape {
+  display: flex;
+  gap: 0;
+  white-space: nowrap;
+  animation: tickerScroll 35s linear infinite;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--silver);
+}
+
+.ticker-sym { color: var(--gold); font-weight: 500; }
+.ticker-up { color: var(--up); }
+.ticker-dn { color: var(--down); }
+.ticker-sep { color: var(--smoke); }
+
+/* FADE-IN NUMBERS */
+.count-up { display: inline-block; }
+
+/* SECTION DIVIDERS */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 5rem 0 3rem;
+}
+
+.sd-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(201,169,110,0.1);
+}
+
+.sd-diamond {
+  width: 6px; height: 6px;
+  background: var(--gold-dark);
+  transform: rotate(45deg);
+}
+
+/* UP/DOWN COLORS */
+.up { color: var(--up); }
+.dn { color: var(--down); }
+.nx { color: var(--neutral); }
+.gold { color: var(--gold); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .macro-grid { grid-template-columns: repeat(2, 1fr); }
+  .stocks-grid { grid-template-columns: 1fr; }
+  .options-grid { grid-template-columns: 1fr; }
+  .main { padding: 0 1.5rem 4rem; }
+  header { padding: 1rem 1.5rem; }
+  .hero { padding: 7rem 1.5rem 4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Meri<span>dian</span></div>
+  <div class="header-meta">
+    <span class="live-dot">LIVE</span>
+    <span id="clock">--:-- ET</span>
+    <span>PROVIDER-GATED</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+
+  <div class="hero-tag">Live Intelligence Briefing</div>
+
+  <h1 class="hero-title">Market<br><em>Briefing</em></h1>
+  <p class="hero-subtitle">Awaiting live market providers</p>
+
+  <div class="hero-meta-grid">
+    <div class="hero-stat">
+      <div class="hero-stat-label">S&P 500</div>
+      <div class="hero-stat-val" style="color: var(--down)">7,335 ▼</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">Nasdaq</div>
+      <div class="hero-stat-val" style="color: var(--down)">25,790 ▼</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">WTI Crude</div>
+      <div class="hero-stat-val" style="color: var(--up)">$95.40 ▲</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">BTC / USD</div>
+      <div class="hero-stat-val" style="color: var(--up)">$81,500 ▲</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">VIX</div>
+      <div class="hero-stat-val" style="color: var(--neutral)">17.1 —</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">Gold</div>
+      <div class="hero-stat-val" style="color: var(--up)">$4,754 ▲</div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- TICKER TAPE -->
+<div class="ticker-wrap">
+  <div class="ticker-tape">
+    <span class="ticker-item"><span class="ticker-sym">AMD</span> <span class="ticker-up">+18.4%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">SMCI</span> <span class="ticker-up">+15.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">GLW</span> <span class="ticker-up">+17.8%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">NVDA</span> <span class="ticker-up">+2.9%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">AVGO</span> <span class="ticker-up">+3.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">ARM</span> <span class="ticker-dn">-10.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">UBER</span> <span class="ticker-up">+7.8%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">DIS</span> <span class="ticker-up">+4.9%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">XOM</span> <span class="ticker-dn">-1.4%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">OXY</span> <span class="ticker-dn">-1.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">BTC</span> <span class="ticker-up">+1.3%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">SOL</span> <span class="ticker-up">+3.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">XRP</span> <span class="ticker-dn">-2.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">INTC</span> <span class="ticker-up">+4.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">CVS</span> <span class="ticker-up">+5.0%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span class="ticker-sym">AMD</span> <span class="ticker-up">+18.4%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">SMCI</span> <span class="ticker-up">+15.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">GLW</span> <span class="ticker-up">+17.8%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">NVDA</span> <span class="ticker-up">+2.9%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">AVGO</span> <span class="ticker-up">+3.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">ARM</span> <span class="ticker-dn">-10.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">UBER</span> <span class="ticker-up">+7.8%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">DIS</span> <span class="ticker-up">+4.9%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">XOM</span> <span class="ticker-dn">-1.4%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">OXY</span> <span class="ticker-dn">-1.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">BTC</span> <span class="ticker-up">+1.3%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">SOL</span> <span class="ticker-up">+3.2%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">XRP</span> <span class="ticker-dn">-2.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">INTC</span> <span class="ticker-up">+4.1%</span></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item"><span class="ticker-sym">CVS</span> <span class="ticker-up">+5.0%</span></span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- SOURCE GATE -->
+  <div class="section" data-delay="0">
+    <div class="section-header">
+      <span class="section-num">00</span>
+      <h2 class="section-title">Live Source <em>Gate</em></h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="macro-grid">
+      <div class="macro-card">
+        <div class="mc-label">Market Tape</div>
+        <div class="mc-value"><span class="data-shimmer lg"></span></div>
+        <div class="mc-change nx"><span class="awaiting-pill">AWAITING PROVIDER</span></div>
+        <div class="mc-sub">Tradier / TradingView required</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">Crypto Tape</div>
+        <div class="mc-value"><span class="data-shimmer lg"></span></div>
+        <div class="mc-change nx"><span class="awaiting-pill">AWAITING STREAM</span></div>
+        <div class="mc-sub">Binance / CoinGecko required</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">News Intelligence</div>
+        <div class="mc-value"><span class="data-shimmer lg"></span></div>
+        <div class="mc-change nx"><span class="awaiting-pill">SOURCE-GATED</span></div>
+        <div class="mc-sub">No generated headlines</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">Portfolio Context</div>
+        <div class="mc-value"><span class="data-shimmer lg"></span></div>
+        <div class="mc-change nx"><span class="awaiting-pill">USER-CONNECTED</span></div>
+        <div class="mc-sub">Local positions or broker feed required</div>
+      </div>
+    </div>
+    <div class="macro-note">
+      <strong>Meridian is source-gated.</strong> The intelligence desk will only populate market values, rankings, catalysts, option theses, and portfolio actions after live providers hydrate. Until then, every decision surface stays shimmered.
+    </div>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- ALERT -->
+  <div class="alert-banner section" data-delay="0">
+    <div class="alert-dot"></div>
+    <div><strong>LIVE ALERT —</strong> Awaiting provider-confirmed market alerts. No static price movement, news shock, or portfolio instruction is displayed before live sources respond.</div>
+  </div>
+
+  <!-- 1. MACRO PULSE -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Macro <em>Pulse</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card">
+        <div class="mc-label">S&P 500 · SPY</div>
+        <div class="mc-value mc-dn">7,335</div>
+        <div class="mc-change mc-dn">▼ -0.4% intraday</div>
+        <div class="mc-sub">ATH Close Wed: 7,365.12</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">Nasdaq · QQQ</div>
+        <div class="mc-value mc-dn">25,790</div>
+        <div class="mc-change mc-dn">▼ -0.2% intraday</div>
+        <div class="mc-sub">ATH Close Wed: 25,838.94</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">Russell 2000 · IWM</div>
+        <div class="mc-value mc-up">+1.47%</div>
+        <div class="mc-change mc-up">▲ Leading this week</div>
+        <div class="mc-sub">New intraday record set Wed</div>
+      </div>
+      <div class="macro-card">
+        <div class="mc-label">Volatility + Macro</div>
+        <div class="mc-value" style="color:var(--gold); font-size:1.6rem;">VIX 17.1</div>
+        <div class="mc-change nx">Oil $95 · Gold $4,754</div>
+        <div class="mc-sub">Jobless claims 200K vs 206K est ✓</div>
+      </div>
+    </div>
+
+    <div class="macro-note">
+      <strong>Sentiment: Cautiously Bullish after ATH close — oil reversal is today's key risk.</strong> Wednesday was historic — S&P closed above 7,300 for the first time (+1.46%), Nasdaq hit ATH, Dow +612 points on Iran deal optimism combined with AMD and SMCI earnings explosions. Today, stocks opened mildly lower as oil reclaimed lost ground ($91 → $95 bounce) on Iran deal uncertainty. Jobless claims beat (200K vs 206K). ADP payrolls 109K — solid. Market breadth is dangerously narrow: over half of Wednesday's gains came from just 5 stocks: GOOGL, AVGO, AMZN, NVDA, and AAPL.
+    </div>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 2. SECTOR BOARD -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Sector Control <em>Board</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <table class="sector-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Sector</th>
+          <th>1-Day</th>
+          <th>YTD 2026</th>
+          <th>5-Day Trend</th>
+          <th>Money Flow</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><div class="sector-name">Technology</div></td>
+          <td class="up">+3.0%+</td>
+          <td class="up">+11%</td>
+          <td><div class="trend-bar"><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div></div></td>
+          <td class="up">Strong Inflows ↑↑</td>
+          <td><span class="status-pill pill-lead">LEADING</span></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><div class="sector-name">Consumer Discretionary</div></td>
+          <td class="up">+2.0%+</td>
+          <td class="up">+5%</td>
+          <td><div class="trend-bar"><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip warm"></div></div></td>
+          <td class="up">Inflows ↑</td>
+          <td><span class="status-pill pill-lead">LEADING</span></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><div class="sector-name">Industrials</div></td>
+          <td class="up">+1.5%</td>
+          <td class="up">+12%</td>
+          <td><div class="trend-bar"><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip warm"></div><div class="trend-pip warm"></div></div></td>
+          <td class="up">Inflows ↑</td>
+          <td><span class="status-pill pill-lead">LEADING</span></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><div class="sector-name">Materials</div></td>
+          <td class="up">+1.5%</td>
+          <td class="up">+13%</td>
+          <td><div class="trend-bar"><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip hot"></div><div class="trend-pip warm"></div><div class="trend-pip warm"></div></div></td>
+          <td class="up">Inflows ↑</td>
+          <td><span class="status-pill pill-lead">LEADING</span></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><div class="sector-name">Communication Services</div></td>
+          <td class="up">+1.0%</td>
+          <td class="up">+10%</td>
+          <td><div class="trend-bar"><div class="trend-pip hot"></div><div class="trend-pip warm"></div><div class="trend-pip warm"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="nx">Neutral ↔</td>
+          <td><span class="status-pill pill-neutral">NEUTRAL</span></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><div class="sector-name">Financials</div></td>
+          <td class="up">+0.8%</td>
+          <td class="dn">-4%</td>
+          <td><div class="trend-bar"><div class="trend-pip warm"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="nx">Mixed ↔</td>
+          <td><span class="status-pill pill-neutral">NEUTRAL</span></td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><div class="sector-name">Consumer Staples</div></td>
+          <td class="up">+0.6%</td>
+          <td class="up">+11%</td>
+          <td><div class="trend-bar"><div class="trend-pip warm"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="nx">Neutral ↔</td>
+          <td><span class="status-pill pill-neutral">NEUTRAL</span></td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><div class="sector-name">Real Estate</div></td>
+          <td class="up">+0.5%</td>
+          <td class="up">+11%</td>
+          <td><div class="trend-bar"><div class="trend-pip warm"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="nx">Mild Inflows</td>
+          <td><span class="status-pill pill-neutral">NEUTRAL</span></td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><div class="sector-name">Utilities</div></td>
+          <td class="up">+0.4%</td>
+          <td class="up">+10%</td>
+          <td><div class="trend-bar"><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="nx">Neutral ↔</td>
+          <td><span class="status-pill pill-neutral">NEUTRAL</span></td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><div class="sector-name">Energy</div></td>
+          <td class="dn">-1.0%+</td>
+          <td class="up">+28%</td>
+          <td><div class="trend-bar"><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="dn">Outflows ↓↓</td>
+          <td><span class="status-pill pill-lag">LAGGING</span></td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><div class="sector-name">Healthcare</div></td>
+          <td class="nx">~flat</td>
+          <td class="dn">-6%</td>
+          <td><div class="trend-bar"><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+          <td class="dn">Outflows ↓</td>
+          <td><span class="status-pill pill-lag">LAGGING</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 3. TOP STOCKS -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Top 10 Leading <em>Stocks</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="stocks-grid">
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">AMD</div><div class="stock-name">Advanced Micro Devices · Semiconductors</div></div>
+          <div class="stock-gain up">+18–20%</div>
+        </div>
+        <div class="stock-why">Blockbuster Q1: EPS $1.37 vs $1.28 est., revenue $10.25B (+33% YoY). Raised data center guidance. Goldman Sachs and Bernstein upgraded to Buy. SOX index +3%+ on the day.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: OVERBOUGHT · MOMENTUM DRIVEN</span><span class="action-pill act-buy">BUY WATCH</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">SMCI</div><div class="stock-name">Super Micro Computer · AI Servers</div></div>
+          <div class="stock-gain up">+13–18%</div>
+        </div>
+        <div class="stock-why">Q3 EPS 36% positive surprise. Revenue doubled YoY to $10.24B. Raised FY guidance to $38.9–$40.4B. Data center demand. Revenue near-miss but guidance obliterated estimates.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: OVERBOUGHT</span><span class="action-pill act-buy">BUY WATCH</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">GLW</div><div class="stock-name">Corning · Optical / Technology</div></div>
+          <div class="stock-gain up">+17–18%</div>
+        </div>
+        <div class="stock-why">$500M Nvidia partnership for 3 optical manufacturing plants in NC/TX — 3,000 U.S. jobs. Unexpected "picks and shovels" AI catalyst. Massive volume surge on the news.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: OVERBOUGHT</span><span class="action-pill act-hold">HOLD — WAIT FOR DIP</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">INTC</div><div class="stock-name">Intel · Semiconductors</div></div>
+          <div class="stock-gain up">+4% Wed (+17% 2-day)</div>
+        </div>
+        <div class="stock-why">Extending the Apple chipmaker foundry talks rally. Potential chip manufacturing deal. Two-day surge of +17% total — watch for consolidation after explosive move.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: EXTREMELY OVERBOUGHT</span><span class="action-pill act-trim">HOLD / TRIM EXTENDED</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">UBER</div><div class="stock-name">Uber Technologies · Consumer Discretionary</div></div>
+          <div class="stock-gain up">+7–8%</div>
+        </div>
+        <div class="stock-why">Q1 EPS beat, revenue $13.2B (+14% YoY). Gross bookings, trip volume, active users all grew. Waymo targeting 15 cities by end 2026. 95% of engineers now use AI coding tools.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: NEUTRAL-HIGH</span><span class="action-pill act-buy">BUY WATCH</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">DIS</div><div class="stock-name">Walt Disney · Communication Services</div></div>
+          <div class="stock-gain up">+4–5%</div>
+        </div>
+        <div class="stock-why">Strong Q2 earnings beat. Parks + streaming both showed resilience. Revenue growth beat estimates. Positive outlook lifted sentiment after months of underperformance.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: NEUTRAL</span><span class="action-pill act-buy">BUY WATCH</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">CVS</div><div class="stock-name">CVS Health · Healthcare</div></div>
+          <div class="stock-gain up">+5%</div>
+        </div>
+        <div class="stock-why">Easily beat EPS and revenue across all segments. Raised full-year guidance. Rare healthcare standout in an otherwise lagging sector — contrarian earnings catalyst.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: NEUTRAL</span><span class="action-pill act-hold">HOLD</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">TSLA</div><div class="stock-name">Tesla · Consumer Discretionary</div></div>
+          <div class="stock-gain up">+2% pre-mkt</div>
+        </div>
+        <div class="stock-why">Roadster trademark filings signal potential relaunch. China wholesale sales +35.96% YoY in April — 6th consecutive month of annual growth. Risk-on lifting high-beta names.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: NEUTRAL</span><span class="action-pill act-hold">HOLD</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">NVDA</div><div class="stock-name">Nvidia · AI Semiconductors</div></div>
+          <div class="stock-gain up">+2–3% · $206–208</div>
+        </div>
+        <div class="stock-why">Corning partnership (optical infra). AMD rally lifts entire AI chip complex. Approaching 52-week high of $216.83. Flagged for breakout watch by IBD. China share zero — key risk.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: ELEVATED-NEUTRAL</span><span class="action-pill act-buy">BUY WATCH</span></div>
+      </div>
+
+      <div class="stock-card">
+        <div class="stock-header">
+          <div><div class="stock-ticker">HWK</div><div class="stock-name">HawkEye 360 · Defense Intelligence · IPO</div></div>
+          <div class="stock-gain up">+28% debut</div>
+        </div>
+        <div class="stock-why">IPO at $26, trading ~$33.50. Space-based signal intelligence. Defense/AI crossover narrative. Iran conflict driving defense intelligence demand. Strong NYSE debut today.</div>
+        <div class="stock-footer"><span class="stock-rsi">RSI: N/A — IPO DAY</span><span class="action-pill act-watch">WATCH</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 4. ROTATION -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Sector Rotation <em>Alert</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="rotation-box">
+      <div class="rot-row">
+        <div class="rot-label">Capital IN</div>
+        <span class="rot-in">Technology (AI Semis)</span>
+        <span class="rot-in">Consumer Discretionary</span>
+        <span class="rot-in">Industrials</span>
+        <span class="rot-in">Materials</span>
+      </div>
+      <div class="rot-row">
+        <div class="rot-label">Capital OUT</div>
+        <span class="rot-out">Energy (Iran Deal)</span>
+        <span class="rot-out">Healthcare (Structural)</span>
+      </div>
+      <div class="rot-note">
+        <strong>Major rotation event underway.</strong> Wednesday's Iran deal optimism triggered a massive, single-day rotation OUT of Energy (sector's worst single day in weeks) and INTO Technology and cyclicals. Over half of the S&P 500's gains this week came from just 5 mega-cap tech names — GOOGL, AVGO, AMZN, NVDA, and AAPL. This is the <strong>OPPOSITE</strong> of the broader 2026 YTD trend (Energy +28%, defensive rotation) — a short-term reversal driven by the Iran peace catalyst. Today's critical watchpoint: oil bounced from $91 back toward $95. If WTI reclaims $100+, Energy could reverse and regain control fast. The rotation is geopolitically driven and fragile — not yet confirmed as structural.
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 5. WATCHLIST -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Watchlist <em>Status</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <table class="watchlist-table">
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Type</th>
+          <th>Price / Move</th>
+          <th>Catalyst / Key Note</th>
+          <th>Signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="wrow"><td><div class="w-ticker">NVDA</div></td><td><div class="w-type">Tech / AI Chips</div></td><td class="up">$206–208 +2–3%</td><td><div class="w-note">Corning deal; AMD rally lifts semis; near 52-wk high $216. Narrow breadth risk.</div></td><td><span class="action-pill act-hold">HOLD / ADD DIPS</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">META</div></td><td><div class="w-type">Comm Services</div></td><td class="up">Slight +</td><td><div class="w-note">Comm Services participating (+1%). AI infra cuts + workforce trim. Stable.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">AVGO</div></td><td><div class="w-type">Tech / AI Chips</div></td><td class="up">$424–438 · 52-WK HIGH</td><td><div class="w-note">ATH $438.90 hit today. One of top 5 stocks driving entire S&P rally. VMware Cloud Foundation 9.1 launched. Mega-cap momentum king.</div></td><td><span class="action-pill act-hold">HOLD — ATH, DON'T CHASE</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">ORCL</div></td><td><div class="w-type">Tech / Cloud</div></td><td class="up">Elevated options vol</td><td><div class="w-note">AI infrastructure thesis intact. OCI GPU expansion on track. Riding AMD/SMCI coattails.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">MSFT</div></td><td><div class="w-type">Tech / Cloud</div></td><td class="up">Slight + with sector</td><td><div class="w-note">Azure AI cloud. One of the broad index drivers this week. Stable core holding.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">MU</div></td><td><div class="w-type">Tech / Semi</div></td><td class="dn">Slight pullback</td><td><div class="w-note">ARM earnings weighing on semi complex. After +11% Tue + +5% Wed — natural consolidation. HBM thesis intact. Watch $125 support.</div></td><td><span class="action-pill act-trim">HOLD — WATCH $125</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">XOM</div></td><td><div class="w-type">Energy</div></td><td class="dn">Under pressure</td><td><div class="w-note">Oil fell -7% Wed, bounced to $95. Energy sector lagging. Monitor Iran talks closely.</div></td><td><span class="action-pill act-hold">HOLD — WAIT CLARITY</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">OXY</div></td><td><div class="w-type">Energy</div></td><td class="dn">~$59–60</td><td><div class="w-note">CEO transition (Hollub → Jackson) + oil pressure dual headwinds. Hold above $58 support.</div></td><td><span class="action-pill act-hold">HOLD — NO ADD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">EPD</div></td><td><div class="w-type">Energy / MLP</div></td><td class="nx">Stable / slight –</td><td><div class="w-note">Midstream less sensitive to spot oil. Distribution yield holds. Best-positioned energy name vs spot oil risk.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">BTC</div></td><td><div class="w-type">Crypto</div></td><td class="up">~$81,500 +1.3%</td><td><div class="w-note">Holding above $81K. Risk-on environment supportive. Tom Lee: close above $76K+ confirms new bull market.</div></td><td><span class="action-pill act-buy">HOLD / ADD PULLBACKS</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">SOL</div></td><td><div class="w-type">Crypto</div></td><td class="up">$89.75 +3.2%</td><td><div class="w-note">Altcoins climbing as BTC consolidates. Firedancer live, Alpenglow Q3. Institutional stablecoin adoption (Western Union, J.P. Morgan) accelerating.</div></td><td><span class="action-pill act-buy">ADDING</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">XRP</div></td><td><div class="w-type">Crypto</div></td><td class="dn">Pulled back ~25%</td><td><div class="w-note">Testing recent breakout structure. XRPL + JPMorgan cross-border settlement completed but price not following. Watch $1.30 support.</div></td><td><span class="action-pill act-trim">HOLD — WATCH $1.30</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">SUI</div></td><td><div class="w-type">Crypto</div></td><td class="up">Infra building</td><td><div class="w-note">CME futures live May 4; 3 spot ETFs on U.S. exchanges; 24/7 CME trading May 29. Altcoin rotation favoring SUI. Token unlocks are key risk.</div></td><td><span class="action-pill act-buy">HOLD / ADD SMALL</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">SCHD</div></td><td><div class="w-type">ETF / Dividend</div></td><td class="nx">Stable</td><td><div class="w-note">Defensive ballast. Financials/staples tilt slightly underperforming today. No action needed.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">JEPI</div></td><td><div class="w-type">ETF / Income</div></td><td class="nx">Stable</td><td><div class="w-note">Low-vol env (VIX 17) slightly compresses covered call premium. Still producing income.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+        <tr class="wrow"><td><div class="w-ticker">DIVO</div></td><td><div class="w-type">ETF / Dividend</div></td><td class="nx">Stable</td><td><div class="w-note">Active dividend growth. Core income position. No action needed.</div></td><td><span class="action-pill act-hold">HOLD</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 6. OPTIONS -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Options <em>Opportunities</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="options-grid">
+      <div class="opt-card calls">
+        <div class="opt-ticker">AMD</div>
+        <div class="opt-type opt-calls">↑ CALLS · Post-Earnings Continuation</div>
+        <div class="opt-detail">Post-earnings gap +18–20%. IV crush has occurred but momentum is real. Watch for bull flag formation after open. Consider June $370–$380 calls on any morning dip toward $355. Goldman + Bernstein upgrades with raised guidance = fundamentally justified move, not just gamma squeeze. Risk: ARM pullback is weighing on the broader semi space today.</div>
+      </div>
+
+      <div class="opt-card calls">
+        <div class="opt-ticker">SMCI</div>
+        <div class="opt-type opt-calls">↑ CALLS · Guidance Explosion Play</div>
+        <div class="opt-detail">+13–18% on FY guidance raise to $38.9–$40.4B. RSI overbought but momentum is vicious. Look for $45–$50 strike June calls if you get a morning pullback. Beta 3.07 — high-risk, high-reward setup. Size small. Stop below the gap fill level. Revenue doubled YoY; this is not a speculative move.</div>
+      </div>
+
+      <div class="opt-card puts">
+        <div class="opt-ticker">XOM</div>
+        <div class="opt-type opt-puts">↓ PUTS · Oil Bounce Hedge</div>
+        <div class="opt-detail">Oil bounced from $91 → $95 today. If Iran deal stalls, oil could spike back to $105+. Consider XOM puts as a hedge on your energy exposure OR calls if oil reclaims $100+ as a reversal trade. IV in energy names remains relatively low vs tech. Either direction hedges your existing XOM/OXY/EPD long positions — size as a hedge, not a speculative bet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><div class="sd-line"></div><div class="sd-diamond"></div><div class="sd-line"></div></div>
+
+  <!-- 7. GAME PLAN -->
+  <div class="section" data-delay="0.1">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Daily <em>Game Plan</em></h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="gameplan">
+      <div class="gameplan-text">
+        Let your <em>AVGO, NVDA, and SOL</em> positions run — they are driving the market this week — but do not chase new highs; instead, use any <em>AMD or SMCI</em> morning dip for a small options position, and watch closely whether oil reclaims <em>$100</em>, which would flip Energy back into control and pressure your tech overweight.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Meridian</div>
+  <div class="footer-meta">
+    Not financial advice · For informational purposes only<br>
+    Live provider mode · No static market values
+  </div>
+</footer>
+
+<script>
+function dataShimmer(size = '') {
+  return `<span class="data-shimmer ${size}"></span>`;
+}
+
+function awaiting(label = 'AWAITING LIVE DATA') {
+  return `<span class="awaiting-pill">${label}</span>`;
+}
+
+function sanitizeMeridianStaticData() {
+  document.querySelectorAll('.hero-stat-val').forEach(el => {
+    el.removeAttribute('style');
+    el.innerHTML = dataShimmer('lg');
+  });
+
+  document.querySelectorAll('.ticker-item').forEach(el => {
+    const sym = el.querySelector('.ticker-sym');
+    if (sym) el.innerHTML = `<span class="ticker-sym">${sym.textContent}</span> ${dataShimmer('sm')}`;
+  });
+
+  const alert = document.querySelector('.alert-banner div:last-child');
+  if (alert) {
+    alert.innerHTML = '<strong>LIVE ALERT —</strong> Awaiting provider-confirmed market alerts. Meridian will not publish local headlines, price shocks, or risk calls until live news and market feeds hydrate.';
+  }
+
+  document.querySelectorAll('.macro-card').forEach(card => {
+    card.querySelectorAll('.mc-value').forEach(el => {
+      el.removeAttribute('style');
+      el.innerHTML = dataShimmer('lg');
+    });
+    card.querySelectorAll('.mc-change').forEach(el => {
+      el.className = 'mc-change nx';
+      el.innerHTML = awaiting('PENDING');
+    });
+    card.querySelectorAll('.mc-sub').forEach(el => {
+      el.textContent = 'Source pending';
+    });
+  });
+
+  const macroNote = document.querySelector('.macro-note');
+  if (macroNote) {
+    macroNote.innerHTML = '<strong>Sentiment pending.</strong> Meridian is waiting for live index, volatility, macro, energy, and breadth feeds before generating a market narrative. No local or historical brief is displayed as current data.';
+  }
+
+  const sectorBody = document.querySelector('.sector-table tbody');
+  if (sectorBody) {
+    const sectors = Array.from(sectorBody.querySelectorAll('.sector-name')).map(el => el.textContent.trim());
+    sectorBody.innerHTML = sectors.map(sector => `
+      <tr>
+        <td>${dataShimmer('sm')}</td>
+        <td><div class="sector-name">${sector}</div></td>
+        <td>${dataShimmer()}</td>
+        <td>${dataShimmer()}</td>
+        <td><div class="trend-bar"><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div><div class="trend-pip"></div></div></td>
+        <td>${dataShimmer()}</td>
+        <td>${awaiting('AWAITING')}</td>
+      </tr>`).join('');
+  }
+
+  document.querySelectorAll('.stock-card').forEach(card => {
+    const gain = card.querySelector('.stock-gain');
+    if (gain) {
+      gain.className = 'stock-gain';
+      gain.innerHTML = dataShimmer();
+    }
+    const why = card.querySelector('.stock-why');
+    if (why) {
+      why.textContent = 'Awaiting live quote, news, earnings, volume, and indicator feeds before Meridian assigns context to this symbol.';
+      why.classList.add('awaiting-copy');
+    }
+    const footer = card.querySelector('.stock-footer');
+    if (footer) footer.innerHTML = `<span class="stock-rsi">${dataShimmer()}</span><span class="action-pill act-watch">AWAITING SIGNAL</span>`;
+  });
+
+  document.querySelectorAll('.rot-in, .rot-out').forEach(el => {
+    el.textContent = 'AWAITING FLOW DATA';
+    el.className = 'awaiting-pill';
+  });
+  const rotationNote = document.querySelector('.rot-note');
+  if (rotationNote) {
+    rotationNote.innerHTML = '<strong>Rotation pending.</strong> Sector flow analysis requires live breadth, volume, and sector performance inputs. Meridian is intentionally withholding rotation claims until those providers respond.';
+  }
+
+  document.querySelectorAll('.watchlist-table tbody tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells[2]) {
+      cells[2].className = 'nx';
+      cells[2].innerHTML = dataShimmer();
+    }
+    const note = row.querySelector('.w-note');
+    if (note) note.textContent = 'Awaiting live quote, news, catalyst, and technical data from connected providers.';
+    if (cells[4]) cells[4].innerHTML = '<span class="action-pill act-watch">AWAITING SIGNAL</span>';
+  });
+
+  document.querySelectorAll('.opt-card').forEach(card => {
+    const type = card.querySelector('.opt-type');
+    if (type) {
+      type.className = 'opt-type';
+      type.textContent = 'OPTIONS FLOW · AWAITING TRADIER PRO';
+    }
+    const detail = card.querySelector('.opt-detail');
+    if (detail) {
+      detail.textContent = 'Awaiting live options chain, volume, open interest, implied volatility, Greeks, and underlying price data before Meridian displays any contract thesis.';
+      detail.classList.add('awaiting-copy');
+    }
+  });
+
+  const gameplan = document.querySelector('.gameplan-text');
+  if (gameplan) {
+    gameplan.innerHTML = 'Daily game plan pending. Meridian will only generate action language after live market data, portfolio context, and source-confirmed news are available.';
+  }
+
+  document.body.classList.add('meridian-ready');
+}
+
+sanitizeMeridianStaticData();
+
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+const useNativeCursor = window.matchMedia('(hover: none), (pointer: coarse), (prefers-reduced-motion: reduce)').matches;
+if (useNativeCursor) document.body.classList.add('native-cursor');
+let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
+let cursorRaf = 0;
+let lastMove = performance.now();
+
+function setMeridianHover(target) {
+  const hover = Boolean(target?.closest?.('a, button, .stock-card, .macro-card, .opt-card, .wrow'));
+  cursor.classList.toggle('is-hover', hover);
+  ring.classList.toggle('is-hover', hover);
+}
+
+function animRing(now) {
+  rx += (mx - rx) * 0.2;
+  ry += (my - ry) * 0.2;
+  cursor.style.transform = `translate3d(${mx - 4}px,${my - 4}px,0)`;
+  ring.style.transform = `translate3d(${rx - 16}px,${ry - 16}px,0)`;
+  const settling = Math.abs(mx - rx) > 0.18 || Math.abs(my - ry) > 0.18;
+  if (!document.hidden && (now - lastMove < 900 || settling)) cursorRaf = requestAnimationFrame(animRing);
+  else cursorRaf = 0;
+}
+
+if (!useNativeCursor) {
+  document.addEventListener('pointermove', e => {
+    mx = e.clientX; my = e.clientY; lastMove = performance.now(); setMeridianHover(e.target);
+    if (!cursorRaf && !document.hidden) cursorRaf = requestAnimationFrame(animRing);
+  }, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && cursorRaf) { cancelAnimationFrame(cursorRaf); cursorRaf = 0; }
+  });
+}
+
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }) + ' ET';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// SCROLL REVEAL
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      const delay = parseFloat(entry.target.dataset.delay || 0) * 1000;
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, delay);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

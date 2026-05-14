@@ -1,0 +1,8 @@
+name = "yucatanatrades-api"
+main = "services/data/proxy/worker.js"
+compatibility_date = "2026-05-12"
+
+[vars]
+TRADIER_BASE_URL = "https://sandbox.tradier.com/v1"
+ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
+OPENAI_MODEL = "gpt-4.1-mini"

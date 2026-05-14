@@ -1,0 +1,217 @@
+/* Production heatmap UX adapted from the enhanced prototype.
+   Financial values must be supplied by live/fallback data objects only. */
+
+.ytt-market-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 14px;
+  align-items: start;
+  margin: 14px 0;
+}
+
+.ytt-market-primary {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.ytt-tv-frame {
+  min-height: 430px;
+  border: 1px solid rgba(212,175,55,0.18);
+  background: rgba(0,0,0,0.36);
+}
+
+.ytt-tv-frame > div {
+  width: 100%;
+  min-height: 430px;
+}
+
+.ytt-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+}
+
+.ytt-heatmap-cell {
+  position: relative;
+  min-height: 96px;
+  overflow: hidden;
+  border: 1px solid rgba(212,175,55,0.18);
+  background: linear-gradient(145deg, rgba(201,168,76,0.09), rgba(255,255,255,0.018));
+  color: var(--text);
+  text-align: left;
+  padding: 12px;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: transform 0.16s ease, border-color 0.16s ease, filter 0.16s ease;
+}
+
+.ytt-heatmap-cell:hover,
+.ytt-heatmap-cell.is-selected {
+  transform: translateY(-2px);
+  border-color: rgba(245,217,120,0.58);
+  filter: brightness(1.08);
+}
+
+.ytt-heatmap-cell b {
+  display: block;
+  font: 800 18px var(--mono);
+  color: var(--gold);
+}
+
+.ytt-heatmap-cell span {
+  display: block;
+  margin-top: 7px;
+  font: 700 13px var(--mono);
+}
+
+.ytt-heatmap-cell small,
+.data-quality-chip {
+  display: inline-flex;
+  margin-top: 7px;
+  color: var(--muted);
+  font: 700 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.data-quality-chip {
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.035);
+  padding: 3px 6px;
+}
+
+.data-quality-chip[data-quality="LIVE"] { color: var(--green); border-color: rgba(0,200,5,0.22); }
+.data-quality-chip[data-quality="DELAYED"],
+.data-quality-chip[data-quality="FALLBACK"] { color: var(--gold); border-color: rgba(212,175,55,0.24); }
+.data-quality-chip[data-quality="UNAVAILABLE"] { color: var(--red); border-color: rgba(255,80,0,0.24); }
+
+.ytt-heatmap-cell .ripple-burst {
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, rgba(255,255,255,0.14), transparent 68%);
+  animation: rippleOut 0.42s ease-out forwards;
+  pointer-events: none;
+}
+
+.ytt-heatmap-cell.selected-pulse { animation: cellPulse 0.24s ease-out; }
+.ytt-heatmap-cell.sympathy-glow { filter: brightness(1.12); }
+
+.ytt-heatmap-expanded-panel {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(245,217,120,0.32);
+  background: linear-gradient(145deg, rgba(201,168,76,0.08), rgba(6,10,18,0.92));
+  padding: 14px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+.ytt-expanded-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.ytt-expanded-metrics,
+.ytt-detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ytt-expanded-metrics div,
+.ytt-detail-metrics div,
+.ytt-thesis-box {
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.028);
+  padding: 9px;
+}
+
+.ytt-detail-panel {
+  position: sticky;
+  top: 52px;
+  min-height: 420px;
+}
+
+.ytt-detail-panel .panel {
+  margin: 0;
+}
+
+.ytt-detail-empty {
+  color: var(--muted);
+  font: 500 13px/1.6 var(--ui);
+}
+
+.ytt-deep-dive-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(520px, 94vw);
+  height: 100vh;
+  z-index: 72;
+  transform: translateX(104%);
+  transition: transform 0.28s ease;
+  border-left: 1px solid rgba(245,217,120,0.28);
+  background: rgba(8,10,14,0.97);
+  box-shadow: -24px 0 60px rgba(0,0,0,0.42);
+  padding: 18px;
+  overflow: auto;
+}
+
+.ytt-deep-dive-drawer.is-open { transform: translateX(0); }
+
+.data-table tr.is-selected td {
+  background: rgba(245,217,120,0.08);
+  color: var(--gold);
+}
+
+.drawer-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: rgba(245,217,120,0.8);
+  box-shadow: 0 0 18px rgba(245,217,120,0.42);
+  animation: drawerScanLine 1.25s linear infinite;
+}
+
+@keyframes rippleOut {
+  to { transform: translate(-50%, -50%) scale(3.4); opacity: 0; }
+}
+
+@keyframes cellPulse {
+  50% { transform: scale(1.035); }
+}
+
+@keyframes drawerScanLine {
+  from { transform: translateY(0); }
+  to { transform: translateY(100vh); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ytt-heatmap-cell,
+  .ytt-deep-dive-drawer,
+  .drawer-scan-line {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .ytt-market-workspace { grid-template-columns: 1fr; }
+  .ytt-detail-panel { position: relative; top: auto; }
+}
+
+@media (max-width: 720px) {
+  .ytt-heatmap-grid,
+  .ytt-expanded-metrics,
+  .ytt-detail-metrics {
+    grid-template-columns: 1fr;
+  }
+}

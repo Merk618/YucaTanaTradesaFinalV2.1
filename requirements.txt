@@ -1,0 +1,15 @@
+python-binance
+coinbase-advanced-py
+xgboost
+scikit-learn
+ta
+pandas
+numpy
+vectorbt
+apscheduler
+rich
+python-dotenv
+requests
+websocket-client
+joblib
+kaleido
