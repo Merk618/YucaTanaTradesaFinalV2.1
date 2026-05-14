@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YucaTanaTrades</title>
+  <title>YucaTanaTrades v2</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://s3.tradingview.com/tv.js"></script>
-  <link rel="stylesheet" href="styles/heatmap.css">
-  <script type="module" src="scripts/heatmap.js"></script>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -61,110 +59,6 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
       opacity: 0.22;
       mix-blend-mode: screen;
-    }
-
-    .ytt-loading-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 7000;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at 50% 38%, rgba(245,217,120,0.12), transparent 34%),
-        linear-gradient(145deg, rgba(3,5,8,0.98), rgba(8,8,8,0.94));
-      transition: opacity 0.45s ease, visibility 0.45s ease;
-    }
-
-    .ytt-loading-screen.is-done {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .ytt-loading-card {
-      width: min(520px, 100%);
-      border: 1px solid rgba(245,217,120,0.26);
-      background: rgba(5,7,12,0.78);
-      box-shadow: 0 24px 70px rgba(0,0,0,0.5), 0 0 44px rgba(212,175,55,0.12);
-      padding: 22px;
-      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-    }
-
-    .ytt-loading-title {
-      margin: 0 0 8px;
-      color: var(--gold-bright);
-      font: 800 14px var(--mono);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .ytt-loading-copy {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font: 500 13px/1.6 var(--ui);
-    }
-
-    .ytt-loading-bar {
-      position: relative;
-      height: 3px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.07);
-    }
-
-    .ytt-loading-bar::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      width: 42%;
-      background: linear-gradient(90deg, transparent, var(--gold-bright), rgba(0,200,5,0.72), transparent);
-      animation: loaderSweep 1.15s ease-in-out infinite;
-    }
-
-    .ytt-loading-steps {
-      display: grid;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .ytt-loading-step {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      color: var(--muted);
-      font: 700 10px var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .ytt-loading-step[data-state="LIVE"] span:last-child,
-    .ytt-loading-step[data-state="READY"] span:last-child { color: var(--green); }
-
-    .ytt-loading-step[data-state="UNAVAILABLE"] span:last-child,
-    .ytt-loading-step[data-state="FALLBACK"] span:last-child { color: var(--red); }
-
-    .ytt-api-toast {
-      position: fixed;
-      right: 18px;
-      bottom: 82px;
-      z-index: 80;
-      width: min(420px, calc(100vw - 32px));
-      border: 1px solid rgba(255,80,0,0.28);
-      background: rgba(8,8,8,0.92);
-      color: var(--text);
-      box-shadow: 0 18px 48px rgba(0,0,0,0.46);
-      padding: 14px;
-      font: 600 12px/1.55 var(--ui);
-      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
-    }
-
-    .ytt-api-toast strong {
-      display: block;
-      color: var(--gold-bright);
-      font: 800 10px var(--mono);
-      letter-spacing: 0.14em;
-      margin-bottom: 4px;
-      text-transform: uppercase;
     }
 
     #cursor {
@@ -230,22 +124,6 @@
     .signoff-shell:not(.hidden) ~ .sidebar,
     .signoff-shell:not(.hidden) ~ .main {
       visibility: hidden;
-    }
-
-    body.admin-mode .signin-shell,
-    body.admin-mode .signoff-shell,
-    body.ytt-signed-in .signin-shell {
-      display: none !important;
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-
-    body.admin-mode .sidebar,
-    body.admin-mode .main,
-    body.ytt-signed-in .sidebar,
-    body.ytt-signed-in .main {
-      visibility: visible !important;
     }
 
     #ticker {
@@ -393,12 +271,6 @@
     }
 
     #brand-name {
-      appearance: none;
-      border: 0;
-      background: transparent;
-      padding: 0;
-      margin: 0 auto;
-      display: block;
       font-family: 'Cormorant Garamond', serif;
       font-weight: 600;
       font-size: clamp(58px, 8vw, 88px);
@@ -407,7 +279,32 @@
       opacity: 0;
       animation: slideUp 1.2s ease 0.9s forwards;
       position: relative;
+      border: 0;
+      background: transparent;
       cursor: pointer;
+      padding: 0 8px 6px;
+    }
+
+    #brand-name.armed {
+      filter: brightness(1.18) drop-shadow(0 0 30px rgba(245,217,120,0.28));
+      animation: adminStarPulse 0.42s ease, slideUp 1.2s ease 0.9s forwards;
+    }
+
+    #brand-name.armed::after {
+      content: attr(data-count);
+      position: absolute;
+      right: -10px;
+      top: -8px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(245,217,120,0.95);
+      color: #030508;
+      font: 900 11px var(--mono);
+      letter-spacing: 0;
+      box-shadow: 0 0 22px rgba(245,217,120,0.48);
     }
 
     #brand-name .yu,
@@ -1020,31 +917,6 @@
     .field { background: var(--surface); border: 1px solid var(--border); color: var(--text); min-height: 34px; padding: 0 10px; font-family: var(--mono); outline: none; }
     .field:focus { border-color: var(--gold); }
     .small-btn { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.35); color: var(--gold); padding: 0 12px; cursor: pointer; font: 500 10px var(--mono); letter-spacing: 0.12em; }
-    .source-health-grid { display: grid; gap: 10px; }
-    .source-health-row { display: grid; grid-template-columns: 16px minmax(90px, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 12px rgba(150,150,150,0.25); }
-    .health-dot.up { background: var(--green); box-shadow: 0 0 16px rgba(0,200,5,0.42); }
-    .health-dot.warn { background: var(--gold); box-shadow: 0 0 16px rgba(201,168,76,0.42); }
-    .health-dot.dn { background: var(--red); box-shadow: 0 0 16px rgba(255,80,0,0.38); }
-    .source-name { color: var(--text); font: 700 10px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
-    .source-detail { margin-top: 4px; color: var(--muted); font: 500 10px/1.45 var(--ui); }
-    .source-health-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .ai-fab { position: fixed; right: 22px; bottom: 22px; z-index: 60; min-width: 178px; height: 46px; border-radius: 999px; border: 1px solid rgba(232,201,106,0.44); background: rgba(10,10,10,0.82); color: var(--gold-bright); box-shadow: 0 18px 48px rgba(0,0,0,0.38), 0 0 34px rgba(201,168,76,0.16); font: 800 10px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(18px); }
-    .ai-drawer { position: fixed; right: 22px; bottom: 82px; z-index: 61; width: min(430px, calc(100vw - 32px)); max-height: min(680px, calc(100vh - 120px)); display: none; grid-template-rows: auto minmax(180px, 1fr) auto; border: 1px solid rgba(201,168,76,0.22); border-radius: 18px; background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.92); box-shadow: 0 26px 70px rgba(0,0,0,0.58); overflow: hidden; backdrop-filter: blur(22px); }
-    .ai-drawer.open { display: grid; animation: fadeSlideUp 0.24s ease both; }
-    .ai-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    .ai-title { color: var(--gold-bright); font: 800 11px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; }
-    .ai-subtitle { margin-top: 4px; color: var(--muted); font: 500 11px var(--ui); }
-    .ai-close { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: var(--muted); width: 30px; height: 30px; cursor: pointer; }
-    .ai-messages { padding: 14px; overflow-y: auto; display: grid; gap: 10px; }
-    .ai-msg { padding: 11px 12px; border-radius: 12px; color: var(--text); font: 500 12px/1.65 var(--ui); border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.035); }
-    .ai-msg.user { justify-self: end; max-width: 84%; border-color: rgba(201,168,76,0.18); color: var(--gold-bright); }
-    .ai-msg.assistant { justify-self: start; max-width: 92%; }
-    .ai-msg strong { color: var(--gold-bright); }
-    .ai-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
-    .ai-input { min-height: 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.34); color: var(--text); padding: 0 12px; outline: none; font: 600 12px var(--ui); }
-    .ai-input:focus { border-color: rgba(201,168,76,0.42); }
-    .ai-send { border-radius: 12px; border: 1px solid rgba(201,168,76,0.38); background: rgba(201,168,76,0.10); color: var(--gold-bright); padding: 0 14px; cursor: pointer; font: 800 10px var(--mono); letter-spacing: 0.12em; }
     .news-item { border-bottom: 1px solid rgba(255,255,255,0.04); padding: 10px 0; }
     .news-title { font: 500 11px var(--ui); color: var(--text); }
     .news-meta { margin-top: 4px; font: 400 9px var(--mono); color: var(--muted); }
@@ -2376,11 +2248,11 @@
       height: 124px;
       z-index: 50;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto;
+      grid-template-columns: minmax(0, 1fr) auto auto auto;
       grid-template-rows: 58px 46px;
       grid-template-areas:
-        "brand account version"
-        "nav nav nav";
+        "brand admin account version"
+        "nav nav nav nav";
       align-items: center;
       gap: 8px 14px;
       padding: 10px 18px;
@@ -2531,6 +2403,12 @@
     .nav-btn[data-tab="meridian"].active {
       border-left: 0;
       color: #fff5cf;
+    }
+
+    .admin-badge {
+      grid-area: admin;
+      margin: 0;
+      white-space: nowrap;
     }
 
     .version {
@@ -2835,6 +2713,14 @@
 
       .subtitle { align-self: end; }
       .version, .account-actions { display: none; }
+      body.admin-mode .admin-badge {
+        position: fixed;
+        top: 74px;
+        right: 12px;
+        z-index: 80;
+        display: block;
+        margin: 0;
+      }
       .main { margin-top: 132px; height: calc(100vh - 132px); }
       .meridian-frame,
       .standalone-frame,
@@ -2857,22 +2743,446 @@
       .market-box { min-width: 122px; font-size: 9px; }
       .nav-btn { height: 38px; padding: 0 12px; font-size: 10px; }
     }
+
+    /* ==========================================================
+       YucaTanaTrades v2: Obsidian Command Architecture
+       A structural visual layer for the standalone v2 project.
+       ========================================================== */
+    :root {
+      --v2-void: #020305;
+      --v2-ink: #07090d;
+      --v2-panel: rgba(12,15,19,0.68);
+      --v2-panel-strong: rgba(16,18,22,0.82);
+      --v2-line: rgba(245,217,120,0.20);
+      --v2-line-soft: rgba(255,255,255,0.07);
+      --v2-platinum: #dfe7ef;
+      --v2-copper: #b8763f;
+      --v2-cyan: #6ee7f9;
+      --v2-shadow: 0 28px 90px rgba(0,0,0,0.46);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% -8%, rgba(245,217,120,0.18), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(110,231,249,0.10), transparent 26%),
+        radial-gradient(circle at 54% 92%, rgba(184,118,63,0.10), transparent 34%),
+        linear-gradient(135deg, #020305 0%, #090908 44%, #05070a 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    body::before {
+      background:
+        linear-gradient(rgba(245,217,120,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,217,120,0.030) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 72%);
+      opacity: 0.42;
+    }
+
+    body::after {
+      background:
+        linear-gradient(110deg, transparent 0 36%, rgba(245,217,120,0.07) 43%, transparent 52%),
+        radial-gradient(circle at 72% 18%, rgba(110,231,249,0.06), transparent 22%);
+      opacity: 0.72;
+      animation: v2Atmosphere 14s ease-in-out infinite;
+    }
+
+    .sidebar {
+      height: 146px;
+      grid-template-columns: minmax(360px, 1fr) auto auto auto;
+      grid-template-rows: 64px 58px;
+      padding: 12px 22px 14px;
+      border-bottom: 1px solid rgba(245,217,120,0.28);
+      background:
+        linear-gradient(105deg, rgba(255,255,255,0.08), transparent 24%, rgba(245,217,120,0.07) 52%, transparent 80%),
+        radial-gradient(circle at 4% 0%, rgba(245,217,120,0.22), transparent 24%),
+        linear-gradient(90deg, rgba(3,5,8,0.92), rgba(11,12,14,0.82) 54%, rgba(4,5,7,0.94));
+      box-shadow:
+        0 22px 80px rgba(0,0,0,0.58),
+        inset 0 -1px 0 rgba(255,255,255,0.08);
+    }
+
+    .brand {
+      align-items: center;
+      column-gap: 18px;
+    }
+
+    .logo {
+      position: relative;
+      color: var(--gold-bright);
+      font-family: var(--serif);
+      font-size: clamp(28px, 2.8vw, 44px);
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-shadow: 0 0 28px rgba(245,217,120,0.20);
+    }
+
+    .logo-admin-trigger {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+    }
+
+    .logo-admin-trigger:hover {
+      filter: brightness(1.12);
+    }
+
+    .logo::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      position: absolute;
+      left: -16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--gold);
+      box-shadow: 0 0 20px rgba(245,217,120,0.78);
+    }
+
+    .subtitle {
+      color: rgba(223,231,239,0.52);
+      font: 700 11px var(--mono);
+      letter-spacing: 0.62em;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-admin-star {
+      width: 26px;
+      height: 26px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid rgba(245,217,120,0.24);
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(245,217,120,0.20), transparent 62%),
+        rgba(255,255,255,0.026);
+      color: var(--gold-bright);
+      cursor: pointer;
+      font: 900 12px var(--mono);
+      letter-spacing: 0;
+      box-shadow: 0 0 20px rgba(245,217,120,0.10), inset 0 1px 0 rgba(255,255,255,0.08);
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .top-admin-star:hover,
+    .top-admin-star.armed {
+      transform: translateY(-1px) scale(1.08);
+      border-color: rgba(245,217,120,0.62);
+      box-shadow: 0 0 28px rgba(245,217,120,0.24), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .top-admin-star.armed::after {
+      content: attr(data-count);
+      position: absolute;
+      transform: translate(18px, -16px);
+      min-width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(245,217,120,0.92);
+      color: #030508;
+      font: 900 10px var(--mono);
+      box-shadow: 0 0 18px rgba(245,217,120,0.42);
+    }
+
+    .market-box {
+      min-width: 186px;
+      padding: 11px 14px;
+      border: 1px solid rgba(245,217,120,0.18);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 14% 16%, rgba(0,200,5,0.12), transparent 34%),
+        rgba(255,255,255,0.035);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 36px rgba(0,0,0,0.32);
+    }
+
+    .admin-badge,
+    .version,
+    .account-btn {
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+        rgba(8,10,14,0.56);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 34px rgba(0,0,0,0.30);
+    }
+
+    .version {
+      color: var(--green);
+      border-color: rgba(0,200,5,0.25);
+    }
+
+    .nav {
+      height: 58px;
+      gap: 6px;
+      padding: 5px;
+      border-radius: 0;
+      border: 1px solid rgba(245,217,120,0.20);
+      clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 22px 100%, 0 50%);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.065), rgba(245,217,120,0.038), rgba(110,231,249,0.030)),
+        rgba(6,8,11,0.72);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        inset 0 -1px 0 rgba(245,217,120,0.12),
+        0 18px 56px rgba(0,0,0,0.36);
+    }
+
+    .nav-btn {
+      height: 48px;
+      min-width: 132px;
+      padding: 0 22px;
+      clip-path: polygon(18px 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
+      color: rgba(223,231,239,0.58);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+        rgba(255,255,255,0.016);
+      text-transform: uppercase;
+      font: 800 11px var(--mono);
+      letter-spacing: 0.13em;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+      transform: translateY(-3px);
+      background:
+        radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tab-accent) 26%, transparent), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.025));
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tab-accent) 40%, transparent),
+        0 18px 36px rgba(0,0,0,0.38),
+        0 0 28px color-mix(in srgb, var(--tab-accent) 16%, transparent);
+    }
+
+    .nav-btn.active {
+      color: #fff8d6;
+      transform: translateY(-4px);
+      background:
+        radial-gradient(circle at 50% -18%, rgba(245,217,120,0.34), transparent 58%),
+        linear-gradient(135deg, rgba(245,217,120,0.20), rgba(110,231,249,0.035)),
+        rgba(14,16,18,0.92);
+      box-shadow:
+        inset 0 0 0 1px rgba(245,217,120,0.46),
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        0 0 34px rgba(245,217,120,0.18),
+        0 20px 48px rgba(0,0,0,0.42);
+    }
+
+    .main {
+      margin-top: 146px;
+      height: calc(100vh - 146px);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(245,217,120,0.09), transparent 28%),
+        radial-gradient(circle at 92% 18%, rgba(110,231,249,0.055), transparent 26%),
+        rgba(2,3,5,0.50);
+    }
+
+    .main::before {
+      background:
+        radial-gradient(circle at 16% 12%, rgba(245,217,120,0.12), transparent 22%),
+        radial-gradient(circle at 86% 8%, rgba(110,231,249,0.08), transparent 24%),
+        linear-gradient(130deg, rgba(255,255,255,0.035), transparent 32%, rgba(245,217,120,0.025));
+      opacity: 0.90;
+    }
+
+    .market-ribbon {
+      height: 44px;
+      border-bottom: 1px solid rgba(245,217,120,0.18);
+      background:
+        linear-gradient(90deg, rgba(245,217,120,0.065), rgba(255,255,255,0.018), rgba(110,231,249,0.035)),
+        rgba(2,3,5,0.78);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.26);
+    }
+
+    .ticker-item {
+      height: 28px;
+      min-width: 152px;
+      border: 1px solid rgba(245,217,120,0.14);
+      border-radius: 999px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+        rgba(255,255,255,0.022);
+    }
+
+    .ticker-item b {
+      color: var(--gold-bright);
+      letter-spacing: 0.10em;
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .tab-content.active {
+      animation: v2TabReveal 0.45s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .panel,
+    .kpi-card,
+    .detail-card,
+    .source-card,
+    .market-mini-card,
+    .news-source-panel,
+    .stream-panel,
+    .banner {
+      border-radius: 16px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.082), rgba(255,255,255,0.020) 46%, rgba(245,217,120,0.026)),
+        var(--v2-panel);
+      border-color: rgba(245,217,120,0.16);
+      box-shadow:
+        var(--v2-shadow),
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        inset 0 -1px 0 rgba(245,217,120,0.055);
+    }
+
+    .panel-header {
+      color: rgba(223,231,239,0.62);
+      font: 800 10px var(--mono);
+      letter-spacing: 0.18em;
+    }
+
+    .panel-header::before,
+    .market-mini-card h3::before,
+    .detail-card h3::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 8px;
+      border-radius: 999px;
+      background: var(--gold-bright);
+      box-shadow: 0 0 18px rgba(245,217,120,0.72);
+      vertical-align: 1px;
+    }
+
+    .data-table th {
+      color: rgba(223,231,239,0.48);
+      background: rgba(255,255,255,0.018);
+    }
+
+    .data-table td {
+      color: rgba(245,245,240,0.86);
+    }
+
+    .data-table tr:hover td {
+      background: linear-gradient(90deg, rgba(245,217,120,0.060), transparent);
+    }
+
+    #tab-dashboard.premium-dashboard-tab,
+    #tab-stocks,
+    #tab-meridian {
+      margin: -28px;
+    }
+
+    #tab-dashboard.premium-dashboard-tab,
+    .premium-dashboard-frame,
+    .stock-standalone-frame,
+    .standalone-frame,
+    #tab-meridian iframe,
+    #tab-stocks iframe,
+    #tab-crypto-hunter iframe {
+      height: calc(100vh - 190px) !important;
+    }
+
+    .editorial-news {
+      border: 1px solid rgba(245,217,120,0.14);
+      border-radius: 20px;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 16% 0%, rgba(245,217,120,0.105), transparent 28%),
+        radial-gradient(circle at 88% 10%, rgba(110,231,249,0.070), transparent 24%),
+        rgba(2,3,5,0.40);
+    }
+
+    .editorial-news-list .feed-card {
+      border-radius: 14px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)),
+        rgba(7,9,12,0.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.055);
+    }
+
+    .news-modal-card {
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 90% 0%, rgba(110,231,249,0.12), transparent 28%),
+        radial-gradient(circle at 12% 0%, rgba(245,217,120,0.14), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.020)),
+        rgba(4,6,10,0.96);
+    }
+
+    .field,
+    .option-search,
+    .auth-input {
+      border-radius: 12px;
+      background: rgba(255,255,255,0.035);
+      border-color: rgba(245,217,120,0.16);
+    }
+
+    .small-btn,
+    .save-btn,
+    .scan-btn,
+    .pill {
+      border-radius: 999px;
+    }
+
+    .scan-btn,
+    .save-btn {
+      background:
+        linear-gradient(135deg, rgba(245,217,120,0.26), rgba(212,175,55,0.08)),
+        rgba(255,255,255,0.025);
+      box-shadow: 0 0 26px rgba(245,217,120,0.13), inset 0 1px 0 rgba(255,255,255,0.10);
+    }
+
+    @keyframes v2Atmosphere {
+      0%, 100% { transform: translate3d(0,0,0) scale(1); opacity: 0.58; }
+      50% { transform: translate3d(-1.5vw, 1vh, 0) scale(1.02); opacity: 0.88; }
+    }
+
+    @keyframes v2TabReveal {
+      from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        height: 144px;
+        grid-template-columns: 1fr;
+        grid-template-rows: 68px 52px;
+      }
+      .main {
+        margin-top: 144px;
+        height: calc(100vh - 144px);
+      }
+      #tab-dashboard.premium-dashboard-tab,
+      .premium-dashboard-frame,
+      .stock-standalone-frame,
+      .standalone-frame,
+      #tab-meridian iframe,
+      #tab-stocks iframe,
+      #tab-crypto-hunter iframe {
+        height: calc(100vh - 188px) !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="ytt-loading-screen" class="ytt-loading-screen" role="status" aria-live="polite">
-    <div class="ytt-loading-card">
-      <p class="ytt-loading-title">YucaTanaTrades initializing</p>
-      <p id="ytt-loading-copy" class="ytt-loading-copy">Connecting market data, heatmaps, and chart modules.</p>
-      <div class="ytt-loading-bar" aria-hidden="true"></div>
-      <div class="ytt-loading-steps">
-        <div class="ytt-loading-step" data-loader-step="coingecko" data-state="PENDING"><span>CoinGecko markets</span><span>PENDING</span></div>
-        <div class="ytt-loading-step" data-loader-step="finnhub" data-state="PENDING"><span>Finnhub stocks</span><span>PENDING</span></div>
-        <div class="ytt-loading-step" data-loader-step="binance" data-state="PENDING"><span>Binance websocket</span><span>PENDING</span></div>
-        <div class="ytt-loading-step" data-loader-step="tradingview" data-state="PENDING"><span>TradingView charts</span><span>PENDING</span></div>
-      </div>
-    </div>
-  </div>
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
   <div id="scanline" aria-hidden="true"></div>
   <div id="cursor" aria-hidden="true"></div>
@@ -2937,14 +3247,14 @@
         </svg>
 
         <div id="brand-line1">Premium Trading Platform</div>
-        <button id="brand-name" type="button" data-admin-unlock onclick="handleAdminStarClick(event)" aria-label="Admin unlock">
+        <button id="brand-name" data-admin-unlock type="button" onclick="handleAdminStarClick(event)" aria-label="Admin unlock">
           <span class="yu">Yu</span><span class="ca">catan</span><span class="na">a</span>
         </button>
         <div id="brand-sub">Trades</div>
 
         <div id="divider">
           <span></span>
-          <button id="admin-star" class="admin-star" type="button" onclick="handleAdminStarClick()" aria-label="Admin unlock">
+          <button id="admin-star" class="admin-star" data-admin-unlock type="button" onclick="handleAdminStarClick(event)" aria-label="Admin unlock">
             <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><polygon points="7,0 8.5,5.5 14,7 8.5,8.5 7,14 5.5,8.5 0,7 5.5,5.5"/></svg>
           </button>
           <span></span>
@@ -2976,6 +3286,15 @@
             <button class="btn-ghost" type="button" onclick="closeAuthPanels()">Back</button>
           </div>
           <div id="create-message" class="auth-message"></div>
+        </form>
+
+        <form id="admin-panel" class="auth-panel admin-panel" onsubmit="submitAdminLogin(event)">
+          <input id="admin-code" class="auth-input" type="password" autocomplete="one-time-code" placeholder="Admin access code">
+          <div class="auth-actions">
+            <button id="enter-admin-btn" class="btn-primary" type="button" onclick="forceAdminEnter(event)">Enter Admin</button>
+            <button class="btn-ghost" type="button" onclick="closeAuthPanels()">Back</button>
+          </div>
+          <div id="admin-message" class="auth-message">LOCAL ADMIN MODE READY</div>
         </form>
 
         <div id="admin-unlock" class="admin-unlock">Admin Mode Enabled</div>
@@ -3017,8 +3336,8 @@
 
   <aside class="sidebar">
     <div class="brand">
-      <div class="logo">YUCATANA</div>
-      <div class="subtitle">TRADES</div>
+      <button class="logo logo-admin-trigger" data-admin-unlock type="button" onclick="handleAdminStarClick(event)" aria-label="Admin unlock">YUCATANA</button>
+      <div class="subtitle"><button id="top-admin-star" class="top-admin-star" data-admin-unlock type="button" onclick="handleAdminStarClick(event)" aria-label="Admin unlock">★</button><span>TRADES</span></div>
       <div class="market-box">
         <div><span id="market-dot"></span><span id="market-label">MARKET CLOSED</span></div>
         <div id="clock">--:--:-- CT</div>
@@ -3026,7 +3345,7 @@
     </div>
     <nav class="nav">
       <button class="nav-btn" data-tab="dashboard" onclick="showTab('dashboard')">▦&nbsp;&nbsp;Dashboard</button>
-      <button class="nav-btn" data-tab="meridian" onclick="showTab('meridian')">★&nbsp;&nbsp;Meridian</button>
+      <button id="meridian-nav-star" class="nav-btn" data-admin-unlock data-tab="meridian" onclick="handleMeridianNavClick(event)">★&nbsp;&nbsp;Meridian</button>
       <button class="nav-btn" data-tab="news" onclick="showTab('news')">◬&nbsp;&nbsp;News</button>
       <button class="nav-btn" data-tab="options" onclick="showTab('options')">⊕&nbsp;&nbsp;Option Flows</button>
       <button class="nav-btn" data-tab="stocks" onclick="showTab('stocks')">◈&nbsp;&nbsp;Stocks</button>
@@ -3036,11 +3355,12 @@
       <button class="nav-btn" data-tab="charts" onclick="showTab('charts')">◫&nbsp;&nbsp;Charts</button>
       <button class="nav-btn" data-tab="settings" onclick="showTab('settings')">⚙&nbsp;&nbsp;Settings</button>
     </nav>
+    <div id="admin-badge" class="admin-badge">★ ADMIN MODE</div>
     <div class="account-actions" aria-label="Account controls">
       <button class="account-btn" type="button" onclick="openAccountSettings()">Profile / Account Settings</button>
       <button class="account-btn signout" type="button" onclick="signOut()">Sign Out</button>
     </div>
-    <div class="version">v1.0 · LIVE</div>
+    <div class="version">v2.0 · LIVE</div>
   </aside>
 
   <main class="main">
@@ -3083,7 +3403,7 @@
 
     <div class="content">
       <div id="tab-dashboard" class="tab-content premium-dashboard-tab">
-        <iframe class="premium-dashboard-frame" src="about:blank" data-src="legacy/YucatanaTrades-Premium-Dashboard.html" title="YucaTanaTrades Premium Dashboard"></iframe>
+        <iframe class="premium-dashboard-frame" src="about:blank" data-src="YucatanaTrades-Premium-Dashboard.html" title="YucaTanaTrades Premium Dashboard"></iframe>
         <section class="premium-deck" aria-label="Dashboard command intelligence">
           <div class="detail-grid">
             <div class="detail-card"><h3>Market Regime</h3><div class="micro-list"><div class="micro-row"><span>Risk Tone</span><span class="shimmer"></span></div><div class="micro-row"><span>Volatility</span><span class="shimmer"></span></div><div class="micro-row"><span>Liquidity</span><span class="shimmer"></span></div></div></div>
@@ -3095,7 +3415,7 @@
       </div>
 
       <div id="tab-stocks" class="tab-content">
-        <iframe class="stock-standalone-frame" src="about:blank" data-src="legacy/YucaTanaStocksStandalone.html" title="YucaTanaTrades Stock Intelligence"></iframe>
+        <iframe class="stock-standalone-frame" src="about:blank" data-src="YucaTanaStocksStandalone.html" title="YucaTanaTrades Stock Intelligence"></iframe>
         <div class="stock-legacy-shell">
           <div class="stock-legacy-title">Original Scanner Workspace · Kept Separate Below Standalone Stock Site</div>
           <div class="stocks-layout">
@@ -3107,13 +3427,6 @@
                 <div class="detail-card"><h3>Unusual Volume</h3><div class="micro-list"><div class="micro-row"><span>Relative Vol</span><span class="shimmer"></span></div><div class="micro-row"><span>Opening Range</span><span class="shimmer"></span></div></div></div>
                 <div class="detail-card"><h3>Relative Strength</h3><div class="micro-list"><div class="micro-row"><span>Vs SPY</span><span class="shimmer"></span></div><div class="micro-row"><span>Vs QQQ</span><span class="shimmer"></span></div></div></div>
                 <div class="detail-card"><h3>Earnings Guard</h3><p>No earnings proximity or gap signals display until Tradier quote/history data is live.</p></div>
-              </div>
-              <div class="ytt-market-workspace" data-market-workspace="stocks">
-                <div class="ytt-market-primary">
-                  <div class="panel"><div class="panel-header">TradingView Stock Chart <span class="source-tag">OFFICIAL WIDGET</span></div><div class="ytt-tv-frame"><div id="stocks-production-tv"></div></div></div>
-                  <div class="panel"><div class="panel-header">Stock Heatmap <span class="source-tag">LIVE DATA ONLY</span></div><div id="stocks-production-heatmap" class="ytt-heatmap-grid"><div class="ytt-detail-empty">Data unavailable — retrying</div></div></div>
-                </div>
-                <aside id="stocks-asset-detail-panel" class="ytt-detail-panel"><div class="panel"><div class="panel-header">Selected Stock Detail</div><p class="ytt-detail-empty">Data unavailable — retrying</p></div></aside>
               </div>
               <div class="panel"><div class="panel-header">Stocks Scanner <span class="source-tag">TRADIER PRO</span></div><table id="scanner-stocks" class="data-table"><thead><tr><th onclick="sortTable('scanner-stocks',0)">SYMBOL</th><th onclick="sortTable('scanner-stocks',1)">PRICE</th><th onclick="sortTable('scanner-stocks',2)">CHG%</th><th onclick="sortTable('scanner-stocks',3)">VOLUME</th><th onclick="sortTable('scanner-stocks',4)">RSI</th><th onclick="sortTable('scanner-stocks',5)">MACD</th><th onclick="sortTable('scanner-stocks',6)">ATR</th><th onclick="sortTable('scanner-stocks',7)">SIGNAL</th><th onclick="sortTable('scanner-stocks',8)">SOURCE</th></tr></thead><tbody id="stocks-body"></tbody></table></div>
             </div>
@@ -3138,20 +3451,13 @@
             <div class="detail-card"><h3>Volume Impulse</h3><div class="spark-slot"></div></div>
             <div class="detail-card"><h3>Stream Quality</h3><div class="micro-list"><div class="micro-row"><span>Latency</span><span class="shimmer"></span></div><div class="micro-row"><span>Reconnects</span><span class="shimmer"></span></div></div></div>
           </div>
-          <div class="ytt-market-workspace" data-market-workspace="crypto">
-            <div class="ytt-market-primary">
-              <div class="panel"><div class="panel-header">TradingView Crypto Chart <span class="source-tag">OFFICIAL WIDGET</span></div><div class="ytt-tv-frame"><div id="crypto-production-tv"></div></div></div>
-              <div class="panel"><div class="panel-header">Crypto Heatmap <span class="source-tag">LIVE DATA ONLY</span></div><div id="crypto-production-heatmap" class="ytt-heatmap-grid"><div class="ytt-detail-empty">Data unavailable — retrying</div></div></div>
-            </div>
-            <aside id="crypto-asset-detail-panel" class="ytt-detail-panel"><div class="panel"><div class="panel-header">Selected Crypto Detail</div><p class="ytt-detail-empty">Data unavailable — retrying</p></div></aside>
-          </div>
           <div class="panel"><div class="panel-header">Crypto Scanner <span class="source-tag">COINGECKO + BINANCE</span></div><table class="data-table"><thead><tr><th>RANK</th><th>COIN</th><th>PRICE</th><th>24H</th><th>7D</th><th>SPARK</th><th>MARKET CAP</th><th>VOLUME</th><th>RSI</th><th>SIGNAL</th></tr></thead><tbody id="crypto-body"></tbody></table></div>
           <div id="binance-status" class="stream-panel"><span class="pulse-dot" style="background:#ff5000"></span><span>BINANCE WS — AWAITING API KEY</span></div>
         </div>
       </div>
 
       <div id="tab-crypto-hunter" class="tab-content">
-        <iframe class="standalone-frame" src="about:blank" data-src="legacy/CryptoHunter.html" title="Crypto Hunter Bot Trader" style="width:100%;border:none;display:block;background:#030508;"></iframe>
+        <iframe class="standalone-frame" src="about:blank" data-src="CryptoHunter.html" title="Crypto Hunter Bot Trader" style="width:100%;border:none;display:block;background:#030508;"></iframe>
         <section class="premium-deck" style="background:#030508;">
           <div class="detail-grid">
             <div class="detail-card"><h3>Dry Run / Live Mode</h3><div class="micro-list"><div class="micro-row"><span>Execution</span><span class="status-chip">Dry Run</span></div><div class="micro-row"><span>Coinbase</span><span class="status-chip red">Locked</span></div></div></div>
@@ -3270,15 +3576,14 @@
       </div>
 
       <div id="tab-meridian" class="tab-content">
-        <iframe src="about:blank" data-src="legacy/MeridianYucaTanaStock-insight.html" style="width:100%;height:calc(100vh - 36px);border:none;display:block;"></iframe>
+        <iframe src="about:blank" data-src="MeridianYucaTanaStock-insight.html" style="width:100%;height:calc(100vh - 36px);border:none;display:block;"></iframe>
       </div>
 
       <div id="tab-settings" class="tab-content">
         <div class="settings-columns">
           <div id="api-vault-panel" class="panel vault-panel"><div class="panel-header" style="color:var(--gold)">API Key Vault <span id="vault-status" class="vault-status">LOCKED</span></div><div id="vault-gate" class="vault-gate"><div class="vault-title">Locked API Vault</div><p id="vault-copy" class="vault-copy">Create a local vault password to protect API key access on this browser. Keys remain stored locally and fields stay inaccessible while the vault is locked.</p><input id="vault-password" class="field" type="password" autocomplete="current-password" placeholder="Vault password"><div class="vault-actions"><button id="vault-unlock-btn" class="save-btn" type="button" onclick="unlockVault()">UNLOCK VAULT</button><button class="small-btn" type="button" onclick="lockVault()">LOCK</button></div><div id="vault-message" class="vault-message"></div></div><div id="vault-content" class="vault-content locked"><div class="form-stack"><label>TRADIER API KEY</label><input id="input-tradier" data-key="TRADIER_KEY" class="field vault-field" type="password" placeholder="Enter key..."><div class="key-hint">Used for: Options chain, stock quotes</div><label>ALPACA API KEY</label><input id="input-alpaca-key" data-key="ALPACA_KEY" class="field vault-field" type="password" placeholder="Enter key..."><label>ALPACA SECRET KEY</label><input id="input-alpaca-secret" data-key="ALPACA_SECRET" class="field vault-field" type="password" placeholder="Enter secret..."><label>API PROXY BASE URL</label><input id="input-api-proxy" data-key="API_PROXY_BASE" class="field vault-field" type="url" placeholder="https://your-domain.com/api"><div class="key-hint">Use this when keys move server-side for deployment.</div><label>TRADIER MODE</label><button id="tradier-toggle" class="small-btn vault-field" onclick="toggleTradierMode()">SANDBOX</button><div style="display:flex;gap:10px;flex-wrap:wrap;"><button onclick="saveKeys()" class="save-btn vault-field">SAVE KEYS</button><button onclick="lockVault()" class="small-btn vault-field" type="button">LOCK VAULT</button></div><div id="keys-saved-badge">✓ KEYS SAVED</div></div></div></div>
           <div class="panel"><div class="panel-header">Connection Status</div><div class="status-row"><span>TRADIER</span><button class="small-btn" onclick="testConnection('tradier')">TEST</button><span id="status-tradier">UNKNOWN</span></div><div class="status-row"><span>ALPACA</span><button class="small-btn" onclick="testConnection('alpaca')">TEST</button><span id="status-alpaca">UNKNOWN</span></div><div class="status-row"><span>COINGECKO</span><button class="small-btn" onclick="testConnection('coingecko')">TEST</button><span id="status-coingecko" class="up">CONNECTED</span></div><div class="status-row"><span>BINANCE WS</span><button class="small-btn" onclick="testConnection('binance')">TEST</button><span id="status-binance">UNKNOWN</span></div></div>
-          <div class="panel"><div class="panel-header">Source Health Command <span class="source-tag">LIVE CHECKS</span></div><div id="source-health-list" class="source-health-grid"></div><div class="source-health-actions"><button class="small-btn" type="button" onclick="refreshSourceHealth()">REFRESH HEALTH</button><button class="small-btn" type="button" onclick="openAIAssistant()">ASK AI</button></div></div>
-          <div class="panel"><div class="panel-header">Deployment Health <span class="source-tag">PRE-FLIGHT</span></div><div class="status-row"><span>AUTH</span><span id="health-auth">LOCAL UI ONLY</span></div><div class="status-row"><span>API PROXY</span><span id="health-proxy">NOT CONFIGURED</span></div><div class="status-row"><span>STOCK DATA</span><span id="health-tradier">AWAITING KEY</span></div><div class="status-row"><span>ALPACA KEY</span><span id="health-alpaca">AWAITING KEY</span></div><div class="status-row"><span>NEWS FEEDS</span><span id="health-news">CLIENT FETCH</span></div></div>
+          <div class="panel"><div class="panel-header">Deployment Health <span class="source-tag">PRE-FLIGHT</span></div><div class="status-row"><span>AUTH</span><span id="health-auth">LOCAL UI ONLY</span></div><div class="status-row"><span>API PROXY</span><span id="health-proxy">NOT CONFIGURED</span></div><div class="status-row"><span>TRADIER KEY</span><span id="health-tradier">AWAITING KEY</span></div><div class="status-row"><span>ALPACA KEY</span><span id="health-alpaca">AWAITING KEY</span></div><div class="status-row"><span>NEWS FEEDS</span><span id="health-news">CLIENT FETCH</span></div></div>
           <div class="panel"><div class="panel-header">Deployment Controls <span class="source-tag">LOCAL</span></div><div class="status-row"><span>ENVIRONMENT</span><span class="status-chip">Local</span></div><div class="status-row"><span>DATA TOGGLES</span><span class="status-chip red">Locked</span></div><div class="status-row"><span>DRY RUN</span><span class="status-chip green">On</span></div><div class="status-row"><span>EXPORT SETTINGS</span><button class="small-btn" type="button" onclick="exportSettings()">EXPORT</button><span class="status-chip">Ready</span></div><div class="status-row"><span>CLEAR LOCAL DATA</span><button class="small-btn" type="button" onclick="clearLocalSettings()">CLEAR</button><span class="status-chip red">Manual</span></div></div>
           <div class="panel"><div class="panel-header">Risk Disclosure <span class="source-tag">DEPLOYMENT COPY</span></div><p style="color:var(--muted);font:13px/1.8 var(--body);margin:0;">YucaTanaTrades is an informational trading workspace. It does not provide financial advice, guarantee returns, or execute orders without a connected broker workflow. Market data, signals, account values, and news remain unavailable until supplied by live providers.</p></div>
         </div>
@@ -3286,145 +3591,44 @@
     </div>
   </main>
 
-  <aside id="ai-drawer" class="ai-drawer" aria-label="YucaTana AI assistant">
-    <div class="ai-head">
-      <div>
-        <div class="ai-title">YucaTana AI</div>
-        <div class="ai-subtitle">Source-aware stock intelligence. No fabricated prices.</div>
-      </div>
-      <button class="ai-close" type="button" onclick="closeAIAssistant()" aria-label="Close AI assistant">✕</button>
-    </div>
-    <div id="ai-messages" class="ai-messages">
-      <div class="ai-msg assistant"><strong>YucaTana AI online.</strong><br>Ask about a ticker, source health, news, risk, or why a panel is still shimmered. I only use loaded data or clearly mark unavailable fields.</div>
-    </div>
-    <form class="ai-form" onsubmit="submitAIQuestion(event)">
-      <input id="ai-input" class="ai-input" placeholder="Ask about NVDA, market risk, source health..." autocomplete="off">
-      <button class="ai-send" type="submit">ASK</button>
-    </form>
-  </aside>
-  <button id="ai-fab" class="ai-fab" type="button" onclick="openAIAssistant()">YucaTana AI</button>
-  <aside id="ytt-deep-dive-drawer" class="ytt-deep-dive-drawer" aria-label="Deep dive drawer"></aside>
-
   <script>
 let bgStarted = false;
 let adminStarClicks = 0;
 let adminStarTimer = null;
-const VAULT_ACCESS_CODE = '142010';
-const FINNHUB_SYMBOLS = ['NVDA','TSLA','META','AVGO','ORCL','MSFT','MU','XOM'];
-const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
-const COINGECKO_MARKET_IDS = ['bitcoin','ethereum','solana','ripple','sui','binancecoin','avalanche-2','dogecoin'];
-const COINGECKO_MARKETS_URL = 'https://api.coingecko.com/api/v3/coins/markets';
-const BINANCE_STREAM_SYMBOLS = {
-  BTC: 'btcusdt',
-  ETH: 'ethusdt',
-  SOL: 'solusdt',
-  XRP: 'xrpusdt',
-  SUI: 'suiusdt',
-  BNB: 'bnbusdt',
-  AVAX: 'avaxusdt',
-  DOGE: 'dogeusdt'
-};
-const HOSTED_STATIC_ENV = /^https?:$/.test(window.location.protocol) && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
-const FILE_STATIC_ENV = window.location.protocol === 'file:';
-let liveStockQuotes = {};
-let liveCryptoMarkets = {};
-let sourceHealthState = {};
-let binanceSocket = null;
-let binanceReconnectTimer = null;
-let binanceRenderTimer = null;
-let appLoadingFinished = false;
-const apiBootState = {
-  coingecko: 'PENDING',
-  finnhub: 'PENDING',
-  binance: 'PENDING',
-  tradingview: 'PENDING'
-};
-
-function setLoaderState(source, state, detail = '') {
-  apiBootState[source] = state;
-  const row = document.querySelector(`[data-loader-step="${source}"]`);
-  if (row) {
-    row.dataset.state = state;
-    const badge = row.querySelector('span:last-child');
-    if (badge) badge.textContent = state;
-  }
-  const copy = document.getElementById('ytt-loading-copy');
-  if (copy && detail) copy.textContent = detail;
-  maybeFinishLoading();
-}
-
-function maybeFinishLoading() {
-  if (appLoadingFinished) return;
-  const pending = Object.values(apiBootState).some(state => state === 'PENDING');
-  if (pending) return;
-  window.setTimeout(finishLoadingScreen, 450);
-}
-
-function finishLoadingScreen() {
-  if (appLoadingFinished) return;
-  appLoadingFinished = true;
-  const screen = document.getElementById('ytt-loading-screen');
-  if (screen) {
-    screen.classList.add('is-done');
-    window.setTimeout(() => screen.remove(), 650);
-  }
-}
-
-function describeNetworkError(error) {
-  const raw = String(error?.message || error || 'Network request failed');
-  if (error?.name === 'AbortError' || /timeout|timed out/i.test(raw)) return 'Request timed out. Data unavailable — retrying on the next scan.';
-  if (HOSTED_STATIC_ENV && /failed to fetch|network|cors|blocked/i.test(raw)) {
-    return 'Hosted browser request was blocked or rate-limited. Set API Proxy Base URL in Settings to keep keys server-side and avoid CORS limits.';
-  }
-  if (FILE_STATIC_ENV && /failed to fetch|cors|blocked/i.test(raw)) {
-    return 'Local file browser request was blocked. Host the app or use the API Proxy Base URL for live data.';
-  }
-  return raw;
-}
-
-function showApiNotice(title, message) {
-  let notice = document.getElementById('ytt-api-toast');
-  if (!notice) {
-    notice = document.createElement('div');
-    notice.id = 'ytt-api-toast';
-    notice.className = 'ytt-api-toast';
-    notice.setAttribute('role', 'status');
-    document.body.appendChild(notice);
-  }
-  notice.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
-  window.clearTimeout(showApiNotice.timer);
-  showApiNotice.timer = window.setTimeout(() => notice.remove(), 9000);
-}
+const ADMIN_UNLOCK_CLICKS = 3;
+const ADMIN_ACCESS_CODE = '142010';
 
 function enterTerminal() {
   const shell = document.getElementById('signin-shell');
   const signoff = document.getElementById('signoff-shell');
   localStorage.setItem('ytt_signed_in', 'true');
-  document.body.classList.add('ytt-signed-in');
   if (shell) {
     shell.classList.add('hidden');
     shell.setAttribute('aria-hidden', 'true');
-    shell.style.setProperty('display', 'none', 'important');
-    shell.style.setProperty('opacity', '0', 'important');
-    shell.style.setProperty('visibility', 'hidden', 'important');
-    shell.style.setProperty('pointer-events', 'none', 'important');
+    shell.style.opacity = '0';
+    shell.style.visibility = 'hidden';
+    shell.style.pointerEvents = 'none';
+    shell.style.display = 'none';
   }
   if (signoff) {
     signoff.classList.add('hidden');
     signoff.setAttribute('aria-hidden', 'true');
-    signoff.style.setProperty('display', 'none', 'important');
+    signoff.style.display = 'none';
   }
 }
 
 function openAuthPanel(mode) {
   const shell = document.getElementById('signin-shell');
   const signoff = document.getElementById('signoff-shell');
-  if (signoff) signoff.classList.add('hidden');
+  if (signoff) {
+    signoff.classList.add('hidden');
+    signoff.style.display = 'none';
+  }
   if (shell) {
-    shell.style.removeProperty('display');
-    shell.style.removeProperty('opacity');
-    shell.style.removeProperty('visibility');
-    shell.style.removeProperty('pointer-events');
+    shell.style.display = 'block';
+    shell.style.opacity = '';
+    shell.style.visibility = '';
+    shell.style.pointerEvents = '';
     shell.removeAttribute('aria-hidden');
     shell.classList.remove('hidden');
   }
@@ -3437,6 +3641,7 @@ function openAuthPanel(mode) {
 function closeAuthPanels() {
   document.getElementById('signin-panel')?.classList.remove('active');
   document.getElementById('create-panel')?.classList.remove('active');
+  document.getElementById('admin-panel')?.classList.remove('active');
 }
 
 function submitSignIn(event) {
@@ -3467,17 +3672,117 @@ function submitCreateAccount(event) {
   setTimeout(enterTerminal, 520);
 }
 
+function openAdminLogin() {
+  const shell = document.getElementById('signin-shell');
+  if (shell) {
+    shell.style.display = 'block';
+    shell.style.opacity = '';
+    shell.style.visibility = '';
+    shell.style.pointerEvents = '';
+    shell.removeAttribute('aria-hidden');
+    shell.classList.remove('hidden');
+  }
+  document.getElementById('signin-panel')?.classList.remove('active');
+  document.getElementById('create-panel')?.classList.remove('active');
+  document.getElementById('admin-panel')?.classList.add('active');
+  const msg = document.getElementById('admin-message');
+  if (msg) msg.textContent = 'LOCAL ADMIN MODE READY';
+  setTimeout(() => document.getElementById('admin-code')?.focus(), 120);
+}
+
+function submitAdminLogin(event) {
+  if (event?.preventDefault) event.preventDefault();
+  if (event?.stopPropagation) event.stopPropagation();
+  const msg = document.getElementById('admin-message');
+  if (msg) msg.textContent = 'ADMIN ACCESS VERIFIED';
+  forceAdminEnter(event);
+}
+
+function forceAdminEnter(event) {
+  if (event?.preventDefault) event.preventDefault();
+  if (event?.stopPropagation) event.stopPropagation();
+
+  const code = document.getElementById('admin-code')?.value.trim();
+  const msg = document.getElementById('admin-message');
+
+  if (!code) {
+    if (msg) msg.textContent = 'ENTER ADMIN CODE';
+    document.getElementById('admin-code')?.focus();
+    return;
+  }
+
+  if (code !== ADMIN_ACCESS_CODE) {
+    if (msg) msg.textContent = 'INVALID ADMIN CODE';
+    document.getElementById('admin-code')?.focus();
+    return;
+  }
+
+  if (msg) msg.textContent = 'ADMIN ACCESS VERIFIED';
+
+  adminStarClicks = 0;
+  clearTimeout(adminStarTimer);
+
+  localStorage.setItem('ytt_admin_mode', 'true');
+  localStorage.setItem('ytt_signed_in', 'true');
+  localStorage.setItem('activeTab', 'settings');
+  document.body.classList.add('admin-mode');
+
+  closeAuthPanels();
+  document.querySelectorAll('[data-admin-unlock]').forEach(el => {
+    el.classList.add('admin-enabled');
+    el.setAttribute('aria-pressed', 'true');
+    el.removeAttribute('data-count');
+  });
+
+  const shell = document.getElementById('signin-shell');
+  if (shell) {
+    shell.classList.add('hidden');
+    shell.setAttribute('aria-hidden', 'true');
+    shell.style.setProperty('display', 'none', 'important');
+    shell.style.setProperty('opacity', '0', 'important');
+    shell.style.setProperty('visibility', 'hidden', 'important');
+    shell.style.setProperty('pointer-events', 'none', 'important');
+  }
+
+  const signoff = document.getElementById('signoff-shell');
+  if (signoff) {
+    signoff.classList.add('hidden');
+    signoff.setAttribute('aria-hidden', 'true');
+    signoff.style.setProperty('display', 'none', 'important');
+  }
+
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+    tab.style.display = 'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+  const settings = document.getElementById('tab-settings');
+  if (settings) {
+    settings.style.display = 'block';
+    settings.classList.add('active');
+  }
+  const settingsBtn = document.querySelector('[data-tab="settings"]');
+  if (settingsBtn) settingsBtn.classList.add('active');
+
+  applyAdminMode();
+  showAdminProgress('Admin Mode Enabled', true);
+  showTab('settings');
+}
+
 function showSignIn() {
   const shell = document.getElementById('signin-shell');
   const signoff = document.getElementById('signoff-shell');
   localStorage.removeItem('ytt_signed_in');
-  document.body.classList.remove('ytt-signed-in');
-  if (signoff) signoff.classList.add('hidden');
+  if (signoff) {
+    signoff.classList.add('hidden');
+    signoff.style.display = 'none';
+  }
   if (shell) {
-    shell.style.removeProperty('display');
-    shell.style.removeProperty('opacity');
-    shell.style.removeProperty('visibility');
-    shell.style.removeProperty('pointer-events');
+    shell.style.display = 'block';
+    shell.style.opacity = '';
+    shell.style.visibility = '';
+    shell.style.pointerEvents = '';
     shell.removeAttribute('aria-hidden');
     shell.classList.remove('hidden');
   }
@@ -3491,16 +3796,18 @@ function openAccountSettings() {
 function signOut() {
   localStorage.removeItem('ytt_signed_in');
   localStorage.removeItem('ytt_admin_mode');
-  document.body.classList.remove('ytt-signed-in');
   applyAdminMode();
   showTab('dashboard');
   const shell = document.getElementById('signin-shell');
   const signoff = document.getElementById('signoff-shell');
-  if (shell) shell.classList.add('hidden');
+  if (shell) {
+    shell.classList.add('hidden');
+    shell.style.display = 'none';
+  }
   if (signoff) {
-    signoff.style.removeProperty('display');
-    signoff.removeAttribute('aria-hidden');
+    signoff.style.display = '';
     signoff.classList.remove('hidden');
+    signoff.removeAttribute('aria-hidden');
   }
 }
 
@@ -3512,72 +3819,93 @@ function initAuthControls() {
     el.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      handler();
+      handler(event);
     });
   };
   bind('signin-open-btn', () => openAuthPanel('signin'));
   bind('create-open-btn', () => openAuthPanel('create'));
-  bind('brand-name', handleAdminStarClick);
   bind('admin-star', handleAdminStarClick);
+  bind('top-admin-star', handleAdminStarClick);
   bind('signoff-signin-btn', showSignIn);
   bind('return-terminal-btn', enterTerminal);
+  bind('admin-badge', () => localStorage.getItem('ytt_admin_mode') === 'true' && showTab('settings'));
+  document.addEventListener('click', event => {
+    if (event.defaultPrevented) return;
+    const target = event.target?.closest?.('[data-admin-unlock]');
+    if (!target) return;
+    handleAdminStarClick(event);
+  });
 }
 
 function applyAdminMode() {
   const enabled = localStorage.getItem('ytt_admin_mode') === 'true';
   document.body.classList.toggle('admin-mode', enabled);
   const unlock = document.getElementById('admin-unlock');
-  if (unlock && enabled) unlock.classList.add('visible');
+  if (unlock) unlock.classList.toggle('visible', enabled);
+  document.querySelectorAll('[data-admin-unlock]').forEach(el => {
+    el.classList.toggle('admin-enabled', enabled);
+    el.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    if (!enabled) el.removeAttribute('data-count');
+  });
+}
+
+function showAdminProgress(message, persist = false) {
+  const unlock = document.getElementById('admin-unlock');
+  if (!unlock) return;
+  unlock.textContent = message;
+  unlock.classList.add('visible');
+  if (!persist) {
+    clearTimeout(window.__yttAdminProgressTimer);
+    window.__yttAdminProgressTimer = setTimeout(() => {
+      if (localStorage.getItem('ytt_admin_mode') !== 'true') unlock.classList.remove('visible');
+    }, 1400);
+  }
 }
 
 function enableAdminMode() {
   localStorage.setItem('ytt_admin_mode', 'true');
   localStorage.setItem('ytt_signed_in', 'true');
-  document.body.classList.add('admin-mode', 'ytt-signed-in');
   applyAdminMode();
-  const unlock = document.getElementById('admin-unlock');
-  if (unlock) unlock.classList.add('visible');
+  showAdminProgress('Admin Mode Enabled', true);
   enterTerminal();
-  document.getElementById('signin-shell')?.remove();
-  const signoff = document.getElementById('signoff-shell');
-  if (signoff) {
-    signoff.classList.add('hidden');
-    signoff.style.setProperty('display', 'none', 'important');
-  }
-  document.querySelectorAll('.sidebar, .main').forEach(el => {
-    el.style.setProperty('visibility', 'visible', 'important');
-  });
   showTab('settings');
+  setTimeout(() => showTab('settings'), 120);
+}
+
+function unlockAdminLogin() {
+  adminStarClicks = 0;
+  clearTimeout(adminStarTimer);
+  document.querySelectorAll('[data-admin-unlock]').forEach(el => el.removeAttribute('data-count'));
+  showAdminProgress('Admin Login Unlocked', true);
+  openAdminLogin();
 }
 
 function handleAdminStarClick(event) {
   if (event?.preventDefault) event.preventDefault();
   if (event?.stopPropagation) event.stopPropagation();
-  const star = event?.currentTarget || document.getElementById('brand-name') || document.getElementById('admin-star');
+  const star = event?.target?.closest?.('[data-admin-unlock]') || event?.currentTarget || document.getElementById('top-admin-star') || document.getElementById('admin-star');
   adminStarClicks += 1;
+  const visibleCount = Math.min(adminStarClicks, ADMIN_UNLOCK_CLICKS);
   if (star) {
+    star.setAttribute('data-count', String(visibleCount));
     star.classList.remove('armed');
     void star.offsetWidth;
     star.classList.add('armed');
-    star.setAttribute('data-count', String(Math.min(adminStarClicks, 3)));
   }
+  showAdminProgress(`Admin Unlock ${visibleCount}/${ADMIN_UNLOCK_CLICKS}`);
   clearTimeout(adminStarTimer);
   adminStarTimer = setTimeout(() => {
     adminStarClicks = 0;
     document.querySelectorAll('[data-admin-unlock]').forEach(el => el.removeAttribute('data-count'));
-  }, 4000);
-  const unlock = document.getElementById('admin-unlock');
-  if (unlock) {
-    unlock.textContent = 'Admin Unlock ' + Math.min(adminStarClicks, 3) + '/3';
-    unlock.classList.add('visible');
+  }, 8000);
+  if (adminStarClicks >= ADMIN_UNLOCK_CLICKS) {
+    unlockAdminLogin();
   }
-  if (adminStarClicks >= 3) {
-    adminStarClicks = 0;
-    clearTimeout(adminStarTimer);
-    document.querySelectorAll('[data-admin-unlock]').forEach(el => el.removeAttribute('data-count'));
-    if (unlock) unlock.textContent = 'Admin Mode Enabled';
-    enableAdminMode();
-  }
+}
+
+function handleMeridianNavClick(event) {
+  showTab('meridian');
+  handleAdminStarClick(event);
 }
 
 function initPremiumCursor() {
@@ -3875,12 +4203,10 @@ function saveKeys() {
     return;
   }
   const tradier = document.getElementById('input-tradier')?.value;
-  const finnhub = document.getElementById('input-finnhub')?.value;
   const alpacaKey = document.getElementById('input-alpaca-key')?.value;
   const alpacaSecret = document.getElementById('input-alpaca-secret')?.value;
   const apiProxy = document.getElementById('input-api-proxy')?.value.trim();
   if (tradier && !tradier.includes('●')) localStorage.setItem('TRADIER_KEY', tradier);
-  if (finnhub && !finnhub.includes('●')) localStorage.setItem('FINNHUB_KEY', finnhub);
   if (alpacaKey && !alpacaKey.includes('●')) localStorage.setItem('ALPACA_KEY', alpacaKey);
   if (alpacaSecret && !alpacaSecret.includes('●')) localStorage.setItem('ALPACA_SECRET', alpacaSecret);
   if (apiProxy) localStorage.setItem('API_PROXY_BASE', apiProxy);
@@ -3891,11 +4217,10 @@ function saveKeys() {
   }
   maskInputs();
   updateDeploymentHealth();
-  refreshSourceHealth();
 }
 
 function maskInputs() {
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret'].forEach(id => {
+  ['input-tradier','input-alpaca-key','input-alpaca-secret'].forEach(id => {
     const el = document.getElementById(id);
     if (el && localStorage.getItem(el.dataset.key || id)) {
       el.value = '●●●●●●●●●●●●';
@@ -3907,7 +4232,6 @@ function maskInputs() {
 function loadSavedKeys() {
   const map = {
     'input-tradier': 'TRADIER_KEY',
-    'input-finnhub': 'FINNHUB_KEY',
     'input-alpaca-key': 'ALPACA_KEY',
     'input-alpaca-secret': 'ALPACA_SECRET'
   };
@@ -3960,10 +4284,13 @@ function setVaultUnlocked(unlocked) {
 function initVault() {
   const copy = document.getElementById('vault-copy');
   const btn = document.getElementById('vault-unlock-btn');
+  const hasPassword = Boolean(localStorage.getItem('YTT_VAULT_HASH'));
   if (copy) {
-    copy.textContent = 'Enter the local vault key to access saved API keys. Keys remain stored locally and fields stay inaccessible while the vault is locked.';
+    copy.textContent = hasPassword
+      ? 'Enter your local vault password to access saved API keys. This protects key fields on this browser only.'
+      : 'Create a local vault password to protect API key access on this browser. Keys remain stored locally and fields stay inaccessible while the vault is locked.';
   }
-  if (btn) btn.textContent = 'UNLOCK VAULT';
+  if (btn) btn.textContent = hasPassword ? 'UNLOCK VAULT' : 'CREATE VAULT';
   setVaultUnlocked(false);
 }
 
@@ -3971,15 +4298,19 @@ async function unlockVault() {
   const input = document.getElementById('vault-password');
   const msg = document.getElementById('vault-message');
   const password = input?.value || '';
-  if (!password) {
-    if (msg) msg.textContent = 'ENTER VAULT KEY';
+  if (password.length < 4) {
+    if (msg) msg.textContent = 'ENTER A VAULT PASSWORD';
     return;
   }
-  if (password !== VAULT_ACCESS_CODE) {
-    if (msg) msg.textContent = 'INVALID VAULT KEY';
+  const stored = localStorage.getItem('YTT_VAULT_HASH');
+  const hash = await hashVaultPassword(password);
+  if (!stored) {
+    localStorage.setItem('YTT_VAULT_HASH', hash);
+    if (msg) msg.textContent = 'VAULT CREATED';
+  } else if (stored !== hash) {
+    if (msg) msg.textContent = 'INVALID VAULT PASSWORD';
     return;
-  }
-  if (msg) {
+  } else if (msg) {
     msg.textContent = 'VAULT UNLOCKED';
   }
   if (input) input.value = '';
@@ -4000,52 +4331,18 @@ function updateDeploymentHealth() {
     el.className = tone || '';
   };
   const hasTradier = Boolean(localStorage.getItem('TRADIER_KEY'));
-  const hasFinnhub = Boolean(localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY'));
   const hasAlpaca = Boolean(localStorage.getItem('ALPACA_KEY'));
   const hasProxy = Boolean(localStorage.getItem('API_PROXY_BASE'));
   set('health-auth', 'LOCAL UI ONLY', 'gold');
   set('health-proxy', hasProxy ? 'CONFIGURED' : 'NOT CONFIGURED', hasProxy ? 'up' : 'dn');
-  set('health-tradier', hasTradier ? 'TRADIER KEY SAVED' : hasFinnhub ? 'FINNHUB STOCKS' : 'AWAITING KEY', (hasTradier || hasFinnhub) ? 'up' : 'dn');
+  set('health-tradier', hasTradier ? 'KEY SAVED' : 'AWAITING KEY', hasTradier ? 'up' : 'dn');
   set('health-alpaca', hasAlpaca ? 'KEY SAVED' : 'AWAITING KEY', hasAlpaca ? 'up' : 'dn');
   set('health-news', 'CLIENT FETCH', 'gold');
-}
-
-function ensureFinnhubSettings() {
-  if (!document.getElementById('input-finnhub')) {
-    const tradierInput = document.getElementById('input-tradier');
-    const form = tradierInput?.closest('.form-stack');
-    if (form) {
-      const hint = tradierInput.nextElementSibling;
-      const label = document.createElement('label');
-      label.textContent = 'FINNHUB API KEY';
-      const input = document.createElement('input');
-      input.id = 'input-finnhub';
-      input.dataset.key = 'FINNHUB_KEY';
-      input.className = 'field vault-field';
-      input.type = 'password';
-      input.placeholder = 'Enter Finnhub key...';
-      const keyHint = document.createElement('div');
-      keyHint.className = 'key-hint';
-      keyHint.textContent = 'Used for: temporary stock quote data while Tradier is offline.';
-      hint?.after(label, input, keyHint);
-    }
-  }
-
-  if (!document.getElementById('status-finnhub')) {
-    const tradierRow = document.getElementById('status-tradier')?.closest('.status-row');
-    if (tradierRow) {
-      const row = document.createElement('div');
-      row.className = 'status-row';
-      row.innerHTML = `<span>FINNHUB</span><button class="small-btn" onclick="testConnection('finnhub')">TEST</button><span id="status-finnhub">UNKNOWN</span>`;
-      tradierRow.after(row);
-    }
-  }
 }
 
 function exportSettings() {
   const keys = [
     'TRADIER_MODE',
-    'FINNHUB_KEY',
     'API_PROXY_BASE',
     'YTT_VAULT_HASH',
     'watchlist',
@@ -4071,7 +4368,6 @@ function clearLocalSettings() {
   if (!confirm('Clear saved YucaTanaTrades local settings on this browser?')) return;
   [
     'TRADIER_KEY',
-    'FINNHUB_KEY',
     'ALPACA_KEY',
     'ALPACA_SECRET',
     'TRADIER_MODE',
@@ -4082,7 +4378,7 @@ function clearLocalSettings() {
   loadSavedKeys();
   renderWatchlist();
   updateDeploymentHealth();
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy'].forEach(id => {
+  ['input-tradier','input-alpaca-key','input-alpaca-secret','input-api-proxy'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -4099,10 +4395,10 @@ function startScan(type) {
   log.innerHTML = '';
   if (bar) { bar.style.width = '0%'; bar.style.display = 'block'; }
   const steps = type === 'stocks'
-    ? ['Checking Finnhub key...','Requesting stock quote feed...',
-       'Hydrating quote columns...','Leaving unavailable indicators shimmered...','Scan complete']
-    : ['Requesting CoinGecko market feed...','Hydrating BTC/ETH/SOL/XRP/SUI metadata...',
-       'Rendering market cap, volume, and sparkline data...','Leaving Binance-only RSI shimmered...','Scan complete'];
+    ? ['Fetching NVDA...','Fetching TSLA...','Fetching META...',
+       'Fetching AVGO...','Computing RSI/MACD/ATR...','Scan complete — signals ready']
+    : ['Connecting CoinGecko...','Fetching BTC/ETH/SOL/XRP/SUI...',
+       'Connecting Binance stream...','Computing indicators...','Scan complete'];
   let i = 0;
   const interval = setInterval(() => {
     if (i < steps.length) {
@@ -4113,268 +4409,8 @@ function startScan(type) {
       clearInterval(interval);
       btn.disabled = false;
       btn.innerHTML = 'SCAN NOW';
-      if (type === 'crypto') loadCoinGeckoMarkets(log);
-      if (type === 'stocks') loadFinnhubStocks(log);
     }
   }, 500);
-}
-
-async function fetchJsonWithRetry(url, options = {}, attempts = 3) {
-  let lastError;
-  const { timeoutMs = 9000, ...fetchOptions } = options || {};
-  for (let attempt = 1; attempt <= attempts; attempt++) {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const res = await fetch(url, { cache: 'no-store', ...fetchOptions, signal: controller.signal });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch (error) {
-      lastError = error;
-      if (attempt < attempts) {
-        await new Promise(resolve => setTimeout(resolve, 450 * attempt));
-      }
-    } finally {
-      window.clearTimeout(timeout);
-    }
-  }
-  throw new Error(describeNetworkError(lastError));
-}
-
-function getApiProxyBase() {
-  return (localStorage.getItem('API_PROXY_BASE') || '').trim().replace(/\/+$/, '');
-}
-
-function proxyPath(path) {
-  const base = getApiProxyBase();
-  return base ? `${base}${path.startsWith('/') ? path : '/' + path}` : '';
-}
-
-async function fetchJsonViaProxy(path, directUrl, options = {}, attempts = 3) {
-  const proxied = proxyPath(path);
-  return fetchJsonWithRetry(proxied || directUrl, options, attempts);
-}
-
-function formatCompactNumber(value) {
-  if (!Number.isFinite(value)) return '—';
-  return Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(value);
-}
-
-function formatMoney(value) {
-  if (!Number.isFinite(value)) return '—';
-  return Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value >= 100 ? 2 : 4 }).format(value);
-}
-
-function formatPct(value) {
-  if (!Number.isFinite(value)) return '—';
-  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
-function shimmerCell(width = 72) {
-  return `<span class="shimmer" style="display:inline-block;width:${width}px;height:14px;"></span>`;
-}
-
-function setStatusText(id, text, tone = '') {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = text;
-  el.className = tone;
-}
-
-async function loadCoinGeckoMarkets(logEl = null) {
-  const body = document.getElementById('crypto-body');
-  if (!body) return;
-  const status = document.getElementById('binance-status');
-  setLoaderState('coingecko', 'PENDING', 'Loading crypto market data from CoinGecko.');
-  if (status) status.innerHTML = '<span class="pulse-dot" style="background:#c9a84c"></span><span>COINGECKO — LOADING MARKET DATA</span>';
-  try {
-    const params = new URLSearchParams({
-      vs_currency: 'usd',
-      ids: COINGECKO_MARKET_IDS.join(','),
-      order: 'market_cap_desc',
-      per_page: String(COINGECKO_MARKET_IDS.length),
-      page: '1',
-      sparkline: 'true',
-      price_change_percentage: '24h,7d'
-    });
-    const query = params.toString();
-    const data = await fetchJsonViaProxy(`/coingecko/markets?${query}`, `${COINGECKO_MARKETS_URL}?${query}`);
-    if (!Array.isArray(data) || data.length === 0) throw new Error('Empty CoinGecko response');
-    liveCryptoMarkets = data.reduce((acc, coin) => {
-      acc[String(coin.symbol || '').toUpperCase()] = coin;
-      return acc;
-    }, {});
-    body.innerHTML = data.map((coin, index) => {
-      const change24 = Number(coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h);
-      const change7d = Number(coin.price_change_percentage_7d_in_currency);
-      const spark = renderSparkline(coin.sparkline_in_7d?.price || []);
-      return `
-        <tr data-symbol="${escapeHtml(String(coin.symbol || '').toUpperCase())}">
-          <td>${index + 1}</td>
-          <td><span style="display:inline-flex;align-items:center;gap:8px;"><img src="${escapeHtml(coin.image)}" alt="" style="width:18px;height:18px;border-radius:50%;">${escapeHtml(String(coin.symbol || '').toUpperCase())}</span></td>
-          <td class="price">${formatMoney(Number(coin.current_price))}</td>
-          <td class="${change24 >= 0 ? 'up' : 'dn'}">${formatPct(change24)}</td>
-          <td class="${change7d >= 0 ? 'up' : 'dn'}">${formatPct(change7d)}</td>
-          <td>${spark}</td>
-          <td>${formatCompactNumber(Number(coin.market_cap))}</td>
-          <td>${formatCompactNumber(Number(coin.total_volume))}</td>
-          <td>${shimmerCell(48)}</td>
-          <td><span class="badge-neutral">AWAITING BINANCE</span></td>
-        </tr>`;
-    }).join('');
-    window.YTTHeatmap?.renderCrypto(liveCryptoMarkets);
-    if (status) status.innerHTML = '<span class="pulse-dot" style="background:#00c805"></span><span>COINGECKO — CONNECTED / BINANCE RSI AWAITING STREAM</span>';
-    if (logEl) logEl.innerHTML += '<div>> CoinGecko market data loaded ✓</div>';
-    setLoaderState('coingecko', 'LIVE', 'Crypto market data loaded. Connecting live stream.');
-  } catch (error) {
-    const message = describeNetworkError(error);
-    if (status) status.innerHTML = '<span class="pulse-dot" style="background:#ff5000"></span><span>COINGECKO — SOURCE ERROR / RETRY ON SCAN</span>';
-    if (logEl) logEl.innerHTML += `<div>> CoinGecko error: ${escapeHtml(message)} — retrying on next scan</div>`;
-    showApiNotice('CoinGecko unavailable', message);
-    setLoaderState('coingecko', 'UNAVAILABLE', 'CoinGecko unavailable. The app will keep retry controls active.');
-  }
-}
-
-function renderSparkline(points) {
-  const values = points.map(Number).filter(Number.isFinite);
-  if (values.length < 2) return '<div class="spark-slot" style="height:28px;">—</div>';
-  const width = 92;
-  const height = 28;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const step = width / (values.length - 1);
-  const d = values.map((value, index) => {
-    const x = index * step;
-    const y = height - ((value - min) / range * (height - 4)) - 2;
-    return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-  const tone = values[values.length - 1] >= values[0] ? '#00c805' : '#ff5000';
-  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="7 day sparkline"><path d="${d}" fill="none" stroke="${tone}" stroke-width="1.6" opacity="0.9"/></svg>`;
-}
-
-function applyBinanceTick(symbol, price, changePct, quoteVolume) {
-  if (!Number.isFinite(price)) return;
-  const row = document.querySelector(`#crypto-body tr[data-symbol="${symbol}"]`);
-  if (row?.children?.length) {
-    row.children[2].textContent = formatMoney(price);
-    row.children[3].textContent = formatPct(changePct);
-    row.children[3].className = changePct >= 0 ? 'up' : 'dn';
-    if (row.children[7] && Number.isFinite(quoteVolume)) row.children[7].textContent = formatCompactNumber(quoteVolume);
-    if (row.children[9]) row.children[9].innerHTML = '<span class="badge-buy">BINANCE LIVE</span>';
-  }
-  if (liveCryptoMarkets[symbol]) {
-    liveCryptoMarkets[symbol].current_price = price;
-    liveCryptoMarkets[symbol].price_change_percentage_24h = changePct;
-    liveCryptoMarkets[symbol].price_change_percentage_24h_in_currency = changePct;
-    if (Number.isFinite(quoteVolume)) liveCryptoMarkets[symbol].total_volume = quoteVolume;
-    liveCryptoMarkets[symbol].last_updated = new Date().toISOString();
-  }
-  window.clearTimeout(binanceRenderTimer);
-  binanceRenderTimer = window.setTimeout(() => {
-    window.YTTHeatmap?.renderCrypto(liveCryptoMarkets);
-  }, 1200);
-}
-
-function updateBinanceHealth(tone, label, detail) {
-  sourceHealthState.binance = { tone, label, detail };
-  renderSourceHealth();
-  const status = document.getElementById('binance-status');
-  if (status) {
-    const color = tone === 'up' ? '#00c805' : tone === 'dn' ? '#ff5000' : '#c9a84c';
-    status.innerHTML = `<span class="pulse-dot" style="background:${color}"></span><span>BINANCE WS — ${escapeHtml(label)}</span>`;
-  }
-}
-
-function initBinanceStream() {
-  if (!('WebSocket' in window)) {
-    updateBinanceHealth('dn', 'UNAVAILABLE', 'This browser does not expose WebSocket support.');
-    setLoaderState('binance', 'UNAVAILABLE', 'Binance WebSocket unavailable in this browser.');
-    return;
-  }
-  if (binanceSocket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(binanceSocket.readyState)) return;
-  const streams = Object.values(BINANCE_STREAM_SYMBOLS).map(symbol => `${symbol}@ticker`).join('/');
-  try {
-    binanceSocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
-  } catch (error) {
-    const message = describeNetworkError(error);
-    updateBinanceHealth('dn', 'FAILED', message);
-    setLoaderState('binance', 'UNAVAILABLE', 'Binance stream failed to initialize.');
-    return;
-  }
-  binanceSocket.addEventListener('open', () => {
-    updateBinanceHealth('up', 'CONNECTED', 'Public Binance ticker stream is updating crypto rows.');
-    setLoaderState('binance', 'LIVE', 'Binance crypto stream connected.');
-  });
-  binanceSocket.addEventListener('message', event => {
-    try {
-      const payload = JSON.parse(event.data);
-      const data = payload?.data || payload;
-      const symbol = String(data?.s || '').replace(/USDT$/, '');
-      applyBinanceTick(symbol, Number(data?.c), Number(data?.P), Number(data?.q));
-    } catch (_error) {
-      // Ignore malformed stream frames; the socket remains authoritative.
-    }
-  });
-  binanceSocket.addEventListener('error', () => {
-    updateBinanceHealth('dn', 'ERROR', 'Binance stream error. Reconnect will be attempted.');
-    setLoaderState('binance', 'FALLBACK', 'Binance stream error. Reconnect scheduled.');
-  });
-  binanceSocket.addEventListener('close', () => {
-    updateBinanceHealth('warn', 'RECONNECTING', 'Binance stream closed; reconnecting in 5 seconds.');
-    setLoaderState('binance', apiBootState.binance === 'PENDING' ? 'FALLBACK' : apiBootState.binance, 'Binance stream will reconnect in the background.');
-    window.clearTimeout(binanceReconnectTimer);
-    binanceReconnectTimer = window.setTimeout(initBinanceStream, 5000);
-  });
-}
-
-async function loadFinnhubStocks(logEl = null) {
-  const key = localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY');
-  const body = document.getElementById('stocks-body');
-  if (!body) return;
-  setLoaderState('finnhub', 'PENDING', 'Checking stock quote access.');
-  if (!key && !getApiProxyBase()) {
-    if (logEl) logEl.innerHTML += '<div>> Finnhub key missing — stock cells remain shimmer</div>';
-    setLoaderState('finnhub', 'UNAVAILABLE', 'Finnhub key or API proxy is not configured. Stock quote cells stay safely unavailable.');
-    return;
-  }
-  try {
-    const rows = [];
-    for (const symbol of FINNHUB_SYMBOLS) {
-      const direct = `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(key)}`;
-      const quote = await fetchJsonViaProxy(`/finnhub/quote?symbol=${encodeURIComponent(symbol)}`, direct);
-      const price = Number(quote.c);
-      liveStockQuotes[symbol] = {
-        symbol,
-        price,
-        changePct: Number(quote.dp),
-        previousClose: Number(quote.pc),
-        source: getApiProxyBase() ? 'PROXY/FINNHUB' : 'FINNHUB',
-        updatedAt: new Date().toISOString()
-      };
-      rows.push(`
-        <tr data-symbol="${symbol}">
-          <td>${symbol}</td>
-          <td>${Number.isFinite(price) ? formatMoney(price) : shimmerCell()}</td>
-          <td class="${Number(quote.dp) >= 0 ? 'up' : 'dn'}">${formatPct(Number(quote.dp))}</td>
-          <td>${shimmerCell()}</td>
-          <td>${shimmerCell(48)}</td>
-          <td>${shimmerCell(52)}</td>
-          <td>${shimmerCell(48)}</td>
-          <td><span class="badge-neutral">QUOTE ONLY</span></td>
-          <td>${getApiProxyBase() ? 'PROXY/FINNHUB' : 'FINNHUB'}</td>
-        </tr>`);
-    }
-    body.innerHTML = rows.join('');
-    window.YTTHeatmap?.renderStocks(liveStockQuotes);
-    if (logEl) logEl.innerHTML += '<div>> Finnhub quotes loaded ✓</div>';
-    setLoaderState('finnhub', 'LIVE', 'Stock quote snapshots loaded.');
-  } catch (error) {
-    const message = describeNetworkError(error);
-    if (logEl) logEl.innerHTML += `<div>> Finnhub error: ${escapeHtml(message)} — stock cells remain shimmer</div>`;
-    showApiNotice('Finnhub unavailable', message);
-    setLoaderState('finnhub', 'UNAVAILABLE', 'Finnhub unavailable. Stock fields remain labeled unavailable.');
-  }
 }
 
 function addToWatchlist() {
@@ -4463,31 +4499,8 @@ function testConnection(api) {
   if (!badge) return;
   badge.textContent = 'TESTING...';
   badge.style.color = 'var(--gold)';
-  if (api === 'finnhub') {
-    const key = localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY');
-    if (!key) {
-      badge.textContent = 'NO KEY';
-      badge.style.color = 'var(--red)';
-      return;
-    }
-    fetchJsonWithRetry(`${FINNHUB_BASE_URL}/quote?symbol=AAPL&token=${encodeURIComponent(key)}`, {}, 2)
-      .then(data => {
-        if (Number(data?.c) > 0) {
-          badge.textContent = 'CONNECTED';
-          badge.style.color = 'var(--green)';
-        } else {
-          badge.textContent = 'FAILED';
-          badge.style.color = 'var(--red)';
-        }
-      })
-      .catch(() => {
-        badge.textContent = 'FAILED';
-        badge.style.color = 'var(--red)';
-      });
-    return;
-  }
   setTimeout(() => {
-    const keyName = api === 'tradier' ? 'TRADIER_KEY' : api === 'finnhub' ? 'FINNHUB_KEY' : api === 'alpaca' ? 'ALPACA_KEY' : api.toUpperCase() + '_KEY';
+    const keyName = api === 'tradier' ? 'TRADIER_KEY' : api === 'alpaca' ? 'ALPACA_KEY' : api.toUpperCase() + '_KEY';
     const hasKey = localStorage.getItem(keyName);
     if (api === 'coingecko' || api === 'binance' || hasKey) {
       badge.textContent = 'CONNECTED';
@@ -4497,152 +4510,6 @@ function testConnection(api) {
       badge.style.color = 'var(--red)';
     }
   }, 800);
-}
-
-function renderSourceHealth() {
-  const list = document.getElementById('source-health-list');
-  if (!list) return;
-  const rows = [
-    ['proxy', 'API Proxy', 'Protects broker/API keys server-side'],
-    ['finnhub', 'Finnhub Stocks', 'Quote snapshots for stock scanners'],
-    ['coingecko', 'CoinGecko Crypto', 'Crypto metadata, caps, volume, 24h/7d'],
-    ['binance', 'Binance WS', 'Live crypto stream / RSI source'],
-    ['tradier', 'Tradier Pro', 'Options chains, Greeks, official equity source'],
-    ['alpaca', 'Alpaca', 'Portfolio and historical OHLCV'],
-    ['news', 'RSS News', 'Yahoo, Investing, CoinDesk, MarketWatch, Fed']
-  ];
-  list.innerHTML = rows.map(([key, label, fallback]) => {
-    const state = sourceHealthState[key] || { tone: 'warn', label: 'UNCHECKED', detail: fallback };
-    return `<div class="source-health-row">
-      <span class="health-dot ${state.tone || 'warn'}"></span>
-      <div><div class="source-name">${label}</div><div class="source-detail">${escapeHtml(state.detail || fallback)}</div></div>
-      <span class="status-chip ${state.tone === 'up' ? 'green' : state.tone === 'dn' ? 'red' : ''}">${escapeHtml(state.label || 'UNCHECKED')}</span>
-    </div>`;
-  }).join('');
-}
-
-async function refreshSourceHealth() {
-  sourceHealthState = {
-    proxy: { tone: getApiProxyBase() ? 'warn' : 'dn', label: getApiProxyBase() ? 'CHECKING' : 'NOT SET', detail: getApiProxyBase() || 'Set API_PROXY_BASE in the vault to hide keys behind a backend.' },
-    finnhub: { tone: 'warn', label: 'CHECKING', detail: 'Checking quote route.' },
-    coingecko: { tone: 'warn', label: 'CHECKING', detail: 'Checking public market endpoint.' },
-    binance: sourceHealthState.binance || { tone: 'warn', label: 'PUBLIC WS', detail: 'Public Binance ticker stream connects from the hosted browser when available.' },
-    tradier: { tone: localStorage.getItem('TRADIER_KEY') || getApiProxyBase() ? 'warn' : 'dn', label: localStorage.getItem('TRADIER_KEY') || getApiProxyBase() ? 'KEY/PROXY READY' : 'NO KEY', detail: 'Required for options chains and Greeks.' },
-    alpaca: { tone: localStorage.getItem('ALPACA_KEY') || getApiProxyBase() ? 'warn' : 'dn', label: localStorage.getItem('ALPACA_KEY') || getApiProxyBase() ? 'KEY/PROXY READY' : 'NO KEY', detail: 'Required for account, portfolio, and OHLCV.' },
-    news: { tone: newsItemsCache.length ? 'up' : 'warn', label: newsItemsCache.length ? 'LOADED' : 'CLIENT FETCH', detail: `${newsItemsCache.length || 0} articles cached in the current session.` }
-  };
-  renderSourceHealth();
-
-  if (getApiProxyBase()) {
-    try {
-      const health = await fetchJsonWithRetry(proxyPath('/health'), {}, 2);
-      sourceHealthState.proxy = { tone: 'up', label: 'ONLINE', detail: health?.service || getApiProxyBase() };
-    } catch (error) {
-      sourceHealthState.proxy = { tone: 'dn', label: 'FAILED', detail: `Proxy unreachable: ${error.message}` };
-    }
-  }
-
-  try {
-    const cg = await fetchJsonViaProxy('/coingecko/ping', 'https://api.coingecko.com/api/v3/ping', {}, 2);
-    sourceHealthState.coingecko = { tone: cg ? 'up' : 'dn', label: cg ? 'CONNECTED' : 'FAILED', detail: 'Public CoinGecko API reachable.' };
-  } catch (error) {
-    sourceHealthState.coingecko = { tone: 'dn', label: 'FAILED', detail: `CoinGecko check failed: ${error.message}` };
-  }
-
-  const finnhubKey = localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY');
-  if (finnhubKey || getApiProxyBase()) {
-    try {
-      const direct = `${FINNHUB_BASE_URL}/quote?symbol=AAPL&token=${encodeURIComponent(finnhubKey || '')}`;
-      const data = await fetchJsonViaProxy('/finnhub/quote?symbol=AAPL', direct, {}, 2);
-      sourceHealthState.finnhub = Number(data?.c) > 0
-        ? { tone: 'up', label: 'CONNECTED', detail: `AAPL quote reachable via ${getApiProxyBase() ? 'proxy' : 'direct key'}.` }
-        : { tone: 'dn', label: 'NO PRICE', detail: 'Finnhub returned no quote value.' };
-    } catch (error) {
-      sourceHealthState.finnhub = { tone: 'dn', label: 'FAILED', detail: `Finnhub check failed: ${error.message}` };
-    }
-  } else {
-    sourceHealthState.finnhub = { tone: 'dn', label: 'NO KEY', detail: 'Save Finnhub key or configure API proxy.' };
-  }
-
-  renderSourceHealth();
-}
-
-function openAIAssistant() {
-  document.getElementById('ai-drawer')?.classList.add('open');
-  setTimeout(() => document.getElementById('ai-input')?.focus(), 80);
-}
-
-function closeAIAssistant() {
-  document.getElementById('ai-drawer')?.classList.remove('open');
-}
-
-function appendAIMessage(role, html) {
-  const box = document.getElementById('ai-messages');
-  if (!box) return;
-  const div = document.createElement('div');
-  div.className = `ai-msg ${role}`;
-  div.innerHTML = html;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-
-function buildAIContext() {
-  return {
-    activeTab: document.body.dataset.activeTab || localStorage.getItem('activeTab') || 'dashboard',
-    sourceHealth: sourceHealthState,
-    stockQuotes: liveStockQuotes,
-    cryptoMarkets: liveCryptoMarkets,
-    watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]'),
-    newsCount: newsItemsCache.length,
-    proxyConfigured: Boolean(getApiProxyBase())
-  };
-}
-
-async function submitAIQuestion(event) {
-  event.preventDefault();
-  const input = document.getElementById('ai-input');
-  const question = input?.value.trim();
-  if (!question) return;
-  if (input) input.value = '';
-  appendAIMessage('user', escapeHtml(question));
-  appendAIMessage('assistant', '<strong>Thinking...</strong>');
-  const box = document.getElementById('ai-messages');
-  const pending = box?.lastElementChild;
-  try {
-    const proxy = getApiProxyBase();
-    if (proxy) {
-      const data = await fetchJsonWithRetry(proxyPath('/ai/stock-assistant'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, context: buildAIContext() })
-      }, 1);
-      if (pending) pending.innerHTML = escapeHtml(data.answer || '').replace(/\n/g, '<br>');
-      return;
-    }
-  } catch (error) {
-    if (pending) pending.innerHTML = `<strong>Proxy AI unavailable.</strong><br>${escapeHtml(error.message)}<br><br>${localAssistantAnswer(question)}`;
-    return;
-  }
-  if (pending) pending.innerHTML = localAssistantAnswer(question);
-}
-
-function localAssistantAnswer(question) {
-  const upper = question.toUpperCase();
-  const ticker = Object.keys(liveStockQuotes).find(sym => upper.includes(sym));
-  const crypto = Object.keys(liveCryptoMarkets).find(sym => upper.includes(sym));
-  const healthBad = Object.values(sourceHealthState).filter(s => s.tone === 'dn').length;
-  if (ticker) {
-    const q = liveStockQuotes[ticker];
-    return `<strong>${ticker} snapshot</strong><br>Source: ${escapeHtml(q.source || 'Unavailable')}<br>Last quote: ${formatMoney(q.price)}<br>Change: ${formatPct(q.changePct)}<br><br>RSI, volume, MACD, ATR, targets, and option flow remain unavailable unless the proper live candle/options providers are connected. I will not infer them.`;
-  }
-  if (crypto) {
-    const c = liveCryptoMarkets[crypto];
-    return `<strong>${crypto} snapshot</strong><br>CoinGecko price: ${formatMoney(Number(c.current_price))}<br>24h: ${formatPct(Number(c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h))}<br>Market cap: ${formatCompactNumber(Number(c.market_cap))}<br><br>Binance RSI/stream signals remain unavailable until the stream module is mounted.`;
-  }
-  if (upper.includes('HEALTH') || upper.includes('SOURCE') || upper.includes('API')) {
-    return `<strong>Source health readout</strong><br>${Object.entries(sourceHealthState).map(([key, state]) => `${key.toUpperCase()}: ${state.label} — ${escapeHtml(state.detail || '')}`).join('<br>')}<br><br>${healthBad ? 'Fix failed sources first; shimmered panels are expected until those routes connect.' : 'Core checked sources look ready.'}`;
-  }
-  return `<strong>Best next action</strong><br>Ask me about a loaded ticker like NVDA or BTC, or ask “source health.” I can summarize only connected data. Current proxy: ${getApiProxyBase() ? 'configured' : 'not configured'}. News cached: ${newsItemsCache.length}.`;
 }
 
 const NEWS_FEEDS = {
@@ -5014,9 +4881,9 @@ function escapeHtml(value) {
 
 function seedSkeletonTables() {
   const stocks = ['NVDA','TSLA','META','AVGO','ORCL','MSFT','MU','XOM'];
-  document.getElementById('stocks-body').innerHTML = stocks.map(s => `<tr data-symbol="${s}"><td>${s}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td>${(localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY')) ? 'FINNHUB' : 'AWAITING API KEY'}</td></tr>`).join('');
+  document.getElementById('stocks-body').innerHTML = stocks.map(s => `<tr><td>${s}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td>TRADIER</td></tr>`).join('');
   const coins = ['BTC','ETH','SOL','XRP','SUI','BNB','AVAX','DOGE'];
-  document.getElementById('crypto-body').innerHTML = coins.map((c, i) => `<tr data-symbol="${c}"><td>${i + 1}</td><td>${c}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><div class="spark-slot" style="height:28px;"></div></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td></tr>`).join('');
+  document.getElementById('crypto-body').innerHTML = coins.map((c, i) => `<tr><td>${i + 1}</td><td>${c}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><div class="spark-slot" style="height:28px;"></div></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td></tr>`).join('');
   document.getElementById('options-body').innerHTML = Array.from({length: 8}).map(() => `<tr>${Array.from({length: 11}).map(() => '<td><span class="shimmer"></span></td>').join('')}</tr>`).join('');
   document.getElementById('positions-body').innerHTML = Array.from({length: 5}).map(() => `<tr>${Array.from({length: 7}).map(() => '<td><span class="shimmer"></span></td>').join('')}</tr>`).join('');
   const sectors = ['TECH','ENERGY','FINANCIALS','HEALTH','INDUSTRIALS','UTILITIES','REAL ESTATE','MATERIALS','CONSUMER D','STAPLES','COMM'];
@@ -5024,15 +4891,10 @@ function seedSkeletonTables() {
   if (heatmap) {
     heatmap.innerHTML = sectors.map(s => `<div class="sector-tile"><div class="sector-name">${s}</div><div class="sector-change"><span class="shimmer"></span></div></div>`).join('');
   }
-  loadCoinGeckoMarkets();
-  loadFinnhubStocks();
 }
 
 function initTradingView() {
-  if (!window.TradingView) {
-    setLoaderState('tradingview', 'UNAVAILABLE', 'TradingView script unavailable. Chart panels will retry when the CDN loads.');
-    return;
-  }
+  if (!window.TradingView) return;
   if (document.getElementById('tv_chart_container')) {
     window.tvWidget1 = new TradingView.widget({
       autosize: true,
@@ -5073,7 +4935,6 @@ function initTradingView() {
       }
     });
   }
-  setLoaderState('tradingview', 'READY', 'Chart modules initialized.');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -5081,7 +4942,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initPremiumCursor();
   initAuthControls();
   initNewsModal();
-  ensureFinnhubSettings();
   initVault();
   applyAdminMode();
   const signin = document.getElementById('signin-shell');
@@ -5099,12 +4959,9 @@ document.addEventListener('DOMContentLoaded', () => {
   showTab(saved);
   loadSavedKeys();
   updateDeploymentHealth();
-  renderSourceHealth();
-  refreshSourceHealth();
   renderWatchlist();
   updateMarketStatus();
   updateClock();
-  initBinanceStream();
   const modeBtn = document.getElementById('tradier-toggle');
   const mode = localStorage.getItem('TRADIER_MODE') || 'sandbox';
   if (modeBtn) modeBtn.textContent = mode.toUpperCase();
@@ -5112,12 +4969,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateMarketStatus, 60000);
   setInterval(updateClock, 1000);
   setTimeout(initTradingView, 400);
-  setTimeout(() => {
-    Object.entries(apiBootState).forEach(([source, state]) => {
-      if (state === 'PENDING') setLoaderState(source, 'FALLBACK', `${source} is still initializing. The dashboard remains usable and will keep retrying.`);
-    });
-    finishLoadingScreen();
-  }, 8500);
 });
   </script>
 </body>
