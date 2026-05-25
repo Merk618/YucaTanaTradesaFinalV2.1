@@ -1,0 +1,8 @@
+name = "ytt-perplexity-proxy"
+main = "worker.js"
+compatibility_date = "2026-05-24"
+workers_dev = true
+
+# Do not place PERPLEXITY_API_KEY here.
+# Add it as a Cloudflare Worker secret:
+# wrangler secret put PERPLEXITY_API_KEY
