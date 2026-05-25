@@ -106,7 +106,8 @@
     const target = document.getElementById(`${type}-asset-detail-panel`);
     if (!target) return;
     if (!row) {
-      target.innerHTML = `<div class="panel"><div class="panel-header">Selected ${type} Detail</div><p class="ytt-detail-empty">${DATA_UNAVAILABLE}</p></div>`;
+      target.innerHTML = `<div class="panel"><div class="panel-header">Selected ${type} Detail</div><p class="ytt-detail-empty">${DATA_UNAVAILABLE}</p></div><div id="${type}-perplexity-research" data-perplexity-panel data-panel-context="${type}"></div>`;
+      window.YTTPerplexity?.mountAll?.();
       return;
     }
     target.innerHTML = `<div class="panel">
@@ -122,7 +123,8 @@
       </div>
       <div class="ytt-thesis-box" style="margin-top:10px"><small>Data boundary</small><p>No thesis, conviction, RSI, MACD, support, resistance, or catalyst values are shown until calculated by repo strategy/data services.</p></div>
       <button class="small-btn" type="button" data-deep-dive="${escapeHtml(row.symbol)}" style="margin-top:12px">Deep Dive</button>
-    </div>`;
+    </div><div id="${type}-perplexity-research" data-perplexity-panel data-panel-context="${type}"></div>`;
+    window.YTTPerplexity?.mountAll?.();
   }
 
   function updateChart(type, row) {

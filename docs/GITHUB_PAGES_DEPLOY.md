@@ -59,6 +59,12 @@ The site should then load at:
 https://USERNAME.github.io/REPOSITORY-NAME/
 ```
 
+For the current public target:
+
+```text
+https://Merk618.github.io/YucaTanaTradesaFinalV2.1/
+```
+
 ## Alternative Main Branch Setup
 
 If you serve the repository root from `main`, the root `index.html` redirects to `dist-web/index.html`. This works, but the cleanest production URL comes from publishing the contents of `dist-web/` as the Pages root.
@@ -79,5 +85,7 @@ npm run build:web
 ## API Notes
 
 GitHub Pages is static hosting. The frontend can call public APIs such as CoinGecko and Binance WebSocket directly when browser/CORS/rate limits allow it. Private-key APIs such as Finnhub should use the Settings tab's API Proxy Base URL so secrets stay server-side.
+
+Perplexity Finance AI also requires API Proxy Base URL. The frontend calls `API_PROXY_BASE/perplexity/finance`; the Perplexity API key must remain on the backend/proxy.
 
 When an API fails, the dashboard keeps rendering, marks fields as unavailable, and leaves retry controls active.

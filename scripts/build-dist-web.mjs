@@ -30,6 +30,17 @@ async function copyTextFile(src, dest) {
   await writeFile(dest, sanitizeHostedText(text), "utf8");
 }
 
+async function rewriteDistWebModuleImports() {
+  const researchScript = path.join(distWeb, "scripts", "perplexityResearch.js");
+  if (!existsSync(researchScript)) return;
+  const text = await readFile(researchScript, "utf8");
+  await writeFile(
+    researchScript,
+    text.replaceAll("../../../services/ai/", "../services/ai/"),
+    "utf8"
+  );
+}
+
 async function copyMaybeTextFile(src, dest) {
   const ext = path.extname(src).toLowerCase();
   if ([".html", ".css", ".js", ".json", ".svg", ".txt", ".md"].includes(ext)) {
@@ -107,6 +118,18 @@ async function preserveSingleFileExport() {
   }
 }
 
+async function mirrorDistWebToRoot() {
+  await copyTextFile(path.join(distWeb, "index.html"), path.join(root, "index.html"));
+  await rm(assertInsideRoot(path.join(root, "styles")), { recursive: true, force: true });
+  await rm(assertInsideRoot(path.join(root, "legacy")), { recursive: true, force: true });
+  await copyDir(path.join(distWeb, "styles"), path.join(root, "styles"));
+  await copyDir(path.join(distWeb, "legacy"), path.join(root, "legacy"));
+  await mkdir(path.join(root, "scripts"), { recursive: true });
+  await copyTextFile(path.join(distWeb, "scripts", "heatmap.js"), path.join(root, "scripts", "heatmap.js"));
+  await copyTextFile(path.join(distWeb, "scripts", "perplexityResearch.js"), path.join(root, "scripts", "perplexityResearch.js"));
+  await copyFile(path.join(distWeb, ".nojekyll"), path.join(root, ".nojekyll"));
+}
+
 async function main() {
   assertInsideRoot(distWeb);
   await preserveSingleFileExport();
@@ -118,12 +141,16 @@ async function main() {
   await copyDir(path.join(appRoot, "scripts"), path.join(distWeb, "scripts"));
   await copyDir(path.join(appRoot, "assets"), path.join(distWeb, "assets"));
   await copyDir(path.join(appRoot, "legacy"), path.join(distWeb, "legacy"));
+  await copyDir(path.join(root, "services", "ai"), path.join(distWeb, "services", "ai"));
+  await rewriteDistWebModuleImports();
   await writeFile(path.join(distWeb, ".nojekyll"), "", "utf8");
 
   await assertNoLocalPaths(distWeb);
   await assertIndexLocalRefs();
+  await mirrorDistWebToRoot();
 
   console.log(`Built ${path.relative(root, distWeb)} with hosted relative paths.`);
+  console.log("Mirrored dist-web to repository root for GitHub Pages.");
   console.log(`Preserved ${path.relative(root, singleFileExport)}.`);
 }
 

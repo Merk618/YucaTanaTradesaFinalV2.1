@@ -67,6 +67,7 @@ Expected behavior:
 - Binance crypto ticker updates use public WebSocket streams.
 - TradingView stays as an external embed script.
 - Finnhub stock quotes require a local key or server-side proxy.
+- Perplexity Finance research requires `API_PROXY_BASE/perplexity/finance`; never place a Perplexity API key in the frontend.
 - Missing or blocked APIs show unavailable states instead of fabricated values.
 
 ## Releasing Updates
