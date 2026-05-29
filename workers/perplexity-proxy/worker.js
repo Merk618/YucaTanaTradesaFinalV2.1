@@ -3,7 +3,7 @@ const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_QUERY_LENGTH = 4000;
 const MAX_BODY_CHARS = 65536;
-const COOLDOWN_MS = 1500;
+const COOLDOWN_MS = 5000;
 
 const SYSTEM_MESSAGE = [
   "You are the YucaTanaTrades AI Financial Intelligence Engine.",
@@ -168,8 +168,8 @@ async function handleFinanceResearch(request, env, startedAt) {
     }, 503);
   }
 
-  enforceCooldown(request);
   const payload = validatePayload(await readJsonBody(request));
+  enforceCooldown(request);
   const mode = normalizeMode(payload.mode);
   const upstream = await callPerplexity(payload, mode, env);
   const latencyMs = Date.now() - startedAt;
@@ -248,6 +248,9 @@ function jsonResponse(request, payload, status = 200) {
   headers.set("Content-Type", "application/json; charset=utf-8");
   headers.set("Cache-Control", "no-store");
   headers.set("X-Content-Type-Options", "nosniff");
+  if (status === 429) {
+    headers.set("Retry-After", String(Math.ceil(COOLDOWN_MS / 1000)));
+  }
   return new Response(JSON.stringify(payload), { status, headers });
 }
 
@@ -335,7 +338,7 @@ function enforceCooldown(request) {
   const previous = cooldownByClient.get(clientKey) || 0;
 
   if (now - previous < COOLDOWN_MS) {
-    throw new RequestError(429, "Too many requests. Please retry shortly.");
+    throw new RequestError(429, "Rate limit active. Please wait before asking another research question.");
   }
 
   cooldownByClient.set(clientKey, now);

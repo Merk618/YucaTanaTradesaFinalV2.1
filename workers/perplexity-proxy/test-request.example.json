@@ -1,0 +1,11 @@
+{
+  "query": "Why is NVDA moving recently? Give catalysts, risks, and sources.",
+  "mode": "Why Is This Moving?",
+  "ticker": "NVDA",
+  "assetType": "stock",
+  "selectedTab": "stocks",
+  "watchlist": ["NVDA", "MSFT", "META"],
+  "marketContext": {},
+  "scannerContext": {},
+  "sourceHealth": {}
+}

@@ -81,4 +81,4 @@ curl -X POST http://127.0.0.1:8787/perplexity/finance \
 - Never commit `PERPLEXITY_API_KEY`.
 - Never place a Perplexity API key in GitHub Pages frontend code.
 - This Worker does not place trades, call brokers, or enable live trading.
-- The lightweight in-memory cooldown is not durable. For production abuse prevention, add Cloudflare WAF rules, Turnstile, Access, or a durable rate limiter.
+- The Worker enforces a five-second in-memory cooldown per detected client IP. This is not durable across Cloudflare isolates. For production abuse prevention, add Cloudflare WAF rules, Turnstile, Access, or a durable rate limiter.

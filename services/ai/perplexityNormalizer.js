@@ -15,19 +15,20 @@ function normalizeCitation(citation) {
 }
 
 export function normalizePerplexityResponse(payload = {}) {
-  const answer = payload.answer || payload.response || payload.content || payload.text || "";
-  const citations = asArray(payload.citations || payload.sources).map(normalizeCitation).filter((item) => item.title || item.url);
-  const sources = asArray(payload.sources).map(normalizeCitation).filter((item) => item.title || item.url);
-  const dataQuality = DATA_QUALITY_VALUES.has(payload.dataQuality) ? payload.dataQuality : citations.length ? "WEB-GROUNDED" : "UNAVAILABLE";
+  const data = payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {};
+  const answer = data.answer || data.response || data.content || data.text || "";
+  const citations = asArray(data.citations || data.sources).map(normalizeCitation).filter((item) => item.title || item.url);
+  const sources = asArray(data.sources).map(normalizeCitation).filter((item) => item.title || item.url);
+  const dataQuality = DATA_QUALITY_VALUES.has(data.dataQuality) ? data.dataQuality : citations.length ? "WEB-GROUNDED" : "UNAVAILABLE";
   return {
     answer: answer || "Perplexity research unavailable — retrying.",
     citations,
     sources: sources.length ? sources : citations,
-    tickers: asArray(payload.tickers).map((ticker) => String(ticker).toUpperCase()).filter(Boolean),
-    timestamp: payload.timestamp || new Date().toISOString(),
-    categories: asArray(payload.categories).map(String),
+    tickers: asArray(data.tickers).map((ticker) => String(ticker).toUpperCase()).filter(Boolean),
+    timestamp: data.timestamp || new Date().toISOString(),
+    categories: asArray(data.categories).map(String),
     dataQuality,
-    latencyMs: Number.isFinite(Number(payload.latencyMs)) ? Number(payload.latencyMs) : null,
+    latencyMs: Number.isFinite(Number(data.latencyMs)) ? Number(data.latencyMs) : null,
   };
 }
 

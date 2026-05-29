@@ -83,7 +83,7 @@ The Worker includes:
 - 4000 character query limit
 - request body size limit
 - 20 second upstream timeout
-- lightweight in-memory cooldown
+- five-second lightweight in-memory cooldown
 - restricted production CORS allowlist
 
 The cooldown is intentionally lightweight and not durable. Production hardening should add Cloudflare WAF rules, Turnstile, Durable Object rate limits, or Access controls.

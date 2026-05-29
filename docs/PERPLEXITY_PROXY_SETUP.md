@@ -127,6 +127,7 @@ Browser CORS origins do not include path names, so `https://Merk618.github.io/Yu
 - Upstream Perplexity failures return `502`.
 - Timeouts return `504`.
 - Empty queries and queries over 4000 characters are rejected.
+- Per-IP Worker cooldown returns `429` for repeated requests within five seconds.
 
 ## Production Hardening
 

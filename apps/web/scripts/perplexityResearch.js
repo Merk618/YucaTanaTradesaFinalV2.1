@@ -10,6 +10,8 @@ const SETTINGS = {
   proxy: "API_PROXY_BASE",
 };
 
+const CLIENT_COOLDOWN_MS = 5000;
+const MAX_QUERY_LENGTH = 4000;
 const panelState = new Map();
 
 function escapeHtml(value) {
@@ -20,6 +22,41 @@ function escapeHtml(value) {
     '"': "&quot;",
     "'": "&#39;",
   }[char]));
+}
+
+function getPanelState(panel) {
+  const existing = panelState.get(panel) || {};
+  panelState.set(panel, existing);
+  return existing;
+}
+
+function formatTimestamp(value) {
+  if (!value) return "TIME UNAVAILABLE";
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? "TIME UNAVAILABLE" : date.toLocaleString();
+}
+
+function requestKey(query, mode, contextName) {
+  return [contextName, mode, query.trim().toLowerCase()].join("|");
+}
+
+function setBusy(panel, busy) {
+  panel.classList.toggle("is-busy", Boolean(busy));
+  panel.querySelectorAll("[data-perplexity-submit], [data-perplexity-retry], [data-perplexity-regenerate]").forEach((button) => {
+    button.disabled = Boolean(busy);
+  });
+}
+
+function setLocalNotice(panel, status, message) {
+  updateOutput(panel, {
+    answer: message,
+    dataQuality: "UNAVAILABLE",
+    timestamp: new Date().toISOString(),
+    citations: [],
+    sources: [],
+    tickers: [],
+  });
+  updateSourceHealth(status, message);
 }
 
 function isEnabled() {
@@ -124,28 +161,35 @@ function setQuality(panel, quality) {
   chip.textContent = quality;
 }
 
-function updateOutput(panel, result) {
+function updateOutput(panel, result = {}) {
   const output = panel.querySelector("[data-perplexity-output]");
   const citations = panel.querySelector("[data-perplexity-citations]");
   const tickers = panel.querySelector("[data-perplexity-tickers]");
   const meta = panel.querySelector("[data-perplexity-meta]");
+  const state = getPanelState(panel);
+  const answer = result.answer || "Perplexity research unavailable — retrying.";
+  const quality = result.dataQuality || "UNAVAILABLE";
   if (output) {
     output.classList.remove("is-loading");
-    output.innerHTML = renderMarkdownLite(result.answer);
+    output.innerHTML = renderMarkdownLite(answer);
   }
-  setQuality(panel, result.dataQuality || "UNAVAILABLE");
+  setQuality(panel, quality);
   if (meta) {
-    const stamp = result.timestamp ? new Date(result.timestamp).toLocaleString() : "TIME UNAVAILABLE";
-    meta.innerHTML = `<span>${escapeHtml(result.dataQuality || "UNAVAILABLE")}</span><span>${escapeHtml(stamp)}</span>${result.latencyMs ? `<span>${Math.round(result.latencyMs)}MS</span>` : ""}`;
+    const stamp = formatTimestamp(result.timestamp);
+    const lastRequest = state.lastRequestAt ? formatTimestamp(state.lastRequestAt) : "";
+    const latency = Number.isFinite(Number(result.latencyMs)) ? `<span>${Math.round(Number(result.latencyMs))}MS</span>` : "";
+    meta.innerHTML = `<span>${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
   }
   if (tickers) {
-    tickers.innerHTML = (result.tickers || []).map((ticker) => `<span>${escapeHtml(ticker)}</span>`).join("");
+    tickers.innerHTML = (Array.isArray(result.tickers) ? result.tickers : []).map((ticker) => `<span>${escapeHtml(ticker)}</span>`).join("");
   }
   if (citations) {
-    const links = (result.citations || result.sources || []).slice(0, 5).map((source, index) => {
-      const title = source.title || source.url || `Source ${index + 1}`;
-      return source.url
-        ? `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>`
+    const sourceList = Array.isArray(result.citations) && result.citations.length ? result.citations : Array.isArray(result.sources) ? result.sources : [];
+    const links = sourceList.slice(0, 5).map((source, index) => {
+      const sourceObject = typeof source === "string" ? { title: source, url: source } : source || {};
+      const title = sourceObject.title || sourceObject.url || `Source ${index + 1}`;
+      return sourceObject.url
+        ? `<a href="${escapeHtml(sourceObject.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>`
         : `<span>${escapeHtml(title)}</span>`;
     });
     citations.innerHTML = links.length ? links.join("") : "<span>No citations returned.</span>";
@@ -153,14 +197,40 @@ function updateOutput(panel, result) {
 }
 
 function updateSourceHealth(status, detail, latencyMs = null, lastSuccessAt = null) {
-  const tone = status === "CONNECTED" ? "up" : status === "DISABLED" || status === "DEGRADED" ? "warn" : "dn";
+  const warnStatuses = new Set(["DISABLED", "DEGRADED", "RATE LIMITED", "PROXY REQUIRED"]);
+  const tone = status === "CONNECTED" ? "up" : warnStatuses.has(status) ? "warn" : "dn";
+  const detailParts = [detail];
+  if (Number.isFinite(Number(latencyMs))) detailParts.push(`Latency ${Math.round(Number(latencyMs))}ms.`);
+  if (lastSuccessAt) detailParts.push(`Last success ${formatTimestamp(lastSuccessAt)}.`);
   window.YTTSourceHealth?.set?.("perplexity", {
     tone,
     label: status,
-    detail: latencyMs ? `${detail} Latency ${Math.round(latencyMs)}ms.` : detail,
+    detail: detailParts.filter(Boolean).join(" "),
     latencyMs,
     lastSuccessAt,
+    lastFailureReason: status === "CONNECTED" ? "" : detail,
   });
+}
+
+function classifyClientError(error) {
+  switch (error?.code) {
+    case "PROXY_REQUIRED":
+      return { status: "PROXY REQUIRED", message: "Perplexity proxy not configured. Set API_PROXY_BASE in Settings/Admin." };
+    case "PROXY_OFFLINE":
+      return { status: "FAILED", message: "Perplexity proxy offline. Check API_PROXY_BASE or Cloudflare Worker deployment." };
+    case "RATE_LIMITED":
+      return { status: "RATE LIMITED", message: "Rate limit active. Please wait before asking another research question." };
+    case "PERPLEXITY_UNAVAILABLE":
+      return { status: "DEGRADED", message: "Perplexity research unavailable — retrying." };
+    case "INVALID_RESPONSE":
+      return { status: "FAILED", message: "Invalid response from Perplexity proxy." };
+    case "REQUEST_TIMEOUT":
+      return { status: "DEGRADED", message: "Perplexity proxy timed out. Please retry shortly." };
+    case "BAD_REQUEST":
+      return { status: "FAILED", message: error.message || "Invalid Perplexity research request." };
+    default:
+      return { status: "FAILED", message: error?.message || "Perplexity research unavailable — retrying." };
+  }
 }
 
 async function ask(panel, contextName, forceQuery = "") {
@@ -169,9 +239,31 @@ async function ask(panel, contextName, forceQuery = "") {
   const mode = panel.querySelector("[data-perplexity-mode]")?.value || settings.mode;
   const query = (forceQuery || input?.value || "").trim();
   const output = panel.querySelector("[data-perplexity-output]");
-  const submit = panel.querySelector("[data-perplexity-submit]");
-  if (!query) return;
-  panelState.set(panel, { query, mode, contextName });
+  const state = getPanelState(panel);
+  if (!query) {
+    setLocalNotice(panel, "DEGRADED", "Enter a Perplexity Finance question before asking.");
+    return;
+  }
+  if (query.length > MAX_QUERY_LENGTH) {
+    setLocalNotice(panel, "FAILED", `Query is too long. Keep it under ${MAX_QUERY_LENGTH} characters.`);
+    return;
+  }
+  if (state.inFlight) {
+    setLocalNotice(panel, "RATE LIMITED", "A Perplexity research request is already running.");
+    return;
+  }
+  const now = Date.now();
+  const key = requestKey(query, mode, contextName);
+  const elapsed = now - (state.lastRequestAt || 0);
+  if (state.lastRequestAt && elapsed < CLIENT_COOLDOWN_MS) {
+    const remaining = Math.ceil((CLIENT_COOLDOWN_MS - elapsed) / 1000);
+    setLocalNotice(panel, "RATE LIMITED", `Local cooldown active. Please wait ${remaining}s before asking another research question.`);
+    return;
+  }
+  if (state.lastRequestKey === key && state.lastCompletedAt && now - state.lastCompletedAt < CLIENT_COOLDOWN_MS) {
+    setLocalNotice(panel, "RATE LIMITED", "Duplicate research request blocked. Please wait before retrying the same question.");
+    return;
+  }
   localStorage.setItem(SETTINGS.mode, mode);
   if (!settings.enabled) {
     updateOutput(panel, { answer: "Perplexity research is disabled in Settings.", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
@@ -183,11 +275,12 @@ async function ask(panel, contextName, forceQuery = "") {
     updateSourceHealth("PROXY REQUIRED", "Set API_PROXY_BASE before using Perplexity. Keys must remain server-side.");
     return;
   }
+  Object.assign(state, { query, mode, contextName, lastRequestAt: now, lastRequestKey: key, inFlight: true });
   if (output) {
     output.classList.add("is-loading");
-    output.textContent = "Perplexity research unavailable — retrying.";
+    output.textContent = "Scanning web-grounded finance sources...";
   }
-  if (submit) submit.disabled = true;
+  setBusy(panel, true);
   try {
     const yttContext = buildPerplexityContext(getAppState(contextName, query));
     const selected = yttContext.selectedAsset || {};
@@ -208,14 +301,19 @@ async function ask(panel, contextName, forceQuery = "") {
       scannerContext: yttContext.scannerContext,
     });
     result.latencyMs = result.latencyMs || Date.now() - started;
+    state.lastCompletedAt = Date.now();
+    state.lastSuccessAt = result.timestamp || new Date().toISOString();
+    state.lastFailureReason = "";
     updateOutput(panel, result);
     updateSourceHealth("CONNECTED", `Last success ${new Date(result.timestamp).toLocaleString()}.`, result.latencyMs, result.timestamp);
   } catch (error) {
-    const message = error?.message || "Perplexity research unavailable — retrying.";
-    updateOutput(panel, { answer: message, dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
-    updateSourceHealth(error?.code === "PROXY_REQUIRED" ? "PROXY REQUIRED" : "FAILED", message);
+    const classified = classifyClientError(error);
+    state.lastFailureReason = classified.message;
+    updateOutput(panel, { answer: classified.message, dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
+    updateSourceHealth(classified.status, `Last failure: ${classified.message}`);
   } finally {
-    if (submit) submit.disabled = false;
+    state.inFlight = false;
+    setBusy(panel, false);
   }
 }
 
@@ -258,7 +356,7 @@ function bindSettingsPanel() {
       <label class="ytt-perplexity-setting-row"><span>Verbosity</span><select id="perplexity-verbosity" class="ytt-perplexity-setting"><option value="concise">Concise</option><option value="balanced">Balanced</option><option value="detailed">Detailed</option></select></label>
       <label class="ytt-perplexity-setting-row"><span>Response Length</span><select id="perplexity-length" class="ytt-perplexity-setting"><option value="short">Short</option><option value="medium">Medium</option><option value="long">Long</option></select></label>
       <label class="ytt-perplexity-setting-row"><span>Default Mode</span><select id="perplexity-default-mode" class="ytt-perplexity-setting">${modeOptions(settings.mode)}</select></label>
-      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Test Perplexity</button></div>
+      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button></div>
     </div>`;
   host.querySelector("#perplexity-verbosity").value = settings.verbosity;
   host.querySelector("#perplexity-length").value = settings.responseLength;
@@ -295,7 +393,10 @@ async function refreshHealth() {
   }
   updateSourceHealth("DEGRADED", "Checking Perplexity proxy.");
   const result = await createPerplexityClient({ proxyBase: settings.proxyBase, timeoutMs: 12000 }).healthCheck();
-  updateSourceHealth(result.status, result.error || "Perplexity proxy responded.", result.latencyMs, result.lastSuccessAt);
+  const detail = result.error || (result.status === "CONNECTED"
+    ? "Perplexity proxy health route is connected and server-side secret is configured."
+    : "Perplexity proxy health check completed with degraded status.");
+  updateSourceHealth(result.status, detail, result.latencyMs, result.lastSuccessAt);
 }
 
 function mountAll() {
