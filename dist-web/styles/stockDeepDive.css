@@ -1,0 +1,375 @@
+.stock-deep-dive-section {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(201,168,76,0.18);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(201,168,76,0.10), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.014)),
+    rgba(8,8,10,0.94);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 18px 60px rgba(0,0,0,0.32);
+}
+
+.stock-deep-dive-section[data-loading="true"] {
+  border-color: rgba(201,168,76,0.30);
+}
+
+.stock-deep-dive-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.stock-deep-dive-section .section-label,
+.stock-deep-dive-label {
+  color: var(--gold);
+  font: 800 10px var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.stock-deep-dive-section .section-title,
+.stock-deep-dive-title {
+  color: var(--text);
+  font: 700 clamp(22px, 2.2vw, 34px)/1.05 var(--serif);
+  letter-spacing: 0.01em;
+}
+
+.stock-deep-dive-copy {
+  max-width: 920px;
+  margin: 0;
+  color: var(--muted);
+  font: 500 12px/1.65 var(--ui);
+}
+
+.stock-deep-dive-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin: 14px 0 16px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(17,17,20,0.92);
+}
+
+.stock-deep-dive-control {
+  display: grid;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.stock-deep-dive-control label,
+.stock-deep-dive-toggle {
+  color: var(--muted);
+  font: 800 9px var(--mono);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.stock-deep-dive-control select {
+  min-height: 34px;
+  color: var(--text);
+  background: rgba(8,8,10,0.98);
+  border: 1px solid rgba(201,168,76,0.18);
+  padding: 0 10px;
+  font: 700 10px var(--mono);
+}
+
+.stock-deep-dive-toggle {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+}
+
+.stock-deep-dive-btn {
+  min-height: 34px;
+  border: 1px solid rgba(201,168,76,0.42);
+  color: var(--gold);
+  background: rgba(201,168,76,0.10);
+  padding: 0 14px;
+  font: 800 10px var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.stock-thesis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.stock-thesis-card {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
+  background:
+    linear-gradient(145deg, rgba(17,17,20,0.98), rgba(12,14,18,0.98)),
+    #0a0a0c;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.36);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.stock-thesis-card:hover,
+.stock-thesis-card.is-active {
+  transform: translateY(-2px);
+  border-color: rgba(201,168,76,0.38);
+  box-shadow: 0 22px 70px rgba(0,0,0,0.48), 0 0 24px rgba(201,168,76,0.08);
+}
+
+.stock-thesis-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.stock-thesis-card-left {
+  min-width: 0;
+}
+
+.stock-thesis-ticker-row,
+.stock-thesis-signal-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.stock-thesis-ticker {
+  color: var(--gold);
+  font: 900 23px var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.stock-thesis-exchange,
+.stock-thesis-status,
+.stock-thesis-signal,
+.stock-thesis-confidence,
+.stock-thesis-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.045);
+  color: var(--muted);
+  padding: 4px 8px;
+  font: 800 9px var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.stock-thesis-name {
+  margin: 4px 0 10px;
+  color: rgba(245,245,247,0.78);
+  font: 600 12px var(--ui);
+}
+
+.stock-thesis-signal.strong,
+.stock-thesis-signal.candidate {
+  color: var(--green);
+  border-color: rgba(0,200,5,0.28);
+  background: rgba(0,200,5,0.08);
+}
+
+.stock-thesis-signal.watch {
+  color: var(--gold);
+  border-color: rgba(201,168,76,0.30);
+  background: rgba(201,168,76,0.08);
+}
+
+.stock-thesis-signal.short,
+.stock-thesis-signal.avoid {
+  color: var(--red);
+  border-color: rgba(255,80,0,0.28);
+  background: rgba(255,80,0,0.07);
+}
+
+.stock-thesis-price-block {
+  flex: 0 0 auto;
+  text-align: right;
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.stock-thesis-price {
+  color: var(--text);
+  font: 900 19px var(--mono);
+  white-space: nowrap;
+}
+
+.stock-thesis-change {
+  font: 800 12px var(--mono);
+}
+
+.stock-thesis-change.up { color: var(--green); }
+.stock-thesis-change.dn { color: var(--red); }
+
+.stock-thesis-target {
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+  font: 800 9px var(--mono);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.stock-thesis-target strong {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.stock-thesis-body {
+  display: grid;
+  gap: 13px;
+  padding: 15px 18px 17px;
+}
+
+.stock-thesis-headline {
+  color: var(--text);
+  font: 800 14px/1.38 var(--ui);
+}
+
+.stock-thesis-text {
+  margin: 0;
+  color: rgba(210,210,220,0.74);
+  font: 500 12px/1.72 var(--ui);
+}
+
+.stock-thesis-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stock-thesis-meta-grid div {
+  display: grid;
+  gap: 3px;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,0.055);
+  background: rgba(255,255,255,0.025);
+}
+
+.stock-thesis-meta-grid span,
+.stock-thesis-section-label,
+.stock-thesis-analyst-row span,
+.stock-thesis-risk-title {
+  color: var(--gold);
+  font: 900 9px var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.stock-thesis-meta-grid strong {
+  color: rgba(245,245,247,0.88);
+  font: 800 11px var(--mono);
+}
+
+.stock-thesis-meta-grid strong.confirmed { color: var(--green); }
+.stock-thesis-meta-grid strong.partial { color: var(--gold); }
+.stock-thesis-meta-grid strong.conflicting,
+.stock-thesis-meta-grid strong.not-confirmed { color: var(--red); }
+.stock-thesis-meta-grid strong.insufficient { color: var(--muted); }
+
+.stock-thesis-catalysts {
+  display: grid;
+  gap: 7px;
+}
+
+.stock-thesis-catalyst {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 8px;
+  color: rgba(210,210,220,0.74);
+  font: 500 11px/1.55 var(--ui);
+}
+
+.stock-thesis-catalyst-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(201,168,76,0.46);
+}
+
+.stock-thesis-catalyst-dot.bull {
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(0,200,5,0.44);
+}
+
+.stock-thesis-catalyst-dot.bear {
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(255,80,0,0.40);
+}
+
+.stock-thesis-analyst-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stock-thesis-analyst-row > div,
+.stock-thesis-risk-box {
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.18);
+}
+
+.stock-thesis-analyst-row ul,
+.stock-thesis-risk-box ul {
+  margin: 7px 0 0;
+  padding-left: 16px;
+  color: rgba(210,210,220,0.70);
+  font: 500 11px/1.55 var(--ui);
+}
+
+.stock-thesis-risk-box {
+  border-color: rgba(255,80,0,0.16);
+  background: rgba(255,80,0,0.045);
+}
+
+.stock-thesis-risk-text {
+  color: rgba(210,210,220,0.72);
+}
+
+.stock-thesis-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.20);
+}
+
+.stock-thesis-empty {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px solid rgba(201,168,76,0.16);
+  color: var(--muted);
+  background: rgba(201,168,76,0.06);
+  font: 600 12px/1.6 var(--ui);
+}
+
+@media (max-width: 720px) {
+  .stock-deep-dive-section {
+    padding: 14px;
+  }
+
+  .stock-thesis-grid,
+  .stock-thesis-meta-grid,
+  .stock-thesis-analyst-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-thesis-card-header {
+    display: grid;
+  }
+
+  .stock-thesis-price-block {
+    text-align: left;
+    justify-items: start;
+  }
+}

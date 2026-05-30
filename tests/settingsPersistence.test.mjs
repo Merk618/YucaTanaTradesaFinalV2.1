@@ -24,16 +24,18 @@ for (const key of [
   "PROSPERIO_REQUIRE_YTT_CONFIRMATION",
   "YTT_EXTERNAL_SIGNALS",
 ]) {
-  assert.ok(index.includes(key) || aiPanel.includes(key), `${key} must be represented in settings persistence code`);
+assert.ok(index.includes(key) || aiPanel.includes(key), `${key} must be represented in settings persistence code`);
 }
 
-assert.ok(index.includes("localStorage.setItem('FINNHUB_KEY'"), "Finnhub key should save to localStorage");
-assert.ok(index.includes("localStorage.setItem('API_PROXY_BASE'"), "API proxy should save to localStorage");
-assert.ok(index.includes("localStorage.removeItem('API_PROXY_BASE'"), "API proxy should clear when field is emptied");
+assert.ok(index.includes("'input-finnhub': 'FINNHUB_KEY'"), "Finnhub key should be mapped into the provider vault");
+assert.ok(index.includes("'input-api-proxy': 'API_PROXY_BASE'"), "API proxy should be mapped into the provider vault");
+assert.ok(index.includes("localStorage.setItem(key, value)"), "Provider vault values should save to localStorage");
+assert.ok(index.includes("localStorage.removeItem(key)"), "Provider vault values should clear when fields are emptied");
 assert.ok(aiPanel.includes("localStorage.setItem(SETTINGS.ollamaEndpoint"), "Ollama endpoint should persist");
 assert.ok(aiPanel.includes("localStorage.setItem(SETTINGS.moomooBridgeUrl"), "MooMoo bridge URL should persist");
 assert.ok(aiPanel.includes("localStorage.setItem(SETTINGS.prosperioEnabled"), "Prosperio enabled setting should persist");
 assert.ok(aiPanel.includes("adaptManualProsperioSignal"), "Manual Prosperio signal entry should be normalized before storage");
 assert.ok(index.includes("DIRECT_CRYPTO_SYMBOLS"), "Legacy fallback should have crypto symbol guard");
+assert.ok(index.includes("YTTStockDeepDive?.getContext"), "Stock Deep-Dive context should feed AI context");
 
 console.log("settings persistence checks passed");

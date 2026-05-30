@@ -8,8 +8,10 @@
   <script src="https://s3.tradingview.com/tv.js"></script>
   <link rel="stylesheet" href="styles/heatmap.css">
   <link rel="stylesheet" href="styles/perplexity.css">
+  <link rel="stylesheet" href="styles/stockDeepDive.css">
   <script type="module" src="scripts/heatmap.js"></script>
   <script type="module" src="scripts/perplexityResearch.js"></script>
+  <script type="module" src="scripts/stockDeepDive.js"></script>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -1828,6 +1830,102 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
+    .vault-wide { grid-column: 1 / -1; }
+    .vault-provider-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .vault-provider-section {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(201,168,76,0.14);
+      background: rgba(8,8,10,0.76);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .vault-provider-section.span-2 { grid-column: 1 / -1; }
+    .vault-section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      color: var(--gold);
+      font: 800 10px var(--mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .vault-section-copy {
+      margin: 0;
+      color: var(--muted);
+      font: 500 11px/1.65 var(--ui);
+    }
+    .vault-field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .vault-field-block {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+    .vault-field-block.full { grid-column: 1 / -1; }
+    .vault-field-block label,
+    .vault-field-label {
+      color: var(--muted);
+      font: 800 9px var(--mono);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .vault-provider-note {
+      padding: 10px 12px;
+      border: 1px solid rgba(122,162,255,0.14);
+      color: rgba(245,245,247,0.78);
+      background: rgba(122,162,255,0.06);
+      font: 500 11px/1.55 var(--ui);
+    }
+    .vault-provider-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .vault-static-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      color: var(--muted);
+      font: 600 11px var(--ui);
+    }
+    .vault-static-row:first-of-type { border-top: 0; }
+    .vault-deprecated {
+      grid-column: 1 / -1;
+      border: 1px solid rgba(255,80,0,0.18);
+      background: rgba(255,80,0,0.045);
+      color: var(--muted);
+      padding: 12px;
+      font: 500 11px/1.6 var(--ui);
+    }
+    .vault-deprecated summary {
+      cursor: pointer;
+      color: var(--gold);
+      font: 800 10px var(--mono);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .source-health-group {
+      margin-top: 10px;
+      padding: 10px 0 2px;
+      color: var(--gold);
+      font: 900 9px var(--mono);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(201,168,76,0.18);
+    }
     @keyframes luxurySheen {
       0%, 48% { transform: translateX(-120%); }
       72%, 100% { transform: translateX(120%); }
@@ -1858,6 +1956,8 @@
       .sidebar { position: relative; width: 100%; height: auto; }
       .main { height: auto; min-height: 100vh; }
       .kpi-grid, .dashboard-grid, .settings-columns, .summary-grid, .allocation, .detail-grid, .detail-grid.two, .detail-grid.three { grid-template-columns: 1fr; }
+      .vault-provider-grid, .vault-field-grid { grid-template-columns: 1fr; }
+      .vault-provider-section.span-2, .vault-field-block.full { grid-column: auto; }
       .span-2 { grid-column: auto; }
     }
 
@@ -3118,6 +3218,15 @@
                 <aside id="stocks-asset-detail-panel" class="ytt-detail-panel"><div class="panel"><div class="panel-header">Selected Stock Detail</div><p class="ytt-detail-empty">Data unavailable — retrying</p></div></aside>
               </div>
               <div class="panel"><div class="panel-header">Stocks Scanner <span class="source-tag">TRADIER PRO</span></div><table id="scanner-stocks" class="data-table"><thead><tr><th onclick="sortTable('scanner-stocks',0)">SYMBOL</th><th onclick="sortTable('scanner-stocks',1)">PRICE</th><th onclick="sortTable('scanner-stocks',2)">CHG%</th><th onclick="sortTable('scanner-stocks',3)">VOLUME</th><th onclick="sortTable('scanner-stocks',4)">RSI</th><th onclick="sortTable('scanner-stocks',5)">MACD</th><th onclick="sortTable('scanner-stocks',6)">ATR</th><th onclick="sortTable('scanner-stocks',7)">SIGNAL</th><th onclick="sortTable('scanner-stocks',8)">SOURCE</th></tr></thead><tbody id="stocks-body"></tbody></table></div>
+              <section id="stock-deep-dive-section" class="stock-deep-dive-section" aria-label="Stock Deep-Dive top picks">
+                <div class="stock-deep-dive-header">
+                  <div class="section-label">Intelligence Reports · Fundamental + Technical</div>
+                  <div class="section-title">Stock Deep-Dive — Why These Are Our Top Picks</div>
+                  <p class="stock-deep-dive-copy">Manual thesis cards imported from the legacy v8 stock deep-dive reference. Live price, data quality, fallback status, and Market Brain confirmation come from the current YucaTanaTrades data layer.</p>
+                </div>
+                <div id="stock-deep-dive-controls" class="stock-deep-dive-controls"></div>
+                <div id="stock-thesis-grid" class="stock-thesis-grid"><div class="stock-thesis-empty">Stock deep-dive cards are awaiting live quote data. Manual thesis values will stay labeled until verified.</div></div>
+              </section>
             </div>
             <aside class="right-rail">
               <div class="panel"><div class="panel-header">Watchlist <span class="source-tag">LOCAL</span></div><div class="watchlist-form"><input id="watchlist-input" class="field" placeholder="SYMBOL"><button class="small-btn" onclick="addToWatchlist()">ADD</button></div><table id="watchlist-table" class="data-table"><tbody id="watchlist-rows"></tbody></table></div>
@@ -3277,12 +3386,172 @@
 
       <div id="tab-settings" class="tab-content">
         <div class="settings-columns">
-          <div id="api-vault-panel" class="panel vault-panel"><div class="panel-header" style="color:var(--gold)">API Key Vault <span id="vault-status" class="vault-status">LOCKED</span></div><div id="vault-gate" class="vault-gate"><div class="vault-title">Locked API Vault</div><p id="vault-copy" class="vault-copy">Create a local vault password to protect API key access on this browser. Keys remain stored locally and fields stay inaccessible while the vault is locked.</p><input id="vault-password" class="field" type="password" autocomplete="current-password" placeholder="Vault password"><div class="vault-actions"><button id="vault-unlock-btn" class="save-btn" type="button" onclick="unlockVault()">UNLOCK VAULT</button><button class="small-btn" type="button" onclick="lockVault()">LOCK</button></div><div id="vault-message" class="vault-message"></div></div><div id="vault-content" class="vault-content locked"><div class="form-stack"><label>TRADIER API KEY</label><input id="input-tradier" data-key="TRADIER_KEY" class="field vault-field" type="password" placeholder="Enter key..."><div class="key-hint">Used for: Options chain, stock quotes</div><label>ALPACA API KEY</label><input id="input-alpaca-key" data-key="ALPACA_KEY" class="field vault-field" type="password" placeholder="Enter key..."><label>ALPACA SECRET KEY</label><input id="input-alpaca-secret" data-key="ALPACA_SECRET" class="field vault-field" type="password" placeholder="Enter secret..."><label>API PROXY BASE URL</label><input id="input-api-proxy" data-key="API_PROXY_BASE" class="field vault-field" type="url" placeholder="https://your-domain.com/api"><div class="key-hint">Use this when keys move server-side for deployment.</div><label>TRADIER MODE</label><button id="tradier-toggle" class="small-btn vault-field" onclick="toggleTradierMode()">SANDBOX</button><div style="display:flex;gap:10px;flex-wrap:wrap;"><button onclick="saveKeys()" class="save-btn vault-field">SAVE KEYS</button><button onclick="lockVault()" class="small-btn vault-field" type="button">LOCK VAULT</button></div><div id="keys-saved-badge">✓ KEYS SAVED</div></div></div></div>
-          <div class="panel"><div class="panel-header">Connection Status</div><div class="status-row"><span>TRADIER</span><button class="small-btn" onclick="testConnection('tradier')">TEST</button><span id="status-tradier">UNKNOWN</span></div><div class="status-row"><span>ALPACA</span><button class="small-btn" onclick="testConnection('alpaca')">TEST</button><span id="status-alpaca">UNKNOWN</span></div><div class="status-row"><span>COINGECKO</span><button class="small-btn" onclick="testConnection('coingecko')">TEST</button><span id="status-coingecko" class="up">CONNECTED</span></div><div class="status-row"><span>BINANCE WS</span><button class="small-btn" onclick="testConnection('binance')">TEST</button><span id="status-binance">UNKNOWN</span></div></div>
+          <div id="api-vault-panel" class="panel vault-panel vault-wide">
+            <div class="panel-header" style="color:var(--gold)">YucaTana Data &amp; AI Vault <span id="vault-status" class="vault-status">LOCKED</span></div>
+            <div id="vault-gate" class="vault-gate">
+              <div class="vault-title">Locked Data / AI Provider Vault</div>
+              <p id="vault-copy" class="vault-copy">Enter the local vault key to manage read-only market data, AI providers, local bridges, and external signal overlays. Secrets stay in this browser; Perplexity and broker credentials must remain server-side.</p>
+              <input id="vault-password" class="field" type="password" autocomplete="current-password" placeholder="Vault password">
+              <div class="vault-actions"><button id="vault-unlock-btn" class="save-btn" type="button" onclick="unlockVault()">UNLOCK VAULT</button><button class="small-btn" type="button" onclick="lockVault()">LOCK</button></div>
+              <div id="vault-message" class="vault-message"></div>
+            </div>
+            <div id="vault-content" class="vault-content locked">
+              <div class="vault-provider-grid">
+                <section class="vault-provider-section span-2">
+                  <div class="vault-section-title"><span>AI Providers</span><span class="status-chip">Proxy / Local</span></div>
+                  <div class="vault-field-grid">
+                    <div class="vault-field-block">
+                      <label for="vault-perplexity-enabled">Enable Perplexity Research</label>
+                      <select id="vault-perplexity-enabled" class="field vault-field"><option value="true">Enabled</option><option value="false">Disabled</option></select>
+                      <div class="key-hint">Cited research through Cloudflare Worker only.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-api-proxy">API_PROXY_BASE URL</label>
+                      <input id="input-api-proxy" data-key="API_PROXY_BASE" class="field vault-field" type="url" placeholder="https://your-worker.workers.dev">
+                      <div class="key-hint">Route preview: /perplexity/finance</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-ollama-enabled">Enable Local AI</label>
+                      <select id="vault-ollama-enabled" class="field vault-field"><option value="false">Disabled</option><option value="true">Enabled</option></select>
+                      <div class="key-hint">Ollama requires no API key.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-ollama-provider-mode">Provider Mode</label>
+                      <select id="vault-ollama-provider-mode" class="field vault-field"><option value="disabled">Disabled</option><option value="local_reasoning">Local Reasoning</option><option value="auto">Auto</option></select>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-ollama-endpoint">Ollama Endpoint</label>
+                      <input id="vault-ollama-endpoint" class="field vault-field" type="url" placeholder="http://127.0.0.1:11434">
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-ollama-model">Ollama Model</label>
+                      <input id="vault-ollama-model" class="field vault-field" type="text" placeholder="qwen2.5:7b">
+                    </div>
+                  </div>
+                  <div class="vault-provider-note">Perplexity API keys must remain server-side in the Cloudflare Worker secret <strong>PERPLEXITY_API_KEY</strong>. Never place Perplexity keys in the GitHub Pages frontend.</div>
+                  <div class="vault-provider-actions"><button class="small-btn vault-field" type="button" onclick="testConnection('perplexity')">TEST PERPLEXITY PROXY</button><span id="status-perplexity" class="status-chip">UNKNOWN</span><button class="small-btn vault-field" type="button" onclick="testConnection('ollama')">TEST OLLAMA</button><span id="status-ollama" class="status-chip">UNKNOWN</span></div>
+                </section>
+
+                <section class="vault-provider-section span-2">
+                  <div class="vault-section-title"><span>Market Data Providers</span><span class="status-chip">Read Only</span></div>
+                  <div class="vault-field-grid">
+                    <div class="vault-field-block">
+                      <label for="input-finnhub">Finnhub API Key</label>
+                      <input id="input-finnhub" data-key="FINNHUB_KEY" class="field vault-field" type="password" placeholder="Enter Finnhub key...">
+                      <div class="key-hint">Used for: stock quotes / fallback stock data.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-fred">FRED API Key</label>
+                      <input id="input-fred" data-key="FRED_API_KEY" class="field vault-field" type="password" placeholder="Optional macro key...">
+                      <div class="key-hint">Optional macro dashboard: rates, inflation, unemployment.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-alpha-vantage">Alpha Vantage API Key</label>
+                      <input id="input-alpha-vantage" data-key="ALPHA_VANTAGE_API_KEY" class="field vault-field" type="password" placeholder="Optional indicator key...">
+                      <div class="key-hint">Optional indicators: RSI, MACD, SMA/EMA, Bollinger Bands.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-fmp">FMP API Key</label>
+                      <input id="input-fmp" data-key="FMP_API_KEY" class="field vault-field" type="password" placeholder="Optional FMP key...">
+                      <div class="key-hint">Optional future fundamentals, ratios, earnings, analyst estimates.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-marketaux">MarketAux API Key</label>
+                      <input id="input-marketaux" data-key="MARKETAUX_API_KEY" class="field vault-field" type="password" placeholder="Optional news key...">
+                      <div class="key-hint">Optional future news, sentiment, catalyst detection.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-sec-contact">SEC User-Agent Contact</label>
+                      <input id="input-sec-contact" data-key="SEC_USER_AGENT_CONTACT" class="field vault-field" type="email" placeholder="your-email@example.com">
+                      <div class="key-hint">Optional contact string for responsible SEC EDGAR requests.</div>
+                    </div>
+                  </div>
+                  <div class="vault-provider-actions">
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('finnhub')">TEST FINNHUB</button><span id="status-finnhub" class="status-chip">UNKNOWN</span>
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('fred')">TEST FRED</button><span id="status-fred" class="status-chip">UNKNOWN</span>
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('alpha-vantage')">TEST ALPHA VANTAGE</button><span id="status-alpha-vantage" class="status-chip">UNKNOWN</span>
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('fmp')">TEST FMP</button><span id="status-fmp" class="status-chip">UNKNOWN</span>
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('marketaux')">TEST MARKETAUX</button><span id="status-marketaux" class="status-chip">UNKNOWN</span>
+                  </div>
+                </section>
+
+                <section class="vault-provider-section">
+                  <div class="vault-section-title"><span>No-Key Public Providers</span><span class="status-chip green">No Key</span></div>
+                  <div class="vault-static-row"><span>CoinGecko - crypto prices, symbol registry, market caps, trending coins</span><button class="small-btn vault-field" type="button" onclick="testConnection('coingecko')">TEST</button><span id="status-coingecko" class="status-chip">UNKNOWN</span></div>
+                  <div class="vault-static-row"><span>Binance Public API / WebSocket - crypto stream and exchangeInfo</span><button class="small-btn vault-field" type="button" onclick="testConnection('binance')">TEST</button><span id="status-binance" class="status-chip">UNKNOWN</span></div>
+                  <div class="vault-static-row"><span>SEC EDGAR - filings, 10-K, 10-Q, 8-K metadata</span><button class="small-btn vault-field" type="button" onclick="testConnection('sec-edgar')">TEST</button><span id="status-sec-edgar" class="status-chip">UNKNOWN</span></div>
+                  <div class="vault-static-row"><span>TradingView - embedded charts/widgets</span><span id="status-tradingview" class="status-chip green">EMBEDDED</span></div>
+                </section>
+
+                <section class="vault-provider-section">
+                  <div class="vault-section-title"><span>Local Bridges</span><span class="status-chip">Local Only</span></div>
+                  <div class="vault-field-grid">
+                    <div class="vault-field-block">
+                      <label for="vault-moomoo-enabled">Enable MooMoo OpenD Data</label>
+                      <select id="vault-moomoo-enabled" class="field vault-field"><option value="false">Disabled</option><option value="true">Enabled</option></select>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-moomoo-bridge-url">MooMoo Bridge URL</label>
+                      <input id="vault-moomoo-bridge-url" class="field vault-field" type="url" placeholder="http://127.0.0.1:8765">
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-moomoo-primary-stocks">Primary Stock Data</label>
+                      <select id="vault-moomoo-primary-stocks" class="field vault-field"><option value="false">Finnhub Fallback First</option><option value="true">MooMoo Primary</option></select>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-moomoo-options-enabled">MooMoo Options Data</label>
+                      <select id="vault-moomoo-options-enabled" class="field vault-field"><option value="false">Disabled</option><option value="true">Read-Only Options</option></select>
+                    </div>
+                  </div>
+                  <div class="vault-provider-note">MooMoo OpenD is read-only in YucaTanaTrades until a secure local bridge is installed and tested. Live trading remains disabled.</div>
+                  <div class="vault-provider-actions"><button class="small-btn vault-field" type="button" onclick="testConnection('moomoo')">TEST MOOMOO BRIDGE</button><span id="status-moomoo" class="status-chip">UNKNOWN</span></div>
+                </section>
+
+                <section class="vault-provider-section">
+                  <div class="vault-section-title"><span>External Signal Providers</span><span class="status-chip">Experimental</span></div>
+                  <div class="vault-field-grid">
+                    <div class="vault-field-block">
+                      <label for="vault-prosperio-enabled">Enable External Signals</label>
+                      <select id="vault-prosperio-enabled" class="field vault-field"><option value="false">Disabled</option><option value="true">Enabled</option></select>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="vault-prosperio-trust-level">Default Trust Level</label>
+                      <select id="vault-prosperio-trust-level" class="field vault-field"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
+                    </div>
+                    <div class="vault-field-block full">
+                      <label for="vault-prosperio-confirmation">Require YucaTana Confirmation</label>
+                      <select id="vault-prosperio-confirmation" class="field vault-field"><option value="true">Required</option><option value="false">Optional</option></select>
+                    </div>
+                  </div>
+                  <div class="vault-provider-note">External signals are optional overlays. They stay hidden from main AI review until enabled and at least one valid signal is stored. YucaTana Market Brain must confirm external signals before ranking.</div>
+                </section>
+
+                <section class="vault-provider-section">
+                  <div class="vault-section-title"><span>Broker / Exchange Safety</span><span class="status-chip red">Disabled</span></div>
+                  <div class="vault-static-row"><span>Live Trading</span><span class="status-chip red">DISABLED</span></div>
+                  <div class="vault-static-row"><span>Broker Execution</span><span class="status-chip red">DISABLED</span></div>
+                  <div class="vault-static-row"><span>Crypto Exchange Execution</span><span class="status-chip red">DISABLED</span></div>
+                  <p class="vault-section-copy">Broker and exchange keys must not be stored in the GitHub Pages frontend. Future Tradier, Alpaca, MooMoo trading, Coinbase Advanced Trade, and Kraken integrations must use a secure backend or local bridge.</p>
+                </section>
+
+                <details class="vault-deprecated">
+                  <summary>Deprecated / Future Broker Integrations</summary>
+                  <p>Tradier and Alpaca are future server-side broker integrations only. Broker keys are intentionally not stored in the frontend. Live trading remains disabled.</p>
+                  <div class="vault-static-row"><span>Tradier API Key</span><span class="status-chip red">FRONTEND ENTRY DISABLED</span></div>
+                  <div class="vault-static-row"><span>Tradier Mode</span><span class="status-chip red">INACTIVE</span></div>
+                  <div class="vault-static-row"><span>Alpaca API Key / Secret</span><span class="status-chip red">FRONTEND ENTRY DISABLED</span></div>
+                  <div class="vault-static-row"><span>Broker Execution</span><span class="status-chip red">DISABLED</span></div>
+                </details>
+
+                <div class="vault-actions span-2"><button onclick="saveKeys()" class="save-btn vault-field">SAVE KEYS</button><button onclick="lockVault()" class="small-btn vault-field" type="button">LOCK VAULT</button><div id="keys-saved-badge">KEYS SAVED</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-header">Provider Diagnostics</div><div class="status-row"><span>PERPLEXITY PROXY</span><button class="small-btn" onclick="testConnection('perplexity')">TEST</button><span id="status-perplexity-card">UNKNOWN</span></div><div class="status-row"><span>LOCAL OLLAMA</span><button class="small-btn" onclick="testConnection('ollama')">TEST</button><span id="status-ollama-card">UNKNOWN</span></div><div class="status-row"><span>FINNHUB FALLBACK</span><button class="small-btn" onclick="testConnection('finnhub')">TEST</button><span id="status-finnhub-card">UNKNOWN</span></div><div class="status-row"><span>COINGECKO</span><button class="small-btn" onclick="testConnection('coingecko')">TEST</button><span id="status-coingecko-card">UNKNOWN</span></div><div class="status-row"><span>BINANCE PUBLIC</span><button class="small-btn" onclick="testConnection('binance')">TEST</button><span id="status-binance-card">UNKNOWN</span></div><div class="status-row"><span>BROKER EXECUTION</span><span class="status-chip red">DISABLED</span></div></div>
           <div class="panel"><div class="panel-header">Source Health Command <span class="source-tag">LIVE CHECKS</span></div><div id="source-health-list" class="source-health-grid"></div><div class="source-health-actions"><button class="small-btn" type="button" onclick="refreshSourceHealth()">REFRESH HEALTH</button><button class="small-btn" type="button" onclick="openAIAssistant()">ASK AI</button></div></div>
           <div id="perplexity-settings-panel" class="panel"></div>
-          <div class="panel"><div class="panel-header">Deployment Health <span class="source-tag">PRE-FLIGHT</span></div><div class="status-row"><span>AUTH</span><span id="health-auth">LOCAL UI ONLY</span></div><div class="status-row"><span>API PROXY</span><span id="health-proxy">NOT CONFIGURED</span></div><div class="status-row"><span>STOCK DATA</span><span id="health-tradier">AWAITING KEY</span></div><div class="status-row"><span>ALPACA KEY</span><span id="health-alpaca">AWAITING KEY</span></div><div class="status-row"><span>NEWS FEEDS</span><span id="health-news">CLIENT FETCH</span></div></div>
-          <div class="panel"><div class="panel-header">Deployment Controls <span class="source-tag">LOCAL</span></div><div class="status-row"><span>ENVIRONMENT</span><span class="status-chip">Local</span></div><div class="status-row"><span>DATA TOGGLES</span><span class="status-chip red">Locked</span></div><div class="status-row"><span>DRY RUN</span><span class="status-chip green">On</span></div><div class="status-row"><span>EXPORT SETTINGS</span><button class="small-btn" type="button" onclick="exportSettings()">EXPORT</button><span class="status-chip">Ready</span></div><div class="status-row"><span>CLEAR LOCAL DATA</span><button class="small-btn" type="button" onclick="clearLocalSettings()">CLEAR</button><span class="status-chip red">Manual</span></div></div>
+          <div class="panel"><div class="panel-header">Deployment Health <span class="source-tag">PRE-FLIGHT</span></div><div class="status-row"><span>AUTH</span><span id="health-auth">LOCAL UI ONLY</span></div><div class="status-row"><span>API PROXY</span><span id="health-proxy">NOT CONFIGURED</span></div><div class="status-row"><span>STOCK DATA</span><span id="health-stock-data">FINNHUB FALLBACK</span></div><div class="status-row"><span>AI PROVIDERS</span><span id="health-ai-providers">NOT CONFIGURED</span></div><div class="status-row"><span>EXECUTION</span><span id="health-execution" class="status-chip red">DISABLED</span></div><div class="status-row"><span>NEWS FEEDS</span><span id="health-news">CLIENT FETCH</span></div></div>
+          <div class="panel"><div class="panel-header">Deployment Controls <span class="source-tag">LOCAL</span></div><div class="status-row"><span>ENVIRONMENT</span><span class="status-chip">Local</span></div><div class="status-row"><span>PROVIDER VAULT</span><span class="status-chip red">Locked</span></div><div class="status-row"><span>LIVE TRADING</span><span class="status-chip red">Disabled</span></div><div class="status-row"><span>EXPORT SETTINGS</span><button class="small-btn" type="button" onclick="exportSettings()">EXPORT</button><span class="status-chip">Ready</span></div><div class="status-row"><span>CLEAR LOCAL DATA</span><button class="small-btn" type="button" onclick="clearLocalSettings()">CLEAR</button><span class="status-chip red">Manual</span></div></div>
           <div class="panel"><div class="panel-header">Risk Disclosure <span class="source-tag">DEPLOYMENT COPY</span></div><p style="color:var(--muted);font:13px/1.8 var(--body);margin:0;">YucaTanaTrades is an informational trading workspace. It does not provide financial advice, guarantee returns, or execute orders without a connected broker workflow. Market data, signals, account values, and news remain unavailable until supplied by live providers.</p></div>
         </div>
       </div>
@@ -3314,7 +3583,7 @@ let bgStarted = false;
 let adminStarClicks = 0;
 let adminStarTimer = null;
 const VAULT_ACCESS_CODE = '142010';
-const FINNHUB_SYMBOLS = ['NVDA','TSLA','META','AVGO','ORCL','MSFT','MU','XOM'];
+const FINNHUB_SYMBOLS = ['OXY','XLE','NVDA','META','TSLA','CVX','AAPL','MSFT','AVGO','ORCL','MU','XOM'];
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 const COINGECKO_MARKET_IDS = ['bitcoin','ethereum','solana','ripple','sui','binancecoin','avalanche-2','dogecoin','stellar','pepe'];
 const COINGECKO_MARKETS_URL = 'https://api.coingecko.com/api/v3/coins/markets';
@@ -3886,6 +4155,97 @@ function updateClock() {
   }) + ' CT';
 }
 
+const MASKED_SECRET_VALUE = '●●●●●●●●●●●●';
+const VAULT_SECRET_INPUTS = {
+  'input-finnhub': 'FINNHUB_KEY',
+  'input-fred': 'FRED_API_KEY',
+  'input-alpha-vantage': 'ALPHA_VANTAGE_API_KEY',
+  'input-fmp': 'FMP_API_KEY',
+  'input-marketaux': 'MARKETAUX_API_KEY'
+};
+const VAULT_VALUE_INPUTS = {
+  'input-api-proxy': 'API_PROXY_BASE',
+  'input-sec-contact': 'SEC_USER_AGENT_CONTACT',
+  'vault-ollama-endpoint': 'OLLAMA_ENDPOINT',
+  'vault-ollama-model': 'OLLAMA_MODEL',
+  'vault-moomoo-bridge-url': 'MOOMOO_BRIDGE_URL'
+};
+const VAULT_SELECT_INPUTS = {
+  'vault-perplexity-enabled': 'PERPLEXITY_ENABLED',
+  'vault-ollama-enabled': 'OLLAMA_ENABLED',
+  'vault-ollama-provider-mode': 'OLLAMA_PROVIDER_MODE',
+  'vault-moomoo-enabled': 'MOOMOO_OPEND_ENABLED',
+  'vault-moomoo-primary-stocks': 'MOOMOO_PRIMARY_STOCK_DATA',
+  'vault-moomoo-options-enabled': 'MOOMOO_OPTIONS_DATA_ENABLED',
+  'vault-prosperio-enabled': 'PROSPERIO_SIGNALS_ENABLED',
+  'vault-prosperio-trust-level': 'PROSPERIO_TRUST_LEVEL',
+  'vault-prosperio-confirmation': 'PROSPERIO_REQUIRE_YTT_CONFIRMATION'
+};
+const VAULT_DEFAULTS = {
+  PERPLEXITY_ENABLED: 'true',
+  OLLAMA_ENABLED: 'false',
+  OLLAMA_ENDPOINT: 'http://127.0.0.1:11434',
+  OLLAMA_MODEL: 'qwen2.5:7b',
+  OLLAMA_PROVIDER_MODE: 'auto',
+  MOOMOO_OPEND_ENABLED: 'false',
+  MOOMOO_BRIDGE_URL: 'http://127.0.0.1:8765',
+  MOOMOO_PRIMARY_STOCK_DATA: 'false',
+  MOOMOO_OPTIONS_DATA_ENABLED: 'false',
+  PROSPERIO_SIGNALS_ENABLED: 'false',
+  PROSPERIO_TRUST_LEVEL: 'low',
+  PROSPERIO_REQUIRE_YTT_CONFIRMATION: 'true'
+};
+
+function isMaskedSecret(value) {
+  return String(value || '').includes('●');
+}
+
+function setSelectValue(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const optionValues = Array.from(el.options || []).map(option => option.value);
+  el.value = optionValues.includes(value) ? value : optionValues[0] || value;
+}
+
+function setInputValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || '';
+}
+
+function updateStatusTargets(ids, label, tone = '') {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = label;
+    el.className = tone ? `status-chip ${tone}` : 'status-chip';
+    el.style.color = '';
+  });
+}
+
+function syncVaultToMountedSettings() {
+  const pairs = {
+    'perplexity-enabled': localStorage.getItem('PERPLEXITY_ENABLED') || VAULT_DEFAULTS.PERPLEXITY_ENABLED,
+    'input-perplexity-proxy': localStorage.getItem('API_PROXY_BASE') || '',
+    'ollama-enabled': localStorage.getItem('OLLAMA_ENABLED') || VAULT_DEFAULTS.OLLAMA_ENABLED,
+    'ollama-endpoint': localStorage.getItem('OLLAMA_ENDPOINT') || VAULT_DEFAULTS.OLLAMA_ENDPOINT,
+    'ollama-model': localStorage.getItem('OLLAMA_MODEL') || VAULT_DEFAULTS.OLLAMA_MODEL,
+    'ollama-provider-mode': localStorage.getItem('OLLAMA_PROVIDER_MODE') || VAULT_DEFAULTS.OLLAMA_PROVIDER_MODE,
+    'moomoo-enabled': localStorage.getItem('MOOMOO_OPEND_ENABLED') || VAULT_DEFAULTS.MOOMOO_OPEND_ENABLED,
+    'moomoo-bridge-url': localStorage.getItem('MOOMOO_BRIDGE_URL') || VAULT_DEFAULTS.MOOMOO_BRIDGE_URL,
+    'moomoo-primary-stocks': localStorage.getItem('MOOMOO_PRIMARY_STOCK_DATA') || VAULT_DEFAULTS.MOOMOO_PRIMARY_STOCK_DATA,
+    'moomoo-options-enabled': localStorage.getItem('MOOMOO_OPTIONS_DATA_ENABLED') || VAULT_DEFAULTS.MOOMOO_OPTIONS_DATA_ENABLED,
+    'prosperio-enabled': localStorage.getItem('PROSPERIO_SIGNALS_ENABLED') || VAULT_DEFAULTS.PROSPERIO_SIGNALS_ENABLED,
+    'prosperio-trust-level': localStorage.getItem('PROSPERIO_TRUST_LEVEL') || VAULT_DEFAULTS.PROSPERIO_TRUST_LEVEL,
+    'prosperio-require-confirmation': localStorage.getItem('PROSPERIO_REQUIRE_YTT_CONFIRMATION') || VAULT_DEFAULTS.PROSPERIO_REQUIRE_YTT_CONFIRMATION
+  };
+  Object.entries(pairs).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') setSelectValue(id, value);
+    else el.value = value;
+  });
+}
+
 function saveKeys() {
   if (document.getElementById('vault-content')?.classList.contains('locked')) {
     const msg = document.getElementById('vault-message');
@@ -3893,23 +4253,20 @@ function saveKeys() {
     return;
   }
   ensureFinnhubSettings();
-  const tradier = document.getElementById('input-tradier')?.value;
-  const finnhub = document.getElementById('input-finnhub')?.value;
-  const alpacaKey = document.getElementById('input-alpaca-key')?.value;
-  const alpacaSecret = document.getElementById('input-alpaca-secret')?.value;
-  const apiProxyInput = document.getElementById('input-api-proxy');
-  const apiProxy = apiProxyInput?.value.trim() || '';
-  if (tradier && !tradier.includes('●')) localStorage.setItem('TRADIER_KEY', tradier);
-  if (finnhub && !finnhub.includes('●')) localStorage.setItem('FINNHUB_KEY', finnhub);
-  if (alpacaKey && !alpacaKey.includes('●')) localStorage.setItem('ALPACA_KEY', alpacaKey);
-  if (alpacaSecret && !alpacaSecret.includes('●')) localStorage.setItem('ALPACA_SECRET', alpacaSecret);
-  if (apiProxyInput) {
-    if (apiProxy) localStorage.setItem('API_PROXY_BASE', apiProxy);
-    else localStorage.removeItem('API_PROXY_BASE');
-  }
-  const perplexityProxy = document.getElementById('input-perplexity-proxy');
-  if (perplexityProxy && apiProxy) perplexityProxy.value = apiProxy;
-  window.YTTPerplexity?.saveSettings?.();
+  Object.entries(VAULT_SECRET_INPUTS).forEach(([id, key]) => {
+    const value = document.getElementById(id)?.value?.trim() || '';
+    if (value && !isMaskedSecret(value)) localStorage.setItem(key, value);
+  });
+  Object.entries(VAULT_VALUE_INPUTS).forEach(([id, key]) => {
+    const value = document.getElementById(id)?.value?.trim() || '';
+    if (value) localStorage.setItem(key, value);
+    else localStorage.removeItem(key);
+  });
+  Object.entries(VAULT_SELECT_INPUTS).forEach(([id, key]) => {
+    const value = document.getElementById(id)?.value || VAULT_DEFAULTS[key] || '';
+    localStorage.setItem(key, value);
+  });
+  syncVaultToMountedSettings();
   const badge = document.getElementById('keys-saved-badge');
   if (badge) {
     badge.style.opacity = '1';
@@ -3921,10 +4278,10 @@ function saveKeys() {
 }
 
 function maskInputs() {
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret'].forEach(id => {
+  Object.keys(VAULT_SECRET_INPUTS).forEach(id => {
     const el = document.getElementById(id);
     if (el && localStorage.getItem(el.dataset.key || id)) {
-      el.value = '●●●●●●●●●●●●';
+      el.value = MASKED_SECRET_VALUE;
       el.type = 'password';
     }
   });
@@ -3932,25 +4289,20 @@ function maskInputs() {
 
 function loadSavedKeys() {
   ensureFinnhubSettings();
-  const map = {
-    'input-tradier': 'TRADIER_KEY',
-    'input-finnhub': 'FINNHUB_KEY',
-    'input-alpaca-key': 'ALPACA_KEY',
-    'input-alpaca-secret': 'ALPACA_SECRET'
-  };
-  Object.entries(map).forEach(([elId, storeKey]) => {
+  Object.entries(VAULT_SECRET_INPUTS).forEach(([elId, storeKey]) => {
     const el = document.getElementById(elId);
     if (el && localStorage.getItem(storeKey)) {
-      el.value = '●●●●●●●●●●●●';
+      el.value = MASKED_SECRET_VALUE;
       el.type = 'password';
     }
   });
-  const proxyInput = document.getElementById('input-api-proxy');
-  if (proxyInput) proxyInput.value = localStorage.getItem('API_PROXY_BASE') || '';
-  const perplexityProxyInput = document.getElementById('input-perplexity-proxy');
-  if (perplexityProxyInput) perplexityProxyInput.value = localStorage.getItem('API_PROXY_BASE') || '';
-  const moomooBridge = document.getElementById('moomoo-bridge-url');
-  if (moomooBridge) moomooBridge.value = localStorage.getItem('MOOMOO_BRIDGE_URL') || 'http://127.0.0.1:8765';
+  Object.entries(VAULT_VALUE_INPUTS).forEach(([elId, storeKey]) => {
+    setInputValue(elId, localStorage.getItem(storeKey) || VAULT_DEFAULTS[storeKey] || '');
+  });
+  Object.entries(VAULT_SELECT_INPUTS).forEach(([elId, storeKey]) => {
+    setSelectValue(elId, localStorage.getItem(storeKey) || VAULT_DEFAULTS[storeKey] || '');
+  });
+  syncVaultToMountedSettings();
 }
 
 async function hashVaultPassword(password) {
@@ -3992,7 +4344,7 @@ function initVault() {
   const copy = document.getElementById('vault-copy');
   const btn = document.getElementById('vault-unlock-btn');
   if (copy) {
-    copy.textContent = 'Enter the local vault key to access saved API keys. Keys remain stored locally and fields stay inaccessible while the vault is locked.';
+    copy.textContent = 'Enter the local vault key to access saved Data / AI provider settings. Perplexity and broker credentials remain server-side only.';
   }
   if (btn) btn.textContent = 'UNLOCK VAULT';
   setVaultUnlocked(false);
@@ -4678,7 +5030,8 @@ function buildAIContext() {
     : activeTab === 'stocks'
       ? document.querySelector('#stocks-body tr.is-selected, #stocks-production-heatmap .ytt-heatmap-cell.is-selected')
       : document.querySelector('.data-table tr.is-selected, .ytt-heatmap-cell.is-selected');
-  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || '';
+  const stockDeepDiveContext = window.YTTStockDeepDive?.getContext?.() || null;
+  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || (activeTab === 'stocks' ? stockDeepDiveContext?.selectedDeepDiveSymbol : '') || '';
   return {
     activeTab,
     selectedSymbol,
@@ -4687,6 +5040,7 @@ function buildAIContext() {
     sourceHealth: sourceHealthState,
     stockQuotes: liveStockQuotes,
     cryptoMarkets: liveCryptoMarkets,
+    stockDeepDive: stockDeepDiveContext,
     externalSignals: JSON.parse(localStorage.getItem('YTT_EXTERNAL_SIGNALS') || '[]'),
     watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]'),
     newsCount: newsItemsCache.length,
@@ -5137,7 +5491,7 @@ function escapeHtml(value) {
 }
 
 function seedSkeletonTables() {
-  const stocks = ['NVDA','TSLA','META','AVGO','ORCL','MSFT','MU','XOM'];
+  const stocks = FINNHUB_SYMBOLS;
   document.getElementById('stocks-body').innerHTML = stocks.map(s => `<tr data-symbol="${s}"><td>${s}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td>${(localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY')) ? 'FINNHUB' : 'AWAITING API KEY'}</td></tr>`).join('');
   const coins = ['BTC','ETH','SOL','XRP','SUI','BNB','AVAX','DOGE'];
   document.getElementById('crypto-body').innerHTML = coins.map((c, i) => `<tr data-symbol="${c}"><td>${i + 1}</td><td>${c}</td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><div class="spark-slot" style="height:28px;"></div></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td><td><span class="shimmer"></span></td></tr>`).join('');

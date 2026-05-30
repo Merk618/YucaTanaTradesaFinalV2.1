@@ -40,6 +40,7 @@ export function buildAIDecisionContext({ query = "", mode = "", appState = {}, y
       playbook: compact(marketBrain.playbook),
       sourceHealth: compact(appState.sourceHealth || yttContext.marketContext?.sourceHealth || {}),
       externalSignals: compact(appState.externalSignals || yttContext.externalSignals || []),
+      stockDeepDive: compact(appState.stockDeepDive || yttContext.stockDeepDive || null),
       missingData: marketBrain.missingData || [],
       timestamp: new Date().toISOString(),
     },
