@@ -1,4 +1,6 @@
 import { createPerplexityClient } from "../services/ai/perplexityClient.js";
+import { createOllamaClient, DEFAULT_OLLAMA_ENDPOINT, DEFAULT_OLLAMA_MODEL } from "../services/ai/ollamaClient.js";
+import { askWithProvider, AI_PROVIDER_IDS } from "../services/ai/providerRouter.js";
 import { buildPerplexityContext, inferTickerFromQuery } from "../services/ai/contextBuilder.js";
 import { PERPLEXITY_RESEARCH_MODES, DEFAULT_PERPLEXITY_MODE } from "../services/ai/perplexityModes.js";
 
@@ -8,6 +10,11 @@ const SETTINGS = {
   verbosity: "PERPLEXITY_VERBOSITY",
   length: "PERPLEXITY_RESPONSE_LENGTH",
   proxy: "API_PROXY_BASE",
+  provider: "AI_PROVIDER_SELECTION",
+  ollamaEnabled: "OLLAMA_ENABLED",
+  ollamaEndpoint: "OLLAMA_ENDPOINT",
+  ollamaModel: "OLLAMA_MODEL",
+  ollamaProviderMode: "OLLAMA_PROVIDER_MODE",
 };
 
 const CLIENT_COOLDOWN_MS = 5000;
@@ -63,8 +70,24 @@ function isEnabled() {
   return localStorage.getItem(SETTINGS.enabled) !== "false";
 }
 
+function isOllamaEnabled() {
+  return localStorage.getItem(SETTINGS.ollamaEnabled) === "true";
+}
+
 function getProxyBase() {
   return (localStorage.getItem(SETTINGS.proxy) || "").trim().replace(/\/+$/, "");
+}
+
+function getOllamaEndpoint() {
+  return (localStorage.getItem(SETTINGS.ollamaEndpoint) || DEFAULT_OLLAMA_ENDPOINT).trim().replace(/\/+$/, "");
+}
+
+function getOllamaModel() {
+  return (localStorage.getItem(SETTINGS.ollamaModel) || DEFAULT_OLLAMA_MODEL).trim() || DEFAULT_OLLAMA_MODEL;
+}
+
+function getOllamaProviderMode() {
+  return localStorage.getItem(SETTINGS.ollamaProviderMode) || "auto";
 }
 
 function selectedSymbolForContext(contextName) {
@@ -104,6 +127,11 @@ function currentSettings() {
     responseLength: localStorage.getItem(SETTINGS.length) || "medium",
     enabled: isEnabled(),
     proxyBase: getProxyBase(),
+    provider: localStorage.getItem(SETTINGS.provider) || AI_PROVIDER_IDS.AUTO,
+    ollamaEnabled: isOllamaEnabled(),
+    ollamaEndpoint: getOllamaEndpoint(),
+    ollamaModel: getOllamaModel(),
+    ollamaProviderMode: getOllamaProviderMode(),
   };
 }
 
@@ -113,18 +141,33 @@ function modeOptions(selected = DEFAULT_PERPLEXITY_MODE) {
   ).join("");
 }
 
+function providerOptions(selected = AI_PROVIDER_IDS.AUTO) {
+  const options = [
+    [AI_PROVIDER_IDS.AUTO, "Auto"],
+    [AI_PROVIDER_IDS.PERPLEXITY, "Perplexity Research"],
+    [AI_PROVIDER_IDS.OLLAMA, "Local Ollama"],
+  ];
+  return options.map(([value, label]) =>
+    `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(label)}</option>`
+  ).join("");
+}
+
 function panelTemplate(hostId, contextName) {
   const settings = currentSettings();
-  const status = settings.enabled ? settings.proxyBase ? "WEB-GROUNDED" : "UNAVAILABLE" : "UNAVAILABLE";
+  const status = settings.enabled && settings.proxyBase ? "WEB-GROUNDED" : settings.ollamaEnabled ? "LOCAL_CONTEXT" : "UNAVAILABLE";
   return `<section class="ytt-perplexity-panel" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
-        <div class="ytt-perplexity-title">Perplexity Finance Research</div>
-        <div class="ytt-perplexity-subtitle">Context-aware research for ${escapeHtml(contextName === "ai-lab" ? "AI Lab" : contextName)}. Routes through API_PROXY_BASE only.</div>
+        <div class="ytt-perplexity-title">YucaTana AI Research</div>
+        <div class="ytt-perplexity-subtitle">Context-aware research for ${escapeHtml(contextName === "ai-lab" ? "AI Lab" : contextName)}. Perplexity is web-grounded; Ollama is local context only.</div>
       </div>
       <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
     </div>
     <form class="ytt-perplexity-form" data-perplexity-form>
+      <div class="ytt-perplexity-mode-row">
+        <select class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select>
+        <span class="ytt-perplexity-provider-badge" data-provider-badge>${settings.provider === AI_PROVIDER_IDS.OLLAMA ? "LOCAL" : settings.provider === AI_PROVIDER_IDS.PERPLEXITY ? "WEB" : "AUTO"}</span>
+      </div>
       <div class="ytt-perplexity-mode-row">
         <select class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select>
         <button class="ytt-perplexity-btn" type="button" data-perplexity-retry>Retry</button>
@@ -134,10 +177,11 @@ function panelTemplate(hostId, contextName) {
         <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
       </div>
     </form>
-    <div class="ytt-perplexity-output" data-perplexity-output>${settings.proxyBase ? "Ask a finance question to start web-grounded research." : "Perplexity proxy not configured."}</div>
+    <div class="ytt-perplexity-output" data-perplexity-output>${settings.proxyBase || settings.ollamaEnabled ? "Ask a finance question to start AI research." : "Perplexity proxy not configured. Local Ollama is disabled."}</div>
     <div class="ytt-perplexity-meta" data-perplexity-meta>
       <span>${settings.enabled ? "ENABLED" : "DISABLED"}</span>
-      <span>${settings.proxyBase ? "PROXY READY" : "PROXY REQUIRED"}</span>
+      <span>${settings.proxyBase ? "PERPLEXITY READY" : "PERPLEXITY PROXY REQUIRED"}</span>
+      <span>${settings.ollamaEnabled ? "OLLAMA ENABLED" : "OLLAMA DISABLED"}</span>
     </div>
     <div class="ytt-perplexity-tickers" data-perplexity-tickers></div>
     <div class="ytt-perplexity-citations" data-perplexity-citations></div>
@@ -169,6 +213,8 @@ function updateOutput(panel, result = {}) {
   const state = getPanelState(panel);
   const answer = result.answer || "Perplexity research unavailable — retrying.";
   const quality = result.dataQuality || "UNAVAILABLE";
+  const provider = result.provider || (quality === "LOCAL_CONTEXT" ? "OLLAMA" : "");
+  const model = result.model || "";
   if (output) {
     output.classList.remove("is-loading");
     output.innerHTML = renderMarkdownLite(answer);
@@ -178,7 +224,7 @@ function updateOutput(panel, result = {}) {
     const stamp = formatTimestamp(result.timestamp);
     const lastRequest = state.lastRequestAt ? formatTimestamp(state.lastRequestAt) : "";
     const latency = Number.isFinite(Number(result.latencyMs)) ? `<span>${Math.round(Number(result.latencyMs))}MS</span>` : "";
-    meta.innerHTML = `<span>${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
+    meta.innerHTML = `${provider ? `<span>PROVIDER ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL ${escapeHtml(model)}</span>` : ""}<span>${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
   }
   if (tickers) {
     tickers.innerHTML = (Array.isArray(result.tickers) ? result.tickers : []).map((ticker) => `<span>${escapeHtml(ticker)}</span>`).join("");
@@ -192,7 +238,7 @@ function updateOutput(panel, result = {}) {
         ? `<a href="${escapeHtml(sourceObject.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>`
         : `<span>${escapeHtml(title)}</span>`;
     });
-    citations.innerHTML = links.length ? links.join("") : "<span>No citations returned.</span>";
+    citations.innerHTML = links.length ? links.join("") : quality === "LOCAL_CONTEXT" ? "<span>Local reasoning from supplied YucaTanaTrades context. No web citations.</span>" : "<span>No citations returned.</span>";
   }
 }
 
@@ -212,6 +258,44 @@ function updateSourceHealth(status, detail, latencyMs = null, lastSuccessAt = nu
   });
 }
 
+function updateOllamaSourceHealth(status, detail, latencyMs = null, lastSuccessAt = null) {
+  const tone = status === "RUNNING" ? "up" : status === "DISABLED" ? "warn" : "dn";
+  const detailParts = [detail];
+  if (Number.isFinite(Number(latencyMs))) detailParts.push(`Latency ${Math.round(Number(latencyMs))}ms.`);
+  if (lastSuccessAt) detailParts.push(`Last success ${formatTimestamp(lastSuccessAt)}.`);
+  const state = {
+    tone,
+    label: status,
+    detail: detailParts.filter(Boolean).join(" "),
+    latencyMs,
+    lastSuccessAt,
+    lastFailureReason: status === "RUNNING" ? "" : detail,
+  };
+  window.YTTSourceHealth?.set?.("ollama", {
+    ...state,
+  });
+  renderOllamaHealthRow(state);
+}
+
+function renderOllamaHealthRow(state = {}) {
+  const list = document.getElementById("source-health-list");
+  if (!list) return;
+  const existing = list.querySelector('[data-source-health-key="ollama"]');
+  const tone = state.tone || "warn";
+  const rowHtml = `<span class="health-dot ${escapeHtml(tone)}"></span>
+      <div><div class="source-name">Local Ollama</div><div class="source-detail">${escapeHtml(state.detail || "Local qwen reasoning from supplied YTT data only.")}</div></div>
+      <span class="status-chip ${tone === "up" ? "green" : tone === "dn" ? "red" : ""}">${escapeHtml(state.label || "DISABLED")}</span>`;
+  if (existing) {
+    existing.innerHTML = rowHtml;
+    return;
+  }
+  const row = document.createElement("div");
+  row.className = "source-health-row";
+  row.dataset.sourceHealthKey = "ollama";
+  row.innerHTML = rowHtml;
+  list.appendChild(row);
+}
+
 function classifyClientError(error) {
   switch (error?.code) {
     case "PROXY_REQUIRED":
@@ -228,6 +312,15 @@ function classifyClientError(error) {
       return { status: "DEGRADED", message: "Perplexity proxy timed out. Please retry shortly." };
     case "BAD_REQUEST":
       return { status: "FAILED", message: error.message || "Invalid Perplexity research request." };
+    case "LOCAL_AI_DISABLED":
+      return { status: "DISABLED", message: "Local AI is disabled. Enable Local AI / Ollama in Settings/Admin." };
+    case "OLLAMA_UNAVAILABLE":
+    case "OLLAMA_MODEL_UNAVAILABLE":
+      return { status: "UNAVAILABLE", message: error.message || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running." };
+    case "OLLAMA_INVALID_RESPONSE":
+      return { status: "ERROR", message: "Invalid response from local Ollama." };
+    case "OLLAMA_TIMEOUT":
+      return { status: "UNAVAILABLE", message: "Local AI request timed out. Confirm Ollama is running." };
     default:
       return { status: "FAILED", message: error?.message || "Perplexity research unavailable — retrying." };
   }
@@ -237,6 +330,7 @@ async function ask(panel, contextName, forceQuery = "") {
   const settings = currentSettings();
   const input = panel.querySelector("[data-perplexity-query]");
   const mode = panel.querySelector("[data-perplexity-mode]")?.value || settings.mode;
+  const providerSelection = panel.querySelector("[data-ai-provider]")?.value || settings.provider || AI_PROVIDER_IDS.AUTO;
   const query = (forceQuery || input?.value || "").trim();
   const output = panel.querySelector("[data-perplexity-output]");
   const state = getPanelState(panel);
@@ -253,7 +347,7 @@ async function ask(panel, contextName, forceQuery = "") {
     return;
   }
   const now = Date.now();
-  const key = requestKey(query, mode, contextName);
+  const key = requestKey(query, `${mode}:${providerSelection}`, contextName);
   const elapsed = now - (state.lastRequestAt || 0);
   if (state.lastRequestAt && elapsed < CLIENT_COOLDOWN_MS) {
     const remaining = Math.ceil((CLIENT_COOLDOWN_MS - elapsed) / 1000);
@@ -265,52 +359,66 @@ async function ask(panel, contextName, forceQuery = "") {
     return;
   }
   localStorage.setItem(SETTINGS.mode, mode);
+  localStorage.setItem(SETTINGS.provider, providerSelection);
   if (!settings.enabled) {
-    updateOutput(panel, { answer: "Perplexity research is disabled in Settings.", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
+    updateOutput(panel, { answer: "Perplexity research is disabled in Settings.", provider: "PERPLEXITY", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
     updateSourceHealth("DISABLED", "Perplexity AI is disabled in Settings.");
-    return;
-  }
-  if (!settings.proxyBase) {
-    updateOutput(panel, { answer: "Perplexity proxy not configured.", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
-    updateSourceHealth("PROXY REQUIRED", "Set API_PROXY_BASE before using Perplexity. Keys must remain server-side.");
-    return;
+    if (providerSelection !== AI_PROVIDER_IDS.PERPLEXITY && settings.ollamaEnabled) {
+      updateOutput(panel, { answer: "Perplexity is disabled; Local Ollama remains available when selected.", provider: "OLLAMA", model: settings.ollamaModel, dataQuality: "LOCAL_CONTEXT", timestamp: new Date().toISOString(), citations: [], tickers: [] });
+    } else {
+      return;
+    }
   }
   Object.assign(state, { query, mode, contextName, lastRequestAt: now, lastRequestKey: key, inFlight: true });
   if (output) {
     output.classList.add("is-loading");
-    output.textContent = "Scanning web-grounded finance sources...";
+    output.textContent = providerSelection === AI_PROVIDER_IDS.OLLAMA ? "Running local context-only reasoning..." : "Routing AI research...";
   }
   setBusy(panel, true);
   try {
     const yttContext = buildPerplexityContext(getAppState(contextName, query));
     const selected = yttContext.selectedAsset || {};
-    const client = createPerplexityClient({ proxyBase: settings.proxyBase, timeoutMs: settings.responseLength === "long" ? 26000 : 18000 });
     const started = Date.now();
-    const result = await client.askFinance({
+    const result = await askWithProvider({
       query,
       mode,
+      providerSelection,
+      context: yttContext,
       ticker: selected.symbol || inferTickerFromQuery(query),
       assetType: selected.assetType || contextName,
       selectedTab: yttContext.selectedTab,
-      watchlist: yttContext.watchlist,
-      marketContext: {
-        ...yttContext.marketContext,
-        verbosity: settings.verbosity,
-        responseLength: settings.responseLength,
+      settings: {
+        perplexity: {
+          enabled: settings.enabled,
+          proxyBase: settings.proxyBase,
+          timeoutMs: settings.responseLength === "long" ? 26000 : 18000,
+        },
+        ollama: {
+          enabled: settings.ollamaEnabled,
+          endpoint: settings.ollamaEndpoint,
+          model: settings.ollamaModel,
+          providerMode: settings.ollamaProviderMode,
+          timeoutMs: settings.responseLength === "long" ? 42000 : 30000,
+        },
       },
-      scannerContext: yttContext.scannerContext,
     });
     result.latencyMs = result.latencyMs || Date.now() - started;
     state.lastCompletedAt = Date.now();
     state.lastSuccessAt = result.timestamp || new Date().toISOString();
     state.lastFailureReason = "";
     updateOutput(panel, result);
-    updateSourceHealth("CONNECTED", `Last success ${new Date(result.timestamp).toLocaleString()}.`, result.latencyMs, result.timestamp);
+    if (result.provider === "OLLAMA") {
+      updateOllamaSourceHealth("RUNNING", `Local model ${result.model || settings.ollamaModel} answered from supplied YucaTanaTrades context.`, result.latencyMs, result.timestamp);
+    } else {
+      updateSourceHealth("CONNECTED", `Last success ${formatTimestamp(result.timestamp)}.`, result.latencyMs, result.timestamp);
+    }
   } catch (error) {
     const classified = classifyClientError(error);
     state.lastFailureReason = classified.message;
-    updateOutput(panel, { answer: classified.message, dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
-    updateSourceHealth(classified.status, `Last failure: ${classified.message}`);
+    const isLocalError = String(error?.code || "").startsWith("OLLAMA") || error?.code === "LOCAL_AI_DISABLED";
+    updateOutput(panel, { answer: classified.message, provider: isLocalError ? "OLLAMA" : "PERPLEXITY", model: isLocalError ? settings.ollamaModel : "", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
+    if (isLocalError) updateOllamaSourceHealth(classified.status, `Last failure: ${classified.message}`);
+    else updateSourceHealth(classified.status, `Last failure: ${classified.message}`);
   } finally {
     state.inFlight = false;
     setBusy(panel, false);
@@ -328,6 +436,13 @@ function bindPanel(host, contextName) {
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
     ask(panel, contextName);
+  });
+  panel.querySelector("[data-ai-provider]")?.addEventListener("change", (event) => {
+    localStorage.setItem(SETTINGS.provider, event.target.value || AI_PROVIDER_IDS.AUTO);
+    const badge = panel.querySelector("[data-provider-badge]");
+    if (badge) {
+      badge.textContent = event.target.value === AI_PROVIDER_IDS.OLLAMA ? "LOCAL" : event.target.value === AI_PROVIDER_IDS.PERPLEXITY ? "WEB" : "AUTO";
+    }
   });
   panel.querySelector("[data-perplexity-retry]")?.addEventListener("click", () => {
     const previous = panelState.get(panel);
@@ -356,12 +471,21 @@ function bindSettingsPanel() {
       <label class="ytt-perplexity-setting-row"><span>Verbosity</span><select id="perplexity-verbosity" class="ytt-perplexity-setting"><option value="concise">Concise</option><option value="balanced">Balanced</option><option value="detailed">Detailed</option></select></label>
       <label class="ytt-perplexity-setting-row"><span>Response Length</span><select id="perplexity-length" class="ytt-perplexity-setting"><option value="short">Short</option><option value="medium">Medium</option><option value="long">Long</option></select></label>
       <label class="ytt-perplexity-setting-row"><span>Default Mode</span><select id="perplexity-default-mode" class="ytt-perplexity-setting">${modeOptions(settings.mode)}</select></label>
-      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button></div>
+      <label class="ytt-perplexity-setting-row"><span>Panel Provider</span><select id="ai-provider-selection" class="ytt-perplexity-setting">${providerOptions(settings.provider)}</select></label>
+      <div class="panel-header ytt-perplexity-section-title">Local AI / Ollama <span class="source-tag">LOCAL ONLY</span></div>
+      <div class="ytt-perplexity-warning">Ollama has no live market data unless YucaTanaTrades supplies it. Keep Ollama bound to localhost; never expose it publicly.</div>
+      <label class="ytt-perplexity-toggle-row"><span>Enable Local AI</span><select id="ollama-enabled" class="ytt-perplexity-setting"><option value="false"${!settings.ollamaEnabled ? " selected" : ""}>Disabled</option><option value="true"${settings.ollamaEnabled ? " selected" : ""}>Enabled</option></select></label>
+      <label class="ytt-perplexity-setting-row"><span>Ollama Endpoint</span><input id="ollama-endpoint" class="ytt-perplexity-setting" type="url" placeholder="${escapeHtml(DEFAULT_OLLAMA_ENDPOINT)}" value="${escapeHtml(settings.ollamaEndpoint)}"></label>
+      <label class="ytt-perplexity-setting-row"><span>Ollama Model</span><input id="ollama-model" class="ytt-perplexity-setting" type="text" value="${escapeHtml(settings.ollamaModel)}"></label>
+      <label class="ytt-perplexity-setting-row"><span>Provider Mode</span><select id="ollama-provider-mode" class="ytt-perplexity-setting"><option value="disabled">Disabled</option><option value="local_reasoning">Local Reasoning</option><option value="auto">Auto</option></select></label>
+      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button><button class="ytt-perplexity-btn" type="button" id="test-ollama-settings">Test Ollama</button></div>
     </div>`;
   host.querySelector("#perplexity-verbosity").value = settings.verbosity;
   host.querySelector("#perplexity-length").value = settings.responseLength;
+  host.querySelector("#ollama-provider-mode").value = settings.ollamaProviderMode;
   host.querySelector("#save-perplexity-settings")?.addEventListener("click", saveSettings);
   host.querySelector("#test-perplexity-settings")?.addEventListener("click", refreshHealth);
+  host.querySelector("#test-ollama-settings")?.addEventListener("click", () => refreshOllamaHealth({ test: true }));
 }
 
 function saveSettings() {
@@ -372,6 +496,11 @@ function saveSettings() {
   localStorage.setItem(SETTINGS.verbosity, document.getElementById("perplexity-verbosity")?.value || "balanced");
   localStorage.setItem(SETTINGS.length, document.getElementById("perplexity-length")?.value || "medium");
   localStorage.setItem(SETTINGS.mode, document.getElementById("perplexity-default-mode")?.value || DEFAULT_PERPLEXITY_MODE);
+  localStorage.setItem(SETTINGS.provider, document.getElementById("ai-provider-selection")?.value || AI_PROVIDER_IDS.AUTO);
+  localStorage.setItem(SETTINGS.ollamaEnabled, document.getElementById("ollama-enabled")?.value || "false");
+  localStorage.setItem(SETTINGS.ollamaEndpoint, (document.getElementById("ollama-endpoint")?.value || DEFAULT_OLLAMA_ENDPOINT).trim());
+  localStorage.setItem(SETTINGS.ollamaModel, (document.getElementById("ollama-model")?.value || DEFAULT_OLLAMA_MODEL).trim());
+  localStorage.setItem(SETTINGS.ollamaProviderMode, document.getElementById("ollama-provider-mode")?.value || "auto");
   const mainProxy = document.getElementById("input-api-proxy");
   if (mainProxy) mainProxy.value = proxy;
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
@@ -379,6 +508,7 @@ function saveSettings() {
   });
   mountAll();
   refreshHealth();
+  refreshOllamaHealth({ test: false });
 }
 
 async function refreshHealth() {
@@ -399,6 +529,34 @@ async function refreshHealth() {
   updateSourceHealth(result.status, detail, result.latencyMs, result.lastSuccessAt);
 }
 
+async function refreshOllamaHealth({ test = false } = {}) {
+  const settings = currentSettings();
+  if (!settings.ollamaEnabled || settings.ollamaProviderMode === "disabled") {
+    updateOllamaSourceHealth("DISABLED", "Local Ollama is disabled in Settings/Admin.");
+    return;
+  }
+
+  if (!test) {
+    updateOllamaSourceHealth("UNAVAILABLE", "Local AI enabled. Use Test Ollama to confirm localhost is running.");
+    return;
+  }
+
+  updateOllamaSourceHealth("UNAVAILABLE", "Checking local Ollama endpoint.");
+  const result = await createOllamaClient({
+    endpoint: settings.ollamaEndpoint,
+    model: settings.ollamaModel,
+    timeoutMs: 12000,
+  }).healthCheck();
+  if (result.status === "RUNNING") {
+    const modelDetail = result.modelInstalled
+      ? `Model ${settings.ollamaModel} is installed.`
+      : `Ollama is running, but ${settings.ollamaModel} was not listed by /api/tags.`;
+    updateOllamaSourceHealth("RUNNING", `${modelDetail} Endpoint ${result.endpoint}.`, result.latencyMs, result.lastSuccessAt);
+  } else {
+    updateOllamaSourceHealth(result.status, result.error || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.", result.latencyMs);
+  }
+}
+
 function mountAll() {
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
     bindPanel(host, host.dataset.panelContext || "ai-lab");
@@ -412,10 +570,13 @@ function scheduleMount() {
 }
 
 window.YTTPerplexity = { mountAll, refreshHealth, saveSettings };
+window.YTTOllama = { refreshHealth: () => refreshOllamaHealth({ test: true }) };
 window.addEventListener("ytt:source-health-refresh", refreshHealth);
+window.addEventListener("ytt:source-health-refresh", () => refreshOllamaHealth({ test: false }));
 document.addEventListener("DOMContentLoaded", () => {
   mountAll();
   refreshHealth();
+  refreshOllamaHealth({ test: false });
   const observerRoot = document.body || document.documentElement;
   if (observerRoot) {
     new MutationObserver(scheduleMount).observe(observerRoot, { childList: true, subtree: true });

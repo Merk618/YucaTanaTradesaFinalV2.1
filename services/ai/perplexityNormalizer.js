@@ -1,4 +1,4 @@
-const DATA_QUALITY_VALUES = new Set(["LIVE", "DELAYED", "WEB-GROUNDED", "FALLBACK", "UNAVAILABLE"]);
+const DATA_QUALITY_VALUES = new Set(["LIVE", "DELAYED", "WEB-GROUNDED", "LOCAL_CONTEXT", "FALLBACK", "UNAVAILABLE"]);
 
 function asArray(value) {
   if (!value) return [];

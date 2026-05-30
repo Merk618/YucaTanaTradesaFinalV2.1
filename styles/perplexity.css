@@ -61,6 +61,7 @@
 
 .ytt-perplexity-status[data-quality="WEB-GROUNDED"],
 .ytt-perplexity-status[data-quality="LIVE"] { color: var(--green); border-color: rgba(0,200,5,0.24); }
+.ytt-perplexity-status[data-quality="LOCAL_CONTEXT"] { color: var(--gold-bright); border-color: rgba(245,217,120,0.34); }
 .ytt-perplexity-status[data-quality="FALLBACK"],
 .ytt-perplexity-status[data-quality="DELAYED"] { color: var(--gold); border-color: rgba(212,175,55,0.26); }
 .ytt-perplexity-status[data-quality="UNAVAILABLE"] { color: var(--red); border-color: rgba(255,80,0,0.28); }
@@ -119,6 +120,20 @@
   opacity: 0.55;
 }
 
+.ytt-perplexity-provider-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid rgba(245,217,120,0.24);
+  background: rgba(245,217,120,0.08);
+  color: var(--gold-bright);
+  padding: 0 10px;
+  font: 900 9px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .ytt-perplexity-output {
   min-height: 76px;
   margin-top: 12px;
@@ -170,6 +185,12 @@
   color: var(--muted);
   padding: 10px;
   font: 700 11px/1.55 var(--ui);
+}
+
+.ytt-perplexity-section-title {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .ytt-perplexity-toggle-row,
