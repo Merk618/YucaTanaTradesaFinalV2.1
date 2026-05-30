@@ -37,6 +37,7 @@ export function buildPerplexityContext(state = {}) {
     symbolIntent: compactObject(state.symbolIntent || null),
     resolution: compactObject(state.symbolIntent?.metadata || null),
     watchlist: Array.isArray(state.watchlist) ? state.watchlist.slice(0, MAX_WATCHLIST) : [],
+    externalSignals: Array.isArray(state.externalSignals) ? compactObject(state.externalSignals) : [],
     marketContext: {
       stockQuotes: compactObject(state.stockQuotes || {}),
       cryptoMarkets: compactObject(state.cryptoMarkets || {}),

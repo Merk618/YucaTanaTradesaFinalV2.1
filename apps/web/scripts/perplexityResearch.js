@@ -4,7 +4,10 @@ import { askWithProvider, AI_PROVIDER_IDS } from "../../../services/ai/providerR
 import { buildPerplexityContext, inferTickerFromQuery } from "../../../services/ai/contextBuilder.js";
 import { DEFAULT_PERPLEXITY_MODE } from "../../../services/ai/perplexityModes.js";
 import { resolveSymbolIntent } from "../../../services/ai/symbolIntentResolver.js";
+import { buildAIDecisionContext } from "../../../services/ai/aiDecisionContextBuilder.js";
 import { DEFAULT_MOOMOO_BRIDGE_URL, createMooMooClient } from "../../../services/marketData/moomooClient.js";
+import { EXTERNAL_SIGNAL_SETTINGS, createExternalSignalProvider } from "../../../services/signals/externalSignalProvider.js";
+import { adaptManualProsperioSignal } from "../../../services/signals/prosperioSignalAdapter.js";
 
 const SETTINGS = {
   enabled: "PERPLEXITY_ENABLED",
@@ -21,19 +24,56 @@ const SETTINGS = {
   moomooBridgeUrl: "MOOMOO_BRIDGE_URL",
   moomooPrimaryStocks: "MOOMOO_PRIMARY_STOCK_DATA",
   moomooOptionsEnabled: "MOOMOO_OPTIONS_DATA_ENABLED",
+  prosperioEnabled: EXTERNAL_SIGNAL_SETTINGS.prosperioEnabled,
+  prosperioInputMode: EXTERNAL_SIGNAL_SETTINGS.prosperioInputMode,
+  prosperioTrustLevel: EXTERNAL_SIGNAL_SETTINGS.prosperioTrustLevel,
+  prosperioRequireConfirmation: EXTERNAL_SIGNAL_SETTINGS.prosperioRequireConfirmation,
 };
 
 const CLIENT_COOLDOWN_MS = 5000;
 const MAX_QUERY_LENGTH = 4000;
 const panelState = new Map();
+const externalSignalProvider = createExternalSignalProvider();
 const ASSISTANT_MODES = [
   { id: "quick_summary", label: "Quick Summary" },
+  { id: "price", label: "Price" },
   { id: "deep_research", label: "Deep Research / Cited Research" },
   { id: "setup_analysis", label: "Setup Analysis" },
   { id: "scanner_summary", label: "Scanner Summary" },
   { id: "risk_review", label: "Risk Review" },
+  { id: "catalyst", label: "Catalyst" },
+  { id: "portfolio", label: "Portfolio" },
+  { id: "external_signals", label: "External Signals" },
 ];
 const ASSISTANT_MODE_IDS = new Set(ASSISTANT_MODES.map((mode) => mode.id));
+const COMMAND_MODE_CHIPS = [
+  ["price", "Price"],
+  ["setup_analysis", "Setup"],
+  ["scanner_summary", "Rank"],
+  ["risk_review", "Risk"],
+  ["catalyst", "Catalyst"],
+  ["portfolio", "Portfolio"],
+  ["external_signals", "External Signals"],
+  ["deep_research", "Deep Research"],
+];
+const DEFAULT_PROMPT_CHIPS = [
+  "Analyze selected setup",
+  "Rank watchlist",
+  "Find strongest crypto",
+  "Risk review",
+  "Explain data quality",
+  "Review Prosperio plays",
+  "Compare Prosperio vs YucaTana score",
+];
+const SYMBOL_PROMPT_CHIPS = [
+  "Why does this score this way?",
+  "What would improve this setup?",
+  "What are the risks?",
+  "Find latest catalyst",
+];
+const CHIP_SYMBOL_STOP_WORDS = new Set(["WHY", "WHAT", "RISK", "RANK", "BEST", "FIND", "DEEP", "PRICE", "SETUP", "WATCH"]);
+const WEB_RESEARCH_QUERY_PATTERN = /\b(latest|news|headline|headlines|catalyst|catalysts|earnings|analyst|estimate|estimates|rating|upgrade|downgrade|sec|filing|filings|insider|sources?|citations?|deep\s+research|why\s+(?:is|are).*(?:moving|move))\b/i;
+const EXTERNAL_SIGNAL_QUERY_PATTERN = /\b(prosperio|external\s+signals?|external\s+plays?|signal\s+overlay|review\s+my\s+prosperio|prosperio\s+plays?|compare\s+prosperio)\b/i;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -101,6 +141,8 @@ function bindUnifiedAssistantLauncher() {
     launcher.onclick = null;
     launcher.setAttribute("aria-controls", "ai-drawer");
     launcher.setAttribute("aria-expanded", document.getElementById("ai-drawer")?.classList.contains("open") ? "true" : "false");
+    launcher.dataset.aiStatus = launcher.dataset.aiStatus || "yellow";
+    launcher.innerHTML = '<span class="ytt-ai-orb-mark">YTT</span><span class="ytt-ai-orb-copy">YucaTana AI</span><span class="ytt-ai-orb-dot" aria-hidden="true"></span>';
     launcher.addEventListener("click", toggleUnifiedAssistant);
   }
 
@@ -118,7 +160,7 @@ function bindUnifiedAssistantLauncher() {
 
 function setBusy(panel, busy) {
   panel.classList.toggle("is-busy", Boolean(busy));
-  panel.querySelectorAll("[data-perplexity-submit], [data-perplexity-retry], [data-perplexity-regenerate]").forEach((button) => {
+  panel.querySelectorAll("[data-perplexity-submit], [data-perplexity-retry], [data-perplexity-regenerate], [data-ytt-analyze-selected]").forEach((button) => {
     button.disabled = Boolean(busy);
   });
 }
@@ -202,6 +244,7 @@ function getAppState(contextName, query = "") {
       cryptoRows: document.querySelectorAll("#crypto-body tr").length,
       dataPolicy: "Unavailable indicators remain unavailable until repo services calculate them.",
     },
+    externalSignals: externalSignalProvider.listSignals(),
   };
 }
 
@@ -224,6 +267,7 @@ function currentSettings() {
       primaryStocks: isMooMooPrimaryStocks(),
       optionsEnabled: isMooMooOptionsEnabled(),
     },
+    externalSignals: externalSignalProvider.settings(),
   };
 }
 
@@ -245,21 +289,91 @@ function providerOptions(selected = AI_PROVIDER_IDS.AUTO) {
   ).join("");
 }
 
-function panelTemplate(hostId, contextName) {
-  const settings = currentSettings();
-  const status = settings.enabled && settings.proxyBase ? "WEB-GROUNDED" : settings.ollamaEnabled ? "LOCAL_CONTEXT" : "UNAVAILABLE";
-  const providerStatus = providerStatusLabel(settings.provider);
-  const isFloatingAssistant = contextName === "ai-lab";
+function signalSettingsHtml(settings) {
+  const signal = settings.externalSignals.prosperio;
+  return `
+      <div class="panel-header ytt-perplexity-section-title">External Signal Providers <span class="source-tag">OVERLAY ONLY</span></div>
+      <div class="ytt-perplexity-warning">Prosperio.AI signals are manual overlays only. YucaTanaTrades market data remains the source of truth. No scraping, login automation, API key field, order placement, or broker execution is supported.</div>
+      <label class="ytt-perplexity-toggle-row"><span>Enable Prosperio Signals</span><select id="prosperio-enabled" class="ytt-perplexity-setting"><option value="false"${!signal.enabled ? " selected" : ""}>Disabled</option><option value="true"${signal.enabled ? " selected" : ""}>Enabled</option></select></label>
+      <label class="ytt-perplexity-setting-row"><span>Input Mode</span><select id="prosperio-input-mode" class="ytt-perplexity-setting"><option value="manual"${signal.inputMode === "manual" ? " selected" : ""}>Manual Entry</option><option value="import"${signal.inputMode === "import" ? " selected" : ""}>CSV/JSON Import Future</option><option value="api_future"${signal.inputMode === "api_future" ? " selected" : ""}>API Future</option></select></label>
+      <label class="ytt-perplexity-setting-row"><span>Source Label</span><input class="ytt-perplexity-setting" type="text" value="Prosperio.AI" readonly></label>
+      <label class="ytt-perplexity-setting-row"><span>Default Trust</span><select id="prosperio-trust-level" class="ytt-perplexity-setting"><option value="low"${signal.trustLevel === "low" ? " selected" : ""}>Low</option><option value="medium"${signal.trustLevel === "medium" ? " selected" : ""}>Medium</option><option value="high"${signal.trustLevel === "high" ? " selected" : ""}>High</option></select></label>
+      <label class="ytt-perplexity-toggle-row"><span>Require YucaTana Confirmation</span><select id="prosperio-require-confirmation" class="ytt-perplexity-setting"><option value="true"${signal.requireConfirmation ? " selected" : ""}>On</option><option value="false"${!signal.requireConfirmation ? " selected" : ""}>Off</option></select></label>
+      <div class="ytt-external-signal-entry">
+        <div class="panel-header ytt-perplexity-section-title">Manual Signal Entry <span class="source-tag">LOCAL</span></div>
+        <div class="ytt-signal-form-grid">
+          <input id="prosperio-symbol" class="ytt-perplexity-setting" placeholder="Symbol">
+          <select id="prosperio-asset-type" class="ytt-perplexity-setting"><option value="stock">Stock</option><option value="crypto">Crypto</option></select>
+          <select id="prosperio-horizon" class="ytt-perplexity-setting"><option value="short-term">Short-term</option><option value="long-term">Long-term</option></select>
+          <select id="prosperio-direction" class="ytt-perplexity-setting"><option value="bullish">Bullish</option><option value="bearish">Bearish</option><option value="neutral">Neutral</option></select>
+          <input id="prosperio-confidence" class="ytt-perplexity-setting" placeholder="Signal confidence if provided">
+          <input id="prosperio-entry-zone" class="ytt-perplexity-setting" placeholder="Entry zone if provided">
+          <input id="prosperio-target" class="ytt-perplexity-setting" placeholder="Target if provided">
+          <input id="prosperio-risk-note" class="ytt-perplexity-setting" placeholder="Risk note if provided">
+          <input id="prosperio-source-url" class="ytt-perplexity-setting" placeholder="Source URL/note if provided">
+          <input id="prosperio-timestamp" class="ytt-perplexity-setting" type="datetime-local">
+          <textarea id="prosperio-notes" class="ytt-perplexity-setting" placeholder="Notes" rows="2"></textarea>
+        </div>
+        <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="add-prosperio-signal">Add Prosperio Signal</button><button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" id="refresh-prosperio-signals">Refresh Comparison</button></div>
+        <div id="prosperio-signal-message" class="ytt-perplexity-warning" style="display:none;"></div>
+      </div>
+      <div class="panel-header ytt-perplexity-section-title">External Signal Watchlist <span class="source-tag">LOCAL</span></div>
+      <div id="external-signal-watchlist" class="ytt-external-signal-watchlist"></div>`;
+}
+
+function promptChipHtml(prompts = DEFAULT_PROMPT_CHIPS) {
+  return prompts.map((prompt) =>
+    `<button class="ytt-ai-prompt-chip" type="button" data-ytt-prompt-chip="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`
+  ).join("");
+}
+
+function setModeChipState(panel, selectedMode) {
+  panel.querySelectorAll("[data-ytt-mode-chip]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.yttModeChip === selectedMode);
+  });
+}
+
+function promptForMode(mode, contextName) {
+  const selected = selectedSymbolForContext(contextName);
+  switch (mode) {
+    case "price":
+      return selected ? `${selected} price` : "BTC price";
+    case "setup_analysis":
+      return selected ? `${selected} setup analysis` : "Analyze selected setup";
+    case "scanner_summary":
+      return "Rank watchlist";
+    case "risk_review":
+      return selected ? `${selected} risk review` : "Risk review";
+    case "catalyst":
+      return selected ? `Find latest catalyst for ${selected}` : "Find latest catalyst";
+    case "portfolio":
+      return "Portfolio risk review";
+    case "external_signals":
+      return "Review Prosperio plays";
+    case "deep_research":
+      return selected ? `Deep research ${selected}` : "Deep research";
+    default:
+      return "Analyze selected setup";
+  }
+}
+
+function updateSymbolChipFromQuery(panel, query = "", contextName = "ai-lab") {
+  const inferred = inferTickerFromQuery(query);
+  const symbol = (inferred && !CHIP_SYMBOL_STOP_WORDS.has(inferred) ? inferred : "") || selectedSymbolForContext(contextName);
+  const chip = panel.querySelector("[data-ytt-symbol-chip]");
+  if (chip) chip.textContent = symbol ? `${symbol} · pending resolution` : "No symbol locked";
+}
+
+function compactPanelTemplate(hostId, contextName, settings, status, providerStatus) {
   return `<section class="ytt-perplexity-panel" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
-        <div class="ytt-perplexity-title">${isFloatingAssistant ? "YucaTana AI" : "YucaTana AI Research"}</div>
-        <div class="ytt-perplexity-subtitle">One assistant, routed through Perplexity for cited research or Local Ollama for context-only reasoning.</div>
+        <div class="ytt-perplexity-title">YucaTana AI Research</div>
+        <div class="ytt-perplexity-subtitle">Context-aware research from Perplexity or Local Ollama using supplied YTT data.</div>
       </div>
       <div class="ytt-perplexity-head-actions">
         <span class="ytt-provider-status" data-provider-status="${escapeHtml(settings.provider)}">${providerStatus}</span>
         <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
-        ${isFloatingAssistant ? '<button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close AI assistant">Close</button>' : ""}
       </div>
     </div>
     <form class="ytt-perplexity-form" data-perplexity-form>
@@ -294,10 +408,278 @@ function panelTemplate(hostId, contextName) {
   </section>`;
 }
 
+function panelTemplate(hostId, contextName) {
+  const settings = currentSettings();
+  const status = settings.enabled && settings.proxyBase ? "WEB-GROUNDED" : settings.ollamaEnabled ? "LOCAL_CONTEXT" : "UNAVAILABLE";
+  const providerStatus = providerStatusLabel(settings.provider);
+  const isFloatingAssistant = contextName === "ai-lab";
+  if (!isFloatingAssistant) return compactPanelTemplate(hostId, contextName, settings, status, providerStatus);
+  const modeChips = COMMAND_MODE_CHIPS.map(([value, label]) =>
+    `<button class="ytt-ai-chip${value === settings.mode ? " is-active" : ""}" type="button" data-ytt-mode-chip="${escapeHtml(value)}">${escapeHtml(label)}</button>`
+  ).join("");
+  const promptChips = promptChipHtml(DEFAULT_PROMPT_CHIPS);
+  return `<section class="ytt-perplexity-panel ytt-ai-command-center" data-perplexity-instance="${escapeHtml(hostId)}">
+    <div class="ytt-perplexity-head">
+      <div>
+        <div class="ytt-perplexity-title">YucaTana AI</div>
+        <div class="ytt-perplexity-subtitle">Market Brain</div>
+      </div>
+      <div class="ytt-perplexity-head-actions">
+        <span class="ytt-provider-status" data-provider-status="${escapeHtml(settings.provider)}">${providerStatus}</span>
+        <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
+        <button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close AI assistant">Close</button>
+      </div>
+    </div>
+    <div class="ytt-ai-intel-strip" data-ytt-intel-strip>
+      <span><b>Regime</b><em data-ytt-regime>UNKNOWN</em></span>
+      <span><b>Data</b><em data-ytt-data-quality>${status}</em></span>
+      <span><b>Provider</b><em data-ytt-provider>${providerStatus}</em></span>
+      <span><b>Health</b><em data-ytt-health>${settings.proxyBase || settings.ollamaEnabled ? "PARTIAL" : "PROXY REQUIRED"}</em></span>
+    </div>
+    <div class="ytt-ai-mode-chips" data-ytt-mode-chips>${modeChips}</div>
+    <form class="ytt-perplexity-form" data-perplexity-form>
+      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-provider">Provider</label>
+      <div class="ytt-perplexity-mode-row">
+        <select id="${escapeHtml(hostId)}-provider" class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select>
+        <span class="ytt-perplexity-provider-badge" data-provider-badge>${providerStatus}</span>
+      </div>
+      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-mode">Mode</label>
+      <div class="ytt-perplexity-mode-row">
+        <select id="${escapeHtml(hostId)}-mode" class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select>
+        <button class="ytt-perplexity-btn" type="button" data-perplexity-retry>Retry</button>
+      </div>
+      <div class="ytt-ai-symbol-row">
+        <span class="ytt-ai-symbol-chip" data-ytt-symbol-chip>No symbol locked</span>
+        <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-ytt-analyze-selected>Analyze Selected</button>
+      </div>
+      <div class="ytt-perplexity-query-row">
+        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask YucaTana AI about a ticker, setup, scanner, risk, catalyst, or portfolio move..." rows="3"></textarea>
+        <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
+        <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>
+      </div>
+    </form>
+    <div class="ytt-ai-prompt-chips" data-ytt-prompt-chips>${promptChips}</div>
+    <div class="ytt-perplexity-output ytt-ai-response-stack" data-perplexity-output>${settings.proxyBase || settings.ollamaEnabled ? "Ask a ticker, setup, ranking, risk, or catalyst question to start Market Brain analysis." : "Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin."}</div>
+    <div class="ytt-perplexity-meta" data-perplexity-meta>
+      <span>${settings.enabled ? "ENABLED" : "DISABLED"}</span>
+      <span>${settings.proxyBase ? "PERPLEXITY READY" : "PERPLEXITY PROXY REQUIRED"}</span>
+      <span>${settings.ollamaEnabled ? "OLLAMA ENABLED" : "OLLAMA DISABLED"}</span>
+    </div>
+    <div class="ytt-perplexity-tickers" data-perplexity-tickers></div>
+    <div class="ytt-perplexity-citations" data-perplexity-citations></div>
+    <div class="ytt-perplexity-actions">
+      <button class="ytt-perplexity-btn" type="button" data-perplexity-copy>Copy</button>
+      <button class="ytt-perplexity-btn" type="button" data-perplexity-regenerate>Regenerate</button>
+    </div>
+  </section>`;
+}
+
 function renderMarkdownLite(text) {
   return escapeHtml(text)
     .replace(/\n{2,}/g, "<br><br>")
     .replace(/\n/g, "<br>");
+}
+
+function compactValue(value) {
+  if (value === null || value === undefined || value === "") return "Unavailable";
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.abs(value) >= 1000 ? value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : value.toLocaleString(undefined, { maximumFractionDigits: 4 });
+  }
+  return String(value);
+}
+
+function renderCard(title, body = "", tone = "") {
+  return `<article class="ytt-ai-card ${escapeHtml(tone)}"><div class="ytt-ai-card-title">${escapeHtml(title)}</div>${body}</article>`;
+}
+
+function renderRows(items = []) {
+  return `<div class="ytt-ai-card-grid">${items.map((item) => `
+    <div class="ytt-ai-card-row">
+      <span>${escapeHtml(item.label || item[0] || "")}</span>
+      <strong>${escapeHtml(compactValue(item.value ?? item[1]))}</strong>
+    </div>`).join("")}</div>`;
+}
+
+function renderList(items = [], empty = "Unavailable") {
+  const list = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (!list.length) return `<p>${escapeHtml(empty)}</p>`;
+  return `<ul class="ytt-ai-list">${list.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function renderScoreBreakdown(scoreBreakdown = {}) {
+  const rows = Object.values(scoreBreakdown).map((item) => ({
+    label: item.label || "Score",
+    value: `${Number(item.score || 0)}/${Number(item.max || 0)}`,
+  }));
+  return renderRows(rows);
+}
+
+function renderRankings(rankings = []) {
+  if (!rankings.length) return "";
+  const rows = rankings.map((item, index) => `
+    <div class="ytt-ai-rank-row">
+      <span>#${index + 1}</span>
+      <strong>${escapeHtml(item.symbol)} <em>${escapeHtml(item.assetType)}</em></strong>
+      <b>${escapeHtml(item.rating)}</b>
+      <i>${Number(item.setupScore || 0)}/100</i>
+    </div>`).join("");
+  return renderCard("Ranked Candidates", `<div class="ytt-ai-rank-list">${rows}</div>`, "rank");
+}
+
+function renderExternalSignalCards(review = {}) {
+  if (!review || !Array.isArray(review.comparisons)) return [];
+  const settings = review.settings || {};
+  const cards = [
+    renderCard("External Signal Summary", renderRows([
+      ["Provider", "Prosperio.AI"],
+      ["Status", settings.enabled ? "Manual / Import / API Future" : "Disabled"],
+      ["Stored Signals", review.comparisons.length],
+      ["Default Trust", settings.trustLevel || "low"],
+      ["YucaTana Confirmation", settings.requireConfirmation === false ? "Optional" : "Required"],
+    ]), "sources"),
+  ];
+
+  if (!review.comparisons.length) {
+    cards.push(renderCard("Signal Watchlist", "<p>No Prosperio signals are stored locally yet. Add one in Settings/Admin under External Signal Providers.</p>", "risk"));
+    return cards;
+  }
+
+  const rows = review.comparisons.map((item) => `
+    <div class="ytt-ai-rank-row">
+      <span>${escapeHtml(item.signal.horizon)}</span>
+      <strong>${escapeHtml(item.signal.symbol)} <em>${escapeHtml(item.signal.assetType)}</em></strong>
+      <b>${escapeHtml(item.confirmationStatus)}</b>
+      <i>${item.yucaTanaScore == null ? "N/A" : `${item.yucaTanaScore}/100`}</i>
+    </div>`).join("");
+  cards.push(renderCard("YucaTana Confirmation Engine", `<div class="ytt-ai-rank-list">${rows}</div>`, "rank"));
+
+  const top = review.comparisons[0];
+  if (top) {
+    cards.push(renderCard("Bull Case", renderList(top.marketBrain?.opportunity?.strongestFactors || [], "No bullish confirmation from supplied YucaTana data."), "case"));
+    cards.push(renderCard("Bear Case", renderList(top.marketBrain?.opportunity?.weakestFactors || [], "No bear case supplied by YucaTana data."), "risk"));
+    cards.push(renderCard("Risk Framework", renderList([
+      top.signal.riskNote ? `Prosperio note: ${top.signal.riskNote}` : "",
+      ...(top.marketBrain?.missingData || []).length ? `Missing YucaTana data: ${(top.marketBrain?.missingData || []).join(", ")}.` : "",
+      "External signals never override YucaTana market data.",
+    ].filter(Boolean)), "risk"));
+    cards.push(renderCard("What Would Confirm It", renderList([
+      "Fresh YucaTana price and volume data for the symbol.",
+      "Market Brain score at CANDIDATE or better for bullish plays, or weak/avoid confirmation for bearish plays.",
+      "Support/resistance, RSI/MACD, volume, and catalyst fields if those are part of the external thesis.",
+    ]), "watch"));
+    cards.push(renderCard("Data Quality Warning", renderRows([
+      ["Confirmation Status", top.confirmationStatus],
+      ["YucaTana Rating", top.yucaTanaRating],
+      ["Provider Confidence", top.signal.providerConfidence || "Unavailable"],
+      ["Source URL/Note", top.signal.sourceUrl || top.signal.notes || "Unavailable"],
+    ]), "sources"));
+  }
+  return cards;
+}
+
+function marketBrainCards(brain = {}) {
+  if (!brain || !brain.opportunity) {
+    return brain?.rankings?.length ? [renderRankings(brain.rankings)] : [];
+  }
+  const opportunity = brain.opportunity;
+  const regime = brain.marketRegime || {};
+  const playbook = brain.playbook || {};
+  const source = brain.directPriceData || {};
+  const riskItems = [
+    ...(opportunity.scoreBreakdown?.riskReward?.weakestFactors || []),
+    (brain.missingData || []).length ? `Missing data: ${(brain.missingData || []).join(", ")}.` : "",
+  ].filter(Boolean);
+  const cards = [
+    renderRankings(brain.rankings),
+    renderCard("Verdict Card", renderRows([
+      ["Symbol", opportunity.symbol],
+      ["Asset Type", opportunity.assetType],
+      ["Rating", opportunity.rating],
+      ["Setup Score", `${opportunity.setupScore}/100`],
+      ["Confidence", opportunity.confidence],
+      ["Data Quality", opportunity.dataQuality],
+    ]), "verdict"),
+    renderCard("Score Breakdown", renderScoreBreakdown(opportunity.scoreBreakdown), "score"),
+    renderCard("Bull / Bear Case", `
+      <div class="ytt-ai-split">
+        <div><h4>Strongest</h4>${renderList(opportunity.strongestFactors, "No strong positive factors supplied.")}</div>
+        <div><h4>Weakest</h4>${renderList(opportunity.weakestFactors, "No risk factors supplied.")}</div>
+      </div>`, "case"),
+    renderCard("Market Context", renderRows([
+      ["Market Regime", regime.regime || "UNKNOWN"],
+      ["Regime Confidence", regime.confidence ?? "Unavailable"],
+      ["Regime Data Quality", regime.dataQuality || "UNAVAILABLE"],
+    ]) + renderList(regime.notes, "No regime notes available."), "context"),
+    renderCard("Playbook", renderRows([
+      ["Primary", playbook.primaryPlaybook || "No Clear Setup"],
+      ["Secondary", playbook.secondaryPlaybook || "Confirmation Needed"],
+      ["Invalidation Data", playbook.invalidationDataAvailable ? "Available" : "Unavailable"],
+    ]) + renderList(playbook.notes, "No playbook notes available."), "playbook"),
+    renderCard("Risk Card", renderList(riskItems, "No risk framework available from supplied data."), "risk"),
+    renderCard("Watch Next", renderList([
+      "Confirm price, volume, and trend data remain fresh.",
+      playbook.invalidationDataAvailable ? "Monitor supplied support/resistance invalidation data." : "Add support/resistance or VWAP data for cleaner invalidation.",
+      (opportunity.missingData || []).includes("catalysts") ? "Use Perplexity Research for latest catalysts if proxy is configured." : "Monitor supplied catalyst quality and timestamp.",
+    ]), "watch"),
+    renderCard("Sources / Data Quality", renderRows([
+      ["Provider", source.provider || source.primaryDataSource || "Unavailable"],
+      ["Fallback Used", source.fallbackUsed ? "true" : "false"],
+      ["Timestamp", source.timestamp || brain.timestamp],
+      ["Missing Fields", (brain.missingData || []).join(", ") || "None listed"],
+    ]), "sources"),
+  ].filter(Boolean);
+  return cards;
+}
+
+function renderStructuredOutput(result = {}) {
+  const cards = [];
+  if (Array.isArray(result.cards) && result.cards.length) {
+    for (const card of result.cards) {
+      cards.push(renderCard(card.title || "Price Card", renderRows(card.items || []), card.type || "price"));
+    }
+  }
+  if (result.externalSignalReview) cards.push(...renderExternalSignalCards(result.externalSignalReview));
+  if (result.marketBrain) cards.push(...marketBrainCards(result.marketBrain));
+  const hasPriceCard = Array.isArray(result.cards) && result.cards.some((card) => card.type === "price");
+  const answer = result.answer || "";
+  const shouldShowNarrative = answer && (!hasPriceCard || /unavailable from currently connected/i.test(answer) || result.provider === "OLLAMA" || result.provider === "PERPLEXITY");
+  if (shouldShowNarrative) {
+    cards.push(renderCard(result.provider === "OLLAMA" || result.provider === "PERPLEXITY" ? "AI Explanation" : "Research Note", `<p>${renderMarkdownLite(answer)}</p>`, "narrative"));
+  }
+  return cards.length ? cards.join("") : renderMarkdownLite(answer || "Ask a finance question to start AI research.");
+}
+
+function updateAssistantChrome(panel, result = {}) {
+  const provider = result.provider || result.routedProvider || "";
+  const brain = result.marketBrain || {};
+  const quality = result.dataQuality || brain.opportunity?.dataQuality || "UNAVAILABLE";
+  const regime = brain.marketRegime?.regime || "UNKNOWN";
+  const resolution = result.resolution || result.metadata || brain.directPriceData || {};
+  const symbolText = resolution.requestedSymbol
+    ? `${resolution.resolvedSymbol || resolution.requestedSymbol} · ${resolution.assetType || "unknown"} · ${resolution.primaryDataSource || resolution.provider || "source unavailable"}`
+    : "No symbol locked";
+  const setText = (selector, value) => {
+    const el = panel.querySelector(selector);
+    if (el) el.textContent = value;
+  };
+  setText("[data-ytt-regime]", regime);
+  setText("[data-ytt-data-quality]", quality);
+  setText("[data-ytt-provider]", providerStatusLabel(provider === "PERPLEXITY" ? AI_PROVIDER_IDS.PERPLEXITY : provider === "OLLAMA" ? AI_PROVIDER_IDS.OLLAMA : currentSettings().provider));
+  setText("[data-ytt-health]", quality === "UNAVAILABLE" ? "PARTIAL" : "READY");
+  setText("[data-ytt-symbol-chip]", symbolText);
+  const promptHost = panel.querySelector("[data-ytt-prompt-chips]");
+  if (promptHost && resolution.requestedSymbol && resolution.requestedSymbol !== "Unavailable") {
+    const resolved = resolution.resolvedSymbol || resolution.requestedSymbol;
+    promptHost.innerHTML = promptChipHtml(SYMBOL_PROMPT_CHIPS.map((prompt) => {
+      if (prompt === "Why does this score this way?") return `Why does ${resolved} score this way?`;
+      if (prompt === "What would improve this setup?") return `What would improve ${resolved} setup?`;
+      if (prompt === "What are the risks?") return `What are ${resolved} risks?`;
+      if (prompt === "Find latest catalyst") return `Find latest catalyst for ${resolved}`;
+      return prompt;
+    }));
+  }
+  const launcher = document.getElementById("ai-fab");
+  if (launcher) launcher.dataset.aiStatus = quality === "UNAVAILABLE" ? "red" : quality === "FALLBACK" || quality === "PARTIAL" || quality === "LOCAL_CONTEXT" ? "yellow" : "green";
 }
 
 function setQuality(panel, quality) {
@@ -318,9 +700,10 @@ function updateOutput(panel, result = {}) {
   const provider = result.provider || (quality === "LOCAL_CONTEXT" ? "OLLAMA" : "");
   const model = result.model || "";
   const resolution = result.resolution || result.metadata || {};
+  updateAssistantChrome(panel, result);
   if (output) {
     output.classList.remove("is-loading");
-    output.innerHTML = renderMarkdownLite(answer);
+    output.innerHTML = renderStructuredOutput(result);
   }
   setQuality(panel, quality);
   if (meta) {
@@ -328,7 +711,7 @@ function updateOutput(panel, result = {}) {
     const lastRequest = state.lastRequestAt ? formatTimestamp(state.lastRequestAt) : "";
     const latency = Number.isFinite(Number(result.latencyMs)) ? `<span>${Math.round(Number(result.latencyMs))}MS</span>` : "";
     const resolutionHtml = resolution.requestedSymbol
-      ? `<span>REQUESTED: ${escapeHtml(resolution.requestedSymbol)}</span><span>RESOLVED: ${escapeHtml(resolution.resolvedSymbol || "Unavailable")}</span><span>ASSET: ${escapeHtml(resolution.assetType || "unknown")}</span><span>SOURCE: ${escapeHtml(resolution.primaryDataSource || "Unavailable")}</span><span>FALLBACK: ${resolution.fallbackUsed ? "YES" : "NO"}</span><span>CONFIDENCE: ${escapeHtml(resolution.resolutionConfidence || "unknown")}</span>`
+      ? `<span>REQUESTED: ${escapeHtml(resolution.requestedSymbol)}</span><span>RESOLVED: ${escapeHtml(resolution.resolvedSymbol || "Unavailable")}</span><span>ASSET: ${escapeHtml(resolution.assetType || "unknown")}</span><span>SOURCE: ${escapeHtml(resolution.primaryDataSource || resolution.provider || "Unavailable")}</span><span>FALLBACK: ${resolution.fallbackUsed ? "YES" : "NO"}</span><span>CONFIDENCE: ${escapeHtml(resolution.resolutionConfidence || resolution.confidence || "unknown")}</span>`
       : "";
     meta.innerHTML = `${provider ? `<span>PROVIDER: ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL: ${escapeHtml(model)}</span>` : ""}${resolutionHtml}<span>DATA QUALITY: ${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
   }
@@ -455,6 +838,14 @@ function renderSupplementalMarketHealthRows() {
     label: "DISABLED",
     detail: "Optional future news provider. Keep paid API keys server-side.",
   });
+  const signalSettings = externalSignalProvider.settings().prosperio;
+  renderProviderHealthRow("prosperio-signals", "Prosperio.AI Signals", "External signal overlay only; manual/import/API future.", {
+    tone: signalSettings.enabled ? "warn" : "dn",
+    label: signalSettings.enabled ? "MANUAL" : "DISABLED",
+    detail: signalSettings.enabled
+      ? "Manual Prosperio signal overlay enabled. YucaTana confirmation is required before scoring."
+      : "Prosperio signal overlay disabled. No scraping or login automation is supported.",
+  });
 }
 
 function classifyClientError(error) {
@@ -485,6 +876,97 @@ function classifyClientError(error) {
     default:
       return { status: "FAILED", message: error?.message || "Perplexity research unavailable — retrying." };
   }
+}
+
+function requiresWebResearch(query = "", mode = "") {
+  return WEB_RESEARCH_QUERY_PATTERN.test(`${query} ${mode}`) || mode === "deep_research" || mode === "catalyst";
+}
+
+function deterministicBrainAnswer(brain = {}, note = "") {
+  if (brain.rankings?.length) {
+    const ranked = brain.rankings.map((item, index) => `${index + 1}. ${item.symbol} (${item.assetType}) - ${item.rating}, ${item.setupScore}/100, ${item.playbook}`).join("\n");
+    return [
+      note || "YucaTana Market Brain ranked only assets with connected data.",
+      "",
+      "Top candidates:",
+      ranked,
+      "",
+      "This is read-only decision support, not a buy/sell instruction.",
+    ].join("\n");
+  }
+  const opportunity = brain.opportunity;
+  if (!opportunity) return note || "Market Brain could not score this request because no matching symbol or scanner data was supplied.";
+  return [
+    note || "YucaTana Market Brain computed a read-only setup score before any LLM explanation.",
+    "",
+    `Symbol: ${opportunity.symbol}`,
+    `Asset Type: ${opportunity.assetType}`,
+    `Rating: ${opportunity.rating}`,
+    `Setup Score: ${opportunity.setupScore}/100`,
+    `Data Quality: ${opportunity.dataQuality}`,
+    `Market Regime: ${brain.marketRegime?.regime || "UNKNOWN"}`,
+    `Playbook: ${brain.playbook?.primaryPlaybook || "No Clear Setup"}`,
+    "",
+    "Missing Data:",
+    (brain.missingData || []).join(", ") || "None listed.",
+    "",
+    "This is read-only decision support, not a buy/sell instruction.",
+  ].join("\n");
+}
+
+function deterministicBrainResult(brain = {}, note = "", resolution = {}) {
+  return {
+    answer: deterministicBrainAnswer(brain, note),
+    provider: "YTT MARKET BRAIN",
+    dataQuality: brain.opportunity?.dataQuality || (brain.rankings?.length ? "PARTIAL" : "UNAVAILABLE"),
+    timestamp: brain.timestamp || new Date().toISOString(),
+    citations: [],
+    sources: [],
+    tickers: brain.rankings?.length ? brain.rankings.map((item) => item.symbol) : brain.symbol ? [brain.symbol] : [],
+    resolution,
+    marketBrain: brain,
+  };
+}
+
+function isExternalSignalQuery(query = "", mode = "") {
+  return mode === "external_signals" || EXTERNAL_SIGNAL_QUERY_PATTERN.test(query);
+}
+
+function externalSignalReviewResult(query = "", appState = {}) {
+  const settings = currentSettings().externalSignals.prosperio;
+  const comparisons = settings.enabled
+    ? externalSignalProvider.compareSignals(appState)
+    : [];
+  const stored = externalSignalProvider.listSignals();
+  const answer = !settings.enabled
+    ? "External Signal Providers are disabled. Enable Prosperio signals in Settings/Admin to review locally stored plays."
+    : !stored.length
+      ? "No Prosperio signals are stored locally yet. Add a manual signal in Settings/Admin; YucaTana will verify it against current market data before scoring."
+      : [
+          "External Signal Review",
+          `Provider: Prosperio.AI`,
+          `Signals reviewed: ${comparisons.length}`,
+          "",
+          ...comparisons.map((item, index) => `${index + 1}. ${item.signal.symbol} ${item.signal.horizon} ${item.signal.direction} - ${item.confirmationStatus}; YucaTana score ${item.yucaTanaScore ?? "Unavailable"}/100; rating ${item.yucaTanaRating}.`),
+          "",
+          "Prosperio is an overlay only. YucaTana market data remains source of truth. No buy/sell or order instruction was generated.",
+        ].join("\n");
+
+  return {
+    answer,
+    provider: "YTT EXTERNAL SIGNALS",
+    dataQuality: comparisons.some((item) => item.confirmationStatus !== "DATA_INSUFFICIENT") ? "PARTIAL" : "UNAVAILABLE",
+    timestamp: new Date().toISOString(),
+    citations: [],
+    sources: [],
+    tickers: comparisons.map((item) => item.signal.symbol),
+    externalSignalReview: {
+      query,
+      settings,
+      comparisons,
+      storedSignals: stored,
+    },
+  };
 }
 
 async function ask(panel, contextName, forceQuery = "") {
@@ -537,6 +1019,13 @@ async function ask(panel, contextName, forceQuery = "") {
   setBusy(panel, true);
   try {
     const appState = getAppState(contextName, query);
+    if (isExternalSignalQuery(query, mode)) {
+      const result = externalSignalReviewResult(query, appState);
+      state.lastCompletedAt = Date.now();
+      state.lastSuccessAt = result.timestamp;
+      updateOutput(panel, result);
+      return;
+    }
     const symbolIntent = await resolveSymbolIntent({
       query,
       state: appState,
@@ -561,7 +1050,21 @@ async function ask(panel, contextName, forceQuery = "") {
       }
       return;
     }
-    const yttContext = buildPerplexityContext({ ...appState, symbolIntent });
+    const baseContext = buildPerplexityContext({ ...appState, symbolIntent });
+    const yttContext = buildAIDecisionContext({
+      query,
+      mode,
+      appState,
+      yttContext: baseContext,
+      symbolIntent,
+    });
+    state.lastBrain = yttContext.marketBrain;
+    if (requiresWebResearch(query, mode) && providerSelection !== AI_PROVIDER_IDS.OLLAMA && (!settings.enabled || !settings.proxyBase)) {
+      const warning = "Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin for latest catalysts, news, filings, analyst changes, or cited deep research.";
+      updateOutput(panel, deterministicBrainResult(yttContext.marketBrain, warning, symbolIntent.metadata));
+      updateSourceHealth("PROXY REQUIRED", warning);
+      return;
+    }
     const selected = yttContext.selectedAsset || {};
     const started = Date.now();
     const result = await askWithProvider({
@@ -589,6 +1092,7 @@ async function ask(panel, contextName, forceQuery = "") {
     });
     result.latencyMs = result.latencyMs || Date.now() - started;
     result.resolution = symbolIntent.metadata;
+    result.marketBrain = yttContext.marketBrain;
     state.lastCompletedAt = Date.now();
     state.lastSuccessAt = result.timestamp || new Date().toISOString();
     state.lastFailureReason = "";
@@ -602,7 +1106,12 @@ async function ask(panel, contextName, forceQuery = "") {
     const classified = classifyClientError(error);
     state.lastFailureReason = classified.message;
     const isLocalError = String(error?.code || "").startsWith("OLLAMA") || error?.code === "LOCAL_AI_DISABLED";
-    updateOutput(panel, { answer: classified.message, provider: isLocalError ? "OLLAMA" : "PERPLEXITY", model: isLocalError ? settings.ollamaModel : "", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
+    const fallbackResult = state.lastBrain
+      ? deterministicBrainResult(state.lastBrain, classified.message, state.lastBrain?.directPriceData || {})
+      : { answer: classified.message, provider: isLocalError ? "OLLAMA" : "PERPLEXITY", model: isLocalError ? settings.ollamaModel : "", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] };
+    fallbackResult.provider = fallbackResult.provider || (isLocalError ? "OLLAMA" : "PERPLEXITY");
+    fallbackResult.model = isLocalError ? settings.ollamaModel : fallbackResult.model;
+    updateOutput(panel, fallbackResult);
     if (isLocalError) updateOllamaSourceHealth(classified.status, `Last failure: ${classified.message}`);
     else updateSourceHealth(classified.status, `Last failure: ${classified.message}`);
   } finally {
@@ -623,6 +1132,39 @@ function bindPanel(host, contextName) {
     event.preventDefault();
     ask(panel, contextName);
   });
+  const queryInput = panel.querySelector("[data-perplexity-query]");
+  queryInput?.addEventListener("input", () => updateSymbolChipFromQuery(panel, queryInput.value, contextName));
+  panel.querySelectorAll("[data-ytt-mode-chip]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const mode = normalizeMode(button.dataset.yttModeChip || currentSettings().mode);
+      const modeSelect = panel.querySelector("[data-perplexity-mode]");
+      if (modeSelect) modeSelect.value = mode;
+      setModeChipState(panel, mode);
+      const input = panel.querySelector("[data-perplexity-query]");
+      if (input && !input.value.trim()) input.value = promptForMode(mode, contextName);
+      updateSymbolChipFromQuery(panel, input?.value || "", contextName);
+      input?.focus();
+    });
+  });
+  panel.querySelector("[data-ytt-prompt-chips]")?.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-ytt-prompt-chip]");
+    if (!button) return;
+    const selected = selectedSymbolForContext(contextName);
+    const base = button.dataset.yttPromptChip || "";
+    const prompt = base === "Find latest catalyst" && selected ? `${base} for ${selected}` : base;
+    const input = panel.querySelector("[data-perplexity-query]");
+    if (input) {
+      input.value = prompt;
+      updateSymbolChipFromQuery(panel, prompt, contextName);
+      input.focus();
+    }
+  });
+  panel.querySelector("[data-ytt-analyze-selected]")?.addEventListener("click", () => {
+    const selected = selectedSymbolForContext(contextName);
+    const input = panel.querySelector("[data-perplexity-query]");
+    if (input) input.value = selected ? `${selected} setup analysis` : "Analyze selected setup";
+    ask(panel, contextName, input?.value || "Analyze selected setup");
+  });
   panel.querySelector("[data-ai-provider]")?.addEventListener("change", (event) => {
     localStorage.setItem(SETTINGS.provider, event.target.value || AI_PROVIDER_IDS.AUTO);
     const badge = panel.querySelector("[data-provider-badge]");
@@ -633,6 +1175,8 @@ function bindPanel(host, contextName) {
       status.textContent = label;
       status.dataset.providerStatus = event.target.value || AI_PROVIDER_IDS.AUTO;
     }
+    const stripProvider = panel.querySelector("[data-ytt-provider]");
+    if (stripProvider) stripProvider.textContent = label;
   });
   panel.querySelector("[data-ai-panel-close]")?.addEventListener("click", () => setUnifiedAssistantOpen(false));
   panel.querySelector("[data-perplexity-clear]")?.addEventListener("click", () => {
@@ -659,6 +1203,85 @@ function bindPanel(host, contextName) {
     const text = panel.querySelector("[data-perplexity-output]")?.innerText || "";
     if (navigator.clipboard && text) await navigator.clipboard.writeText(text);
   });
+}
+
+function appStateForSignalComparison() {
+  if (typeof window.buildAIContext === "function") return window.buildAIContext();
+  return {
+    activeTab: document.body?.dataset?.activeTab || "dashboard",
+    stockQuotes: {},
+    cryptoMarkets: {},
+    sourceHealth: window.YTTSourceHealth?.get?.() || {},
+    watchlist: [],
+  };
+}
+
+function setSignalMessage(message, tone = "warn") {
+  const box = document.getElementById("prosperio-signal-message");
+  if (!box) return;
+  box.style.display = "block";
+  box.textContent = message;
+  box.dataset.tone = tone;
+}
+
+function addProsperioSignalFromSettings() {
+  const timestampValue = document.getElementById("prosperio-timestamp")?.value;
+  const timestamp = timestampValue ? new Date(timestampValue).toISOString() : new Date().toISOString();
+  const validation = adaptManualProsperioSignal({
+    symbol: document.getElementById("prosperio-symbol")?.value,
+    assetType: document.getElementById("prosperio-asset-type")?.value,
+    horizon: document.getElementById("prosperio-horizon")?.value,
+    direction: document.getElementById("prosperio-direction")?.value,
+    providerConfidence: document.getElementById("prosperio-confidence")?.value,
+    entryZone: document.getElementById("prosperio-entry-zone")?.value,
+    target: document.getElementById("prosperio-target")?.value,
+    riskNote: document.getElementById("prosperio-risk-note")?.value,
+    sourceUrl: document.getElementById("prosperio-source-url")?.value,
+    notes: document.getElementById("prosperio-notes")?.value,
+    createdAt: timestamp,
+    updatedAt: new Date().toISOString(),
+  });
+  if (!validation.valid) {
+    setSignalMessage(validation.errors.join(" "), "error");
+    return;
+  }
+  externalSignalProvider.addSignal(validation.signal);
+  ["prosperio-symbol", "prosperio-confidence", "prosperio-entry-zone", "prosperio-target", "prosperio-risk-note", "prosperio-source-url", "prosperio-notes"].forEach((id) => {
+    const field = document.getElementById(id);
+    if (field) field.value = "";
+  });
+  setSignalMessage("Prosperio signal saved locally. YucaTana confirmation is required before it can affect Market Brain review.", "success");
+  renderExternalSignalWatchlist();
+}
+
+function renderExternalSignalWatchlist() {
+  const host = document.getElementById("external-signal-watchlist");
+  if (!host) return;
+  const settings = currentSettings().externalSignals.prosperio;
+  const signals = externalSignalProvider.listSignals();
+  const comparisons = settings.enabled ? externalSignalProvider.compareSignals(appStateForSignalComparison()) : [];
+  if (!signals.length) {
+    host.innerHTML = `<div class="ytt-perplexity-warning">No external signals stored yet. Manual Prosperio entries remain local to this browser.</div>`;
+    return;
+  }
+  const comparisonById = new Map(comparisons.map((item) => [item.signal.id, item]));
+  host.innerHTML = `<table class="data-table ytt-external-signal-table">
+    <thead><tr><th>Symbol</th><th>Asset Type</th><th>Horizon</th><th>Direction</th><th>Prosperio Confidence</th><th>YucaTana Score</th><th>Confirmation Status</th><th>Last Updated</th><th></th></tr></thead>
+    <tbody>${signals.map((signal) => {
+      const comparison = comparisonById.get(signal.id);
+      return `<tr>
+        <td>${escapeHtml(signal.symbol)}</td>
+        <td>${escapeHtml(signal.assetType)}</td>
+        <td>${escapeHtml(signal.horizon)}</td>
+        <td>${escapeHtml(signal.direction)}</td>
+        <td>${escapeHtml(signal.providerConfidence || "Unavailable")}</td>
+        <td>${comparison?.yucaTanaScore == null ? "Unavailable" : `${comparison.yucaTanaScore}/100`}</td>
+        <td>${escapeHtml(settings.enabled ? (comparison?.confirmationStatus || "DATA_INSUFFICIENT") : "PROVIDER_DISABLED")}</td>
+        <td>${escapeHtml(formatTimestamp(signal.updatedAt))}</td>
+        <td><button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-remove-signal="${escapeHtml(signal.id)}">Remove</button></td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
 }
 
 function bindSettingsPanel() {
@@ -688,6 +1311,7 @@ function bindSettingsPanel() {
       <label class="ytt-perplexity-toggle-row"><span>Primary Stock Data</span><select id="moomoo-primary-stocks" class="ytt-perplexity-setting"><option value="false"${!settings.moomoo.primaryStocks ? " selected" : ""}>Finnhub Fallback First</option><option value="true"${settings.moomoo.primaryStocks ? " selected" : ""}>MooMoo Primary</option></select></label>
       <label class="ytt-perplexity-toggle-row"><span>Options Data</span><select id="moomoo-options-enabled" class="ytt-perplexity-setting"><option value="false"${!settings.moomoo.optionsEnabled ? " selected" : ""}>Disabled</option><option value="true"${settings.moomoo.optionsEnabled ? " selected" : ""}>MooMoo Read Only</option></select></label>
       <div class="ytt-perplexity-warning">Broker / Execution Safety: Live Trading DISABLED. Paper Trading DISABLED unless separately enabled by an existing safe module. Broker integrations are future server-side only.</div>
+      ${signalSettingsHtml(settings)}
       <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button><button class="ytt-perplexity-btn" type="button" id="test-ollama-settings">Test Ollama</button><button class="ytt-perplexity-btn" type="button" id="test-moomoo-settings">Test MooMoo Bridge</button></div>
     </div>`;
   host.querySelector("#perplexity-verbosity").value = settings.verbosity;
@@ -697,6 +1321,15 @@ function bindSettingsPanel() {
   host.querySelector("#test-perplexity-settings")?.addEventListener("click", refreshHealth);
   host.querySelector("#test-ollama-settings")?.addEventListener("click", () => refreshOllamaHealth({ test: true }));
   host.querySelector("#test-moomoo-settings")?.addEventListener("click", () => refreshMooMooHealth({ test: true }));
+  host.querySelector("#add-prosperio-signal")?.addEventListener("click", addProsperioSignalFromSettings);
+  host.querySelector("#refresh-prosperio-signals")?.addEventListener("click", renderExternalSignalWatchlist);
+  host.querySelector("#external-signal-watchlist")?.addEventListener("click", (event) => {
+    const button = event.target.closest?.("[data-remove-signal]");
+    if (!button) return;
+    externalSignalProvider.removeSignal(button.dataset.removeSignal);
+    renderExternalSignalWatchlist();
+  });
+  renderExternalSignalWatchlist();
 }
 
 function saveSettings() {
@@ -716,6 +1349,10 @@ function saveSettings() {
   localStorage.setItem(SETTINGS.moomooBridgeUrl, (document.getElementById("moomoo-bridge-url")?.value || DEFAULT_MOOMOO_BRIDGE_URL).trim());
   localStorage.setItem(SETTINGS.moomooPrimaryStocks, document.getElementById("moomoo-primary-stocks")?.value || "false");
   localStorage.setItem(SETTINGS.moomooOptionsEnabled, document.getElementById("moomoo-options-enabled")?.value || "false");
+  localStorage.setItem(SETTINGS.prosperioEnabled, document.getElementById("prosperio-enabled")?.value || "false");
+  localStorage.setItem(SETTINGS.prosperioInputMode, document.getElementById("prosperio-input-mode")?.value || "manual");
+  localStorage.setItem(SETTINGS.prosperioTrustLevel, document.getElementById("prosperio-trust-level")?.value || "low");
+  localStorage.setItem(SETTINGS.prosperioRequireConfirmation, document.getElementById("prosperio-require-confirmation")?.value || "true");
   const mainProxy = document.getElementById("input-api-proxy");
   if (mainProxy) mainProxy.value = proxy;
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
@@ -725,6 +1362,7 @@ function saveSettings() {
   refreshHealth();
   refreshOllamaHealth({ test: false });
   refreshMooMooHealth({ test: false });
+  renderExternalSignalWatchlist();
 }
 
 async function refreshHealth() {

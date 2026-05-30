@@ -99,20 +99,39 @@ function priceCard({
   dataQuality = "UNAVAILABLE",
   confidence = "none",
 } = {}) {
+  return priceCardItems({ requestedSymbol, resolvedSymbol, assetType, name, price, change, changePct, primaryDataSource, fallbackUsed, timestamp, dataQuality, confidence })
+    .map((item) => `${item.label}: ${item.value}`)
+    .join("\n");
+}
+
+function priceCardItems({
+  requestedSymbol = "",
+  resolvedSymbol = "",
+  assetType = "unknown",
+  name = "Unavailable",
+  price = null,
+  change = null,
+  changePct = null,
+  primaryDataSource = "Unavailable",
+  fallbackUsed = false,
+  timestamp = "",
+  dataQuality = "UNAVAILABLE",
+  confidence = "none",
+} = {}) {
   return [
-    `Requested Symbol: ${requestedSymbol || "Unavailable"}`,
-    `Resolved Symbol: ${resolvedSymbol || "Unavailable"}`,
-    `Asset Type: ${assetType || "Unavailable"}`,
-    `Name: ${name || "Unavailable"}`,
-    `Price: ${formatMoney(price)}`,
-    `Change: ${isFiniteNumber(change) ? formatMoney(change) : "Unavailable"}`,
-    `Change %: ${formatPercent(changePct)}`,
-    `Primary Data Source: ${primaryDataSource || "Unavailable"}`,
-    `Fallback Used: ${fallbackUsed ? "true" : "false"}`,
-    `Timestamp: ${timestamp || "Unavailable"}`,
-    `Data Quality: ${dataQuality || "UNAVAILABLE"}`,
-    `Resolution Confidence: ${confidence || "none"}`,
-  ].join("\n");
+    ["Requested Symbol", requestedSymbol || "Unavailable"],
+    ["Resolved Symbol", resolvedSymbol || "Unavailable"],
+    ["Asset Type", assetType || "Unavailable"],
+    ["Name", name || "Unavailable"],
+    ["Price", formatMoney(price)],
+    ["Change", isFiniteNumber(change) ? formatMoney(change) : "Unavailable"],
+    ["Change %", formatPercent(changePct)],
+    ["Primary Data Source", primaryDataSource || "Unavailable"],
+    ["Fallback Used", fallbackUsed ? "true" : "false"],
+    ["Timestamp", timestamp || "Unavailable"],
+    ["Data Quality", dataQuality || "UNAVAILABLE"],
+    ["Resolution Confidence", confidence || "none"],
+  ].map(([label, value]) => ({ label, value }));
 }
 
 function stockPriceAnswer(quote, meta) {
@@ -140,6 +159,24 @@ function stockPriceAnswer(quote, meta) {
     sources: [],
     tickers: [quote.symbol],
     resolution: meta,
+    cards: [{
+      type: "price",
+      title: "Price Card",
+      items: priceCardItems({
+        requestedSymbol: meta.requestedSymbol,
+        resolvedSymbol: quote.symbol || meta.resolvedSymbol,
+        assetType: "stock",
+        name: "Unavailable",
+        price: quote.price,
+        change: quote.change,
+        changePct: quote.changePct,
+        primaryDataSource: quote.provider || meta.primaryDataSource,
+        fallbackUsed: quote.fallbackUsed,
+        timestamp: quote.timestamp,
+        dataQuality: quote.dataQuality,
+        confidence: meta.resolutionConfidence,
+      }),
+    }],
   };
 }
 
@@ -168,6 +205,24 @@ function cryptoPriceAnswer(snapshot, meta) {
     sources: [],
     tickers: [snapshot.symbol],
     resolution: meta,
+    cards: [{
+      type: "price",
+      title: "Price Card",
+      items: priceCardItems({
+        requestedSymbol: meta.requestedSymbol,
+        resolvedSymbol: snapshot.symbol || meta.resolvedSymbol,
+        assetType: "crypto",
+        name: snapshot.name || "Unavailable",
+        price: snapshot.price,
+        change: null,
+        changePct: snapshot.changePct24h,
+        primaryDataSource: snapshot.source || snapshot.provider || meta.primaryDataSource,
+        fallbackUsed: false,
+        timestamp: snapshot.timestamp,
+        dataQuality: snapshot.dataQuality,
+        confidence: meta.resolutionConfidence,
+      }),
+    }],
   };
 }
 

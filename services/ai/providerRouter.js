@@ -16,7 +16,7 @@ export class AIProviderRouterError extends Error {
 }
 
 const WEB_RESEARCH_PATTERN = /\b(today|recent|latest|news|headline|headlines|catalyst|catalysts|earnings|analyst|estimate|estimates|rating|upgrade|downgrade|sec|filing|filings|insider|why\s+(?:is|are).*(?:moving|move)|why\s+moving|sources?|citations?)\b/i;
-const LOCAL_REASONING_PATTERN = /\b(scanner|watchlist|rank|ranking|setup|rsi|macd|vwap|support|resistance|momentum|strength|volume|risk\/reward|risk reward|heatmap|supplied data|loaded data|internal data)\b/i;
+const LOCAL_REASONING_PATTERN = /\b(scanner|watchlist|rank|ranking|best\s+(plays?|setups?|stocks?|crypto)|strongest\s+(stock|crypto|setup)|what\s+should\s+i\s+watch|external\s+signals?|prosperio|signal\s+overlay|setup|rsi|macd|vwap|support|resistance|momentum|strength|volume|risk\/reward|risk reward|heatmap|supplied data|loaded data|internal data)\b/i;
 const WEB_RESEARCH_MODES = new Set([
   "why_is_this_moving",
   "earnings_recap",

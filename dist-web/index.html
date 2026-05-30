@@ -4091,6 +4091,11 @@ function exportSettings() {
     'MOOMOO_BRIDGE_URL',
     'MOOMOO_PRIMARY_STOCK_DATA',
     'MOOMOO_OPTIONS_DATA_ENABLED',
+    'PROSPERIO_SIGNALS_ENABLED',
+    'PROSPERIO_INPUT_MODE',
+    'PROSPERIO_TRUST_LEVEL',
+    'PROSPERIO_REQUIRE_YTT_CONFIRMATION',
+    'YTT_EXTERNAL_SIGNALS',
     'YTT_VAULT_HASH',
     'watchlist',
     'activeTab',
@@ -4133,13 +4138,18 @@ function clearLocalSettings() {
     'MOOMOO_BRIDGE_URL',
     'MOOMOO_PRIMARY_STOCK_DATA',
     'MOOMOO_OPTIONS_DATA_ENABLED',
+    'PROSPERIO_SIGNALS_ENABLED',
+    'PROSPERIO_INPUT_MODE',
+    'PROSPERIO_TRUST_LEVEL',
+    'PROSPERIO_REQUIRE_YTT_CONFIRMATION',
+    'YTT_EXTERNAL_SIGNALS',
     'watchlist',
     'newsMode'
   ].forEach(key => localStorage.removeItem(key));
   loadSavedKeys();
   renderWatchlist();
   updateDeploymentHealth();
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy','ollama-endpoint','ollama-model','moomoo-bridge-url'].forEach(id => {
+  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy','ollama-endpoint','ollama-model','moomoo-bridge-url','prosperio-symbol','prosperio-confidence','prosperio-entry-zone','prosperio-target','prosperio-risk-note','prosperio-source-url','prosperio-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -4677,6 +4687,7 @@ function buildAIContext() {
     sourceHealth: sourceHealthState,
     stockQuotes: liveStockQuotes,
     cryptoMarkets: liveCryptoMarkets,
+    externalSignals: JSON.parse(localStorage.getItem('YTT_EXTERNAL_SIGNALS') || '[]'),
     watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]'),
     newsCount: newsItemsCache.length,
     proxyConfigured: Boolean(getApiProxyBase())
