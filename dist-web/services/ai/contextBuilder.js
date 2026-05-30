@@ -15,7 +15,8 @@ function compactObject(value, depth = 0) {
 }
 
 function selectedAssetFromState(state = {}) {
-  const selectedSymbol = state.selectedSymbol || state.ticker || state.crypto || state.heatmapSelection;
+  if (state.symbolIntent?.selectedAsset) return state.symbolIntent.selectedAsset;
+  const selectedSymbol = state.selectedSymbol || state.ticker || state.crypto || state.heatmapSelection?.symbol || state.heatmapSelection;
   if (!selectedSymbol) return null;
   const symbol = String(selectedSymbol).toUpperCase();
   const stock = state.stockQuotes?.[symbol];
@@ -33,11 +34,14 @@ export function buildPerplexityContext(state = {}) {
   return {
     selectedTab: state.activeTab || "dashboard",
     selectedAsset,
+    symbolIntent: compactObject(state.symbolIntent || null),
+    resolution: compactObject(state.symbolIntent?.metadata || null),
     watchlist: Array.isArray(state.watchlist) ? state.watchlist.slice(0, MAX_WATCHLIST) : [],
     marketContext: {
       stockQuotes: compactObject(state.stockQuotes || {}),
       cryptoMarkets: compactObject(state.cryptoMarkets || {}),
       sourceHealth: compactObject(state.sourceHealth || {}),
+      symbolResolution: compactObject(state.symbolIntent?.metadata || {}),
       newsCount: Number(state.newsCount || 0),
     },
     scannerContext: compactObject(state.scannerContext || {}),

@@ -54,6 +54,7 @@ export function buildYTTDataBlock({ query = "", mode = "", ticker = "", assetTyp
     watchlist: compact(context.watchlist || []),
     scannerRows: compact(scannerContext),
     quoteSnapshot: compact(quoteSnapshot),
+    symbolResolution: compact(context.resolution || context.symbolIntent?.metadata || {}),
     technicalSnapshot: compact(context.technicalSnapshot || marketContext.technicalSnapshot || scannerContext.technicalSnapshot || {}),
     heatmapSelection: compact(context.heatmapSelection || {}),
     sourceHealth: compact(marketContext.sourceHealth || context.sourceHealth || {}),

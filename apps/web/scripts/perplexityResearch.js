@@ -3,6 +3,8 @@ import { createOllamaClient, DEFAULT_OLLAMA_ENDPOINT, DEFAULT_OLLAMA_MODEL } fro
 import { askWithProvider, AI_PROVIDER_IDS } from "../../../services/ai/providerRouter.js";
 import { buildPerplexityContext, inferTickerFromQuery } from "../../../services/ai/contextBuilder.js";
 import { DEFAULT_PERPLEXITY_MODE } from "../../../services/ai/perplexityModes.js";
+import { resolveSymbolIntent } from "../../../services/ai/symbolIntentResolver.js";
+import { DEFAULT_MOOMOO_BRIDGE_URL, createMooMooClient } from "../../../services/marketData/moomooClient.js";
 
 const SETTINGS = {
   enabled: "PERPLEXITY_ENABLED",
@@ -15,6 +17,10 @@ const SETTINGS = {
   ollamaEndpoint: "OLLAMA_ENDPOINT",
   ollamaModel: "OLLAMA_MODEL",
   ollamaProviderMode: "OLLAMA_PROVIDER_MODE",
+  moomooEnabled: "MOOMOO_OPEND_ENABLED",
+  moomooBridgeUrl: "MOOMOO_BRIDGE_URL",
+  moomooPrimaryStocks: "MOOMOO_PRIMARY_STOCK_DATA",
+  moomooOptionsEnabled: "MOOMOO_OPTIONS_DATA_ENABLED",
 };
 
 const CLIENT_COOLDOWN_MS = 5000;
@@ -153,6 +159,22 @@ function getOllamaProviderMode() {
   return localStorage.getItem(SETTINGS.ollamaProviderMode) || "auto";
 }
 
+function isMooMooEnabled() {
+  return localStorage.getItem(SETTINGS.moomooEnabled) === "true";
+}
+
+function getMooMooBridgeUrl() {
+  return (localStorage.getItem(SETTINGS.moomooBridgeUrl) || DEFAULT_MOOMOO_BRIDGE_URL).trim().replace(/\/+$/, "");
+}
+
+function isMooMooPrimaryStocks() {
+  return localStorage.getItem(SETTINGS.moomooPrimaryStocks) === "true";
+}
+
+function isMooMooOptionsEnabled() {
+  return localStorage.getItem(SETTINGS.moomooOptionsEnabled) === "true";
+}
+
 function selectedSymbolForContext(contextName) {
   const selector = contextName === "crypto"
     ? "#crypto-body tr.is-selected, #crypto-production-heatmap .ytt-heatmap-cell.is-selected"
@@ -195,6 +217,13 @@ function currentSettings() {
     ollamaEndpoint: getOllamaEndpoint(),
     ollamaModel: getOllamaModel(),
     ollamaProviderMode: getOllamaProviderMode(),
+    finnhubKey: localStorage.getItem("FINNHUB_KEY") || localStorage.getItem("FINNHUB_API_KEY") || "",
+    moomoo: {
+      enabled: isMooMooEnabled(),
+      bridgeUrl: getMooMooBridgeUrl(),
+      primaryStocks: isMooMooPrimaryStocks(),
+      optionsEnabled: isMooMooOptionsEnabled(),
+    },
   };
 }
 
@@ -288,6 +317,7 @@ function updateOutput(panel, result = {}) {
   const quality = result.dataQuality || "UNAVAILABLE";
   const provider = result.provider || (quality === "LOCAL_CONTEXT" ? "OLLAMA" : "");
   const model = result.model || "";
+  const resolution = result.resolution || result.metadata || {};
   if (output) {
     output.classList.remove("is-loading");
     output.innerHTML = renderMarkdownLite(answer);
@@ -297,7 +327,10 @@ function updateOutput(panel, result = {}) {
     const stamp = formatTimestamp(result.timestamp);
     const lastRequest = state.lastRequestAt ? formatTimestamp(state.lastRequestAt) : "";
     const latency = Number.isFinite(Number(result.latencyMs)) ? `<span>${Math.round(Number(result.latencyMs))}MS</span>` : "";
-    meta.innerHTML = `${provider ? `<span>PROVIDER: ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL: ${escapeHtml(model)}</span>` : ""}<span>DATA QUALITY: ${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
+    const resolutionHtml = resolution.requestedSymbol
+      ? `<span>REQUESTED: ${escapeHtml(resolution.requestedSymbol)}</span><span>RESOLVED: ${escapeHtml(resolution.resolvedSymbol || "Unavailable")}</span><span>ASSET: ${escapeHtml(resolution.assetType || "unknown")}</span><span>SOURCE: ${escapeHtml(resolution.primaryDataSource || "Unavailable")}</span><span>FALLBACK: ${resolution.fallbackUsed ? "YES" : "NO"}</span><span>CONFIDENCE: ${escapeHtml(resolution.resolutionConfidence || "unknown")}</span>`
+      : "";
+    meta.innerHTML = `${provider ? `<span>PROVIDER: ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL: ${escapeHtml(model)}</span>` : ""}${resolutionHtml}<span>DATA QUALITY: ${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
   }
   if (tickers) {
     tickers.innerHTML = (Array.isArray(result.tickers) ? result.tickers : []).map((ticker) => `<span>${escapeHtml(ticker)}</span>`).join("");
@@ -350,13 +383,14 @@ function updateOllamaSourceHealth(status, detail, latencyMs = null, lastSuccessA
   renderOllamaHealthRow(state);
 }
 
-function renderOllamaHealthRow(state = {}) {
+function renderProviderHealthRow(key, label, fallbackDetail, state = {}) {
   const list = document.getElementById("source-health-list");
   if (!list) return;
-  const existing = list.querySelector('[data-source-health-key="ollama"]');
+  const safeKey = String(key || "").replace(/[^a-z0-9_-]/gi, "");
+  const existing = list.querySelector(`[data-source-health-key="${safeKey}"]`);
   const tone = state.tone || "warn";
   const rowHtml = `<span class="health-dot ${escapeHtml(tone)}"></span>
-      <div><div class="source-name">Local Ollama</div><div class="source-detail">${escapeHtml(state.detail || "Local qwen reasoning from supplied YTT data only.")}</div></div>
+      <div><div class="source-name">${escapeHtml(label)}</div><div class="source-detail">${escapeHtml(state.detail || fallbackDetail)}</div></div>
       <span class="status-chip ${tone === "up" ? "green" : tone === "dn" ? "red" : ""}">${escapeHtml(state.label || "DISABLED")}</span>`;
   if (existing) {
     existing.innerHTML = rowHtml;
@@ -364,9 +398,63 @@ function renderOllamaHealthRow(state = {}) {
   }
   const row = document.createElement("div");
   row.className = "source-health-row";
-  row.dataset.sourceHealthKey = "ollama";
+  row.dataset.sourceHealthKey = safeKey;
   row.innerHTML = rowHtml;
   list.appendChild(row);
+}
+
+function renderOllamaHealthRow(state = {}) {
+  renderProviderHealthRow("ollama", "Local Ollama", "Local qwen reasoning from supplied YTT data only.", state);
+}
+
+function updateMooMooSourceHealth(status, detail, latencyMs = null, lastSuccessAt = null) {
+  const tone = status === "RUNNING" ? "up" : status === "DISABLED" || status === "FALLBACK_ACTIVE" ? "warn" : "dn";
+  const detailParts = [detail];
+  if (Number.isFinite(Number(latencyMs))) detailParts.push(`Latency ${Math.round(Number(latencyMs))}ms.`);
+  if (lastSuccessAt) detailParts.push(`Last success ${formatTimestamp(lastSuccessAt)}.`);
+  const state = {
+    tone,
+    label: status,
+    detail: detailParts.filter(Boolean).join(" "),
+    latencyMs,
+    lastSuccessAt,
+    lastFailureReason: status === "RUNNING" ? "" : detail,
+  };
+  window.YTTSourceHealth?.set?.("moomoo", state);
+  renderProviderHealthRow("moomoo", "MooMoo OpenD Bridge", "Read-only local stock/options bridge. Unavailable until configured.", state);
+}
+
+function renderExecutionSafetyHealth() {
+  const state = {
+    tone: "warn",
+    label: "DISABLED",
+    detail: "Broker and crypto exchange execution are disabled. This phase is read-only market data only.",
+  };
+  renderProviderHealthRow("broker-execution", "Broker Execution", state.detail, state);
+  renderProviderHealthRow("crypto-execution", "Crypto Exchange Execution", state.detail, state);
+}
+
+function renderSupplementalMarketHealthRows() {
+  renderProviderHealthRow("sec-edgar", "SEC EDGAR", "Filings provider is optional and not connected in this static frontend phase.", {
+    tone: "warn",
+    label: "UNKNOWN",
+    detail: "Optional filings source. Use a backend/proxy before adding higher-volume SEC workflows.",
+  });
+  renderProviderHealthRow("fred", "FRED Macro", "Optional macro provider is disabled.", {
+    tone: "warn",
+    label: "DISABLED",
+    detail: "Optional macro provider. No frontend secret field is exposed.",
+  });
+  renderProviderHealthRow("fmp", "FMP Optional", "Optional market-data provider is disabled.", {
+    tone: "warn",
+    label: "DISABLED",
+    detail: "Optional future provider. Keep paid API keys server-side.",
+  });
+  renderProviderHealthRow("marketaux", "MarketAux Optional", "Optional news provider is disabled.", {
+    tone: "warn",
+    label: "DISABLED",
+    detail: "Optional future news provider. Keep paid API keys server-side.",
+  });
 }
 
 function classifyClientError(error) {
@@ -433,14 +521,13 @@ async function ask(panel, contextName, forceQuery = "") {
   }
   localStorage.setItem(SETTINGS.mode, mode);
   localStorage.setItem(SETTINGS.provider, providerSelection);
-  if (!settings.enabled) {
+  if (!settings.enabled && providerSelection === AI_PROVIDER_IDS.PERPLEXITY) {
     updateOutput(panel, { answer: "Perplexity research is disabled in Settings.", provider: "PERPLEXITY", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] });
     updateSourceHealth("DISABLED", "Perplexity AI is disabled in Settings.");
-    if (providerSelection !== AI_PROVIDER_IDS.PERPLEXITY && settings.ollamaEnabled) {
-      updateOutput(panel, { answer: "Perplexity is disabled; Local Ollama remains available when selected.", provider: "OLLAMA", model: settings.ollamaModel, dataQuality: "LOCAL_CONTEXT", timestamp: new Date().toISOString(), citations: [], tickers: [] });
-    } else {
-      return;
-    }
+    return;
+  }
+  if (!settings.enabled) {
+    updateSourceHealth("DISABLED", "Perplexity AI is disabled in Settings.");
   }
   Object.assign(state, { query, mode, contextName, lastRequestAt: now, lastRequestKey: key, inFlight: true });
   if (output) {
@@ -449,7 +536,32 @@ async function ask(panel, contextName, forceQuery = "") {
   }
   setBusy(panel, true);
   try {
-    const yttContext = buildPerplexityContext(getAppState(contextName, query));
+    const appState = getAppState(contextName, query);
+    const symbolIntent = await resolveSymbolIntent({
+      query,
+      state: appState,
+      settings: {
+        apiProxyBase: settings.proxyBase,
+        finnhubKey: settings.finnhubKey,
+        moomoo: settings.moomoo,
+      },
+      fetchImpl: globalThis.fetch,
+    });
+    if (symbolIntent.directAnswer) {
+      state.lastCompletedAt = Date.now();
+      state.lastSuccessAt = symbolIntent.directAnswer.timestamp || new Date().toISOString();
+      updateOutput(panel, symbolIntent.directAnswer);
+      if (symbolIntent.assetType === "stock" && symbolIntent.directAnswer.resolution?.fallbackUsed) {
+        updateMooMooSourceHealth("FALLBACK_ACTIVE", "MooMoo bridge unavailable or disabled for this stock request; Finnhub fallback was used.");
+        window.YTTSourceHealth?.set?.("finnhub", {
+          tone: "warn",
+          label: "FALLBACK_ACTIVE",
+          detail: "Finnhub is serving stock quotes while MooMoo OpenD bridge is unavailable.",
+        });
+      }
+      return;
+    }
+    const yttContext = buildPerplexityContext({ ...appState, symbolIntent });
     const selected = yttContext.selectedAsset || {};
     const started = Date.now();
     const result = await askWithProvider({
@@ -476,6 +588,7 @@ async function ask(panel, contextName, forceQuery = "") {
       },
     });
     result.latencyMs = result.latencyMs || Date.now() - started;
+    result.resolution = symbolIntent.metadata;
     state.lastCompletedAt = Date.now();
     state.lastSuccessAt = result.timestamp || new Date().toISOString();
     state.lastFailureReason = "";
@@ -568,7 +681,14 @@ function bindSettingsPanel() {
       <label class="ytt-perplexity-setting-row"><span>Ollama Endpoint</span><input id="ollama-endpoint" class="ytt-perplexity-setting" type="url" placeholder="${escapeHtml(DEFAULT_OLLAMA_ENDPOINT)}" value="${escapeHtml(settings.ollamaEndpoint)}"></label>
       <label class="ytt-perplexity-setting-row"><span>Ollama Model</span><input id="ollama-model" class="ytt-perplexity-setting" type="text" value="${escapeHtml(settings.ollamaModel)}"></label>
       <label class="ytt-perplexity-setting-row"><span>Provider Mode</span><select id="ollama-provider-mode" class="ytt-perplexity-setting"><option value="disabled">Disabled</option><option value="local_reasoning">Local Reasoning</option><option value="auto">Auto</option></select></label>
-      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button><button class="ytt-perplexity-btn" type="button" id="test-ollama-settings">Test Ollama</button></div>
+      <div class="panel-header ytt-perplexity-section-title">Market Data Providers <span class="source-tag">READ ONLY</span></div>
+      <div class="ytt-perplexity-warning">MooMoo OpenD is prepared as the future primary stock/options source through a local read-only bridge. No account credentials, trading passwords, order endpoints, or broker execution controls are supported here.</div>
+      <label class="ytt-perplexity-toggle-row"><span>Enable MooMoo OpenD Data</span><select id="moomoo-enabled" class="ytt-perplexity-setting"><option value="false"${!settings.moomoo.enabled ? " selected" : ""}>Disabled</option><option value="true"${settings.moomoo.enabled ? " selected" : ""}>Enabled</option></select></label>
+      <label class="ytt-perplexity-setting-row"><span>MooMoo Bridge URL</span><input id="moomoo-bridge-url" class="ytt-perplexity-setting" type="url" placeholder="${escapeHtml(DEFAULT_MOOMOO_BRIDGE_URL)}" value="${escapeHtml(settings.moomoo.bridgeUrl)}"></label>
+      <label class="ytt-perplexity-toggle-row"><span>Primary Stock Data</span><select id="moomoo-primary-stocks" class="ytt-perplexity-setting"><option value="false"${!settings.moomoo.primaryStocks ? " selected" : ""}>Finnhub Fallback First</option><option value="true"${settings.moomoo.primaryStocks ? " selected" : ""}>MooMoo Primary</option></select></label>
+      <label class="ytt-perplexity-toggle-row"><span>Options Data</span><select id="moomoo-options-enabled" class="ytt-perplexity-setting"><option value="false"${!settings.moomoo.optionsEnabled ? " selected" : ""}>Disabled</option><option value="true"${settings.moomoo.optionsEnabled ? " selected" : ""}>MooMoo Read Only</option></select></label>
+      <div class="ytt-perplexity-warning">Broker / Execution Safety: Live Trading DISABLED. Paper Trading DISABLED unless separately enabled by an existing safe module. Broker integrations are future server-side only.</div>
+      <div class="ytt-perplexity-actions"><button class="ytt-perplexity-btn" type="button" id="save-perplexity-settings">Save AI Settings</button><button class="ytt-perplexity-btn" type="button" id="test-perplexity-settings">Check Proxy Health</button><button class="ytt-perplexity-btn" type="button" id="test-ollama-settings">Test Ollama</button><button class="ytt-perplexity-btn" type="button" id="test-moomoo-settings">Test MooMoo Bridge</button></div>
     </div>`;
   host.querySelector("#perplexity-verbosity").value = settings.verbosity;
   host.querySelector("#perplexity-length").value = settings.responseLength;
@@ -576,6 +696,7 @@ function bindSettingsPanel() {
   host.querySelector("#save-perplexity-settings")?.addEventListener("click", saveSettings);
   host.querySelector("#test-perplexity-settings")?.addEventListener("click", refreshHealth);
   host.querySelector("#test-ollama-settings")?.addEventListener("click", () => refreshOllamaHealth({ test: true }));
+  host.querySelector("#test-moomoo-settings")?.addEventListener("click", () => refreshMooMooHealth({ test: true }));
 }
 
 function saveSettings() {
@@ -591,6 +712,10 @@ function saveSettings() {
   localStorage.setItem(SETTINGS.ollamaEndpoint, (document.getElementById("ollama-endpoint")?.value || DEFAULT_OLLAMA_ENDPOINT).trim());
   localStorage.setItem(SETTINGS.ollamaModel, (document.getElementById("ollama-model")?.value || DEFAULT_OLLAMA_MODEL).trim());
   localStorage.setItem(SETTINGS.ollamaProviderMode, document.getElementById("ollama-provider-mode")?.value || "auto");
+  localStorage.setItem(SETTINGS.moomooEnabled, document.getElementById("moomoo-enabled")?.value || "false");
+  localStorage.setItem(SETTINGS.moomooBridgeUrl, (document.getElementById("moomoo-bridge-url")?.value || DEFAULT_MOOMOO_BRIDGE_URL).trim());
+  localStorage.setItem(SETTINGS.moomooPrimaryStocks, document.getElementById("moomoo-primary-stocks")?.value || "false");
+  localStorage.setItem(SETTINGS.moomooOptionsEnabled, document.getElementById("moomoo-options-enabled")?.value || "false");
   const mainProxy = document.getElementById("input-api-proxy");
   if (mainProxy) mainProxy.value = proxy;
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
@@ -599,6 +724,7 @@ function saveSettings() {
   mountAll();
   refreshHealth();
   refreshOllamaHealth({ test: false });
+  refreshMooMooHealth({ test: false });
 }
 
 async function refreshHealth() {
@@ -647,6 +773,39 @@ async function refreshOllamaHealth({ test = false } = {}) {
   }
 }
 
+async function refreshMooMooHealth({ test = false } = {}) {
+  const settings = currentSettings();
+  if (!settings.moomoo.enabled) {
+    updateMooMooSourceHealth("DISABLED", "MooMoo OpenD data is disabled. Finnhub remains the stock quote fallback.");
+    renderExecutionSafetyHealth();
+    renderSupplementalMarketHealthRows();
+    return;
+  }
+
+  if (!test) {
+    updateMooMooSourceHealth("UNKNOWN", "MooMoo OpenD data is enabled. Use Test MooMoo Bridge to confirm the local read-only bridge is running.");
+    renderExecutionSafetyHealth();
+    renderSupplementalMarketHealthRows();
+    return;
+  }
+
+  updateMooMooSourceHealth("UNAVAILABLE", "Checking MooMoo local bridge.");
+  const result = await createMooMooClient({
+    bridgeUrl: settings.moomoo.bridgeUrl,
+    timeoutMs: 8000,
+  }).healthCheck();
+  updateMooMooSourceHealth(result.status, result.detail || "MooMoo bridge health check completed.", result.latencyMs, result.lastSuccessAt);
+  if (result.status !== "RUNNING") {
+    window.YTTSourceHealth?.set?.("finnhub", {
+      tone: "warn",
+      label: "FALLBACK_ACTIVE",
+      detail: "Finnhub remains active as fallback while the MooMoo OpenD bridge is unavailable.",
+    });
+  }
+  renderExecutionSafetyHealth();
+  renderSupplementalMarketHealthRows();
+}
+
 function mountAll() {
   bindUnifiedAssistantLauncher();
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
@@ -662,13 +821,18 @@ function scheduleMount() {
 
 window.YTTPerplexity = { mountAll, refreshHealth, saveSettings };
 window.YTTOllama = { refreshHealth: () => refreshOllamaHealth({ test: true }) };
+window.YTTMooMoo = { refreshHealth: () => refreshMooMooHealth({ test: true }) };
 window.YTTUnifiedAI = { open: () => setUnifiedAssistantOpen(true), close: () => setUnifiedAssistantOpen(false), toggle: toggleUnifiedAssistant };
 window.addEventListener("ytt:source-health-refresh", refreshHealth);
 window.addEventListener("ytt:source-health-refresh", () => refreshOllamaHealth({ test: false }));
+window.addEventListener("ytt:source-health-refresh", () => refreshMooMooHealth({ test: false }));
 document.addEventListener("DOMContentLoaded", () => {
   mountAll();
   refreshHealth();
   refreshOllamaHealth({ test: false });
+  refreshMooMooHealth({ test: false });
+  renderExecutionSafetyHealth();
+  renderSupplementalMarketHealthRows();
   const observerRoot = document.body || document.documentElement;
   if (observerRoot) {
     new MutationObserver(scheduleMount).observe(observerRoot, { childList: true, subtree: true });

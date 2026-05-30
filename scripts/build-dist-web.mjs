@@ -36,7 +36,7 @@ async function rewriteDistWebModuleImports() {
   const text = await readFile(researchScript, "utf8");
   await writeFile(
     researchScript,
-    text.replaceAll("../../../services/ai/", "../services/ai/"),
+    text.replaceAll("../../../services/", "../services/"),
     "utf8"
   );
 }
@@ -142,6 +142,8 @@ async function main() {
   await copyDir(path.join(appRoot, "assets"), path.join(distWeb, "assets"));
   await copyDir(path.join(appRoot, "legacy"), path.join(distWeb, "legacy"));
   await copyDir(path.join(root, "services", "ai"), path.join(distWeb, "services", "ai"));
+  await copyDir(path.join(root, "services", "crypto"), path.join(distWeb, "services", "crypto"));
+  await copyDir(path.join(root, "services", "marketData"), path.join(distWeb, "services", "marketData"));
   await rewriteDistWebModuleImports();
   await writeFile(path.join(distWeb, ".nojekyll"), "", "utf8");
 
