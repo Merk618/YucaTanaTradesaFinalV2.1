@@ -27,6 +27,11 @@ const WEB_RESEARCH_MODES = new Set([
   "macro_analysis",
   "deep_research",
 ]);
+const LOCAL_REASONING_MODES = new Set([
+  "setup_analysis",
+  "scanner_summary",
+  "risk_review",
+]);
 
 function isPerplexityAvailable(settings = {}) {
   return settings.perplexity?.enabled !== false && Boolean(settings.perplexity?.proxyBase);
@@ -46,7 +51,7 @@ export function routeAIProvider({ query = "", mode = "", providerSelection = AI_
 
   const combined = `${query} ${mode}`;
   const wantsWebResearch = WEB_RESEARCH_MODES.has(String(mode || "").toLowerCase()) || WEB_RESEARCH_PATTERN.test(combined);
-  const wantsLocalReasoning = LOCAL_REASONING_PATTERN.test(combined);
+  const wantsLocalReasoning = LOCAL_REASONING_MODES.has(String(mode || "").toLowerCase()) || LOCAL_REASONING_PATTERN.test(combined);
 
   if (wantsWebResearch && isPerplexityAvailable(settings)) return AI_PROVIDER_IDS.PERPLEXITY;
   if (wantsWebResearch && !isPerplexityAvailable(settings) && isOllamaAvailable(settings)) return AI_PROVIDER_IDS.OLLAMA;
@@ -113,7 +118,7 @@ export async function askWithProvider({
         answer: `${result.answer}\n\nData quality warning: Perplexity is not configured, so this local answer uses only supplied YucaTanaTrades context and no live web citations.`,
       };
     }
-    throw new AIProviderRouterError("Perplexity proxy not configured. Set API_PROXY_BASE or choose Local Ollama.", "PROXY_REQUIRED");
+    throw new AIProviderRouterError("Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin or choose Local Ollama.", "PROXY_REQUIRED");
   }
 
   const client = createPerplexityClient({

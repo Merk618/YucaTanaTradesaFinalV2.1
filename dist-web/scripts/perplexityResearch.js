@@ -2,7 +2,7 @@ import { createPerplexityClient } from "../services/ai/perplexityClient.js";
 import { createOllamaClient, DEFAULT_OLLAMA_ENDPOINT, DEFAULT_OLLAMA_MODEL } from "../services/ai/ollamaClient.js";
 import { askWithProvider, AI_PROVIDER_IDS } from "../services/ai/providerRouter.js";
 import { buildPerplexityContext, inferTickerFromQuery } from "../services/ai/contextBuilder.js";
-import { PERPLEXITY_RESEARCH_MODES, DEFAULT_PERPLEXITY_MODE } from "../services/ai/perplexityModes.js";
+import { DEFAULT_PERPLEXITY_MODE } from "../services/ai/perplexityModes.js";
 
 const SETTINGS = {
   enabled: "PERPLEXITY_ENABLED",
@@ -20,6 +20,14 @@ const SETTINGS = {
 const CLIENT_COOLDOWN_MS = 5000;
 const MAX_QUERY_LENGTH = 4000;
 const panelState = new Map();
+const ASSISTANT_MODES = [
+  { id: "quick_summary", label: "Quick Summary" },
+  { id: "deep_research", label: "Deep Research / Cited Research" },
+  { id: "setup_analysis", label: "Setup Analysis" },
+  { id: "scanner_summary", label: "Scanner Summary" },
+  { id: "risk_review", label: "Risk Review" },
+];
+const ASSISTANT_MODE_IDS = new Set(ASSISTANT_MODES.map((mode) => mode.id));
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -45,6 +53,61 @@ function formatTimestamp(value) {
 
 function requestKey(query, mode, contextName) {
   return [contextName, mode, query.trim().toLowerCase()].join("|");
+}
+
+function normalizeMode(mode = DEFAULT_PERPLEXITY_MODE) {
+  return ASSISTANT_MODE_IDS.has(mode) ? mode : DEFAULT_PERPLEXITY_MODE;
+}
+
+function providerStatusLabel(provider = AI_PROVIDER_IDS.AUTO) {
+  switch (provider) {
+    case AI_PROVIDER_IDS.PERPLEXITY:
+      return "PERPLEXITY";
+    case AI_PROVIDER_IDS.OLLAMA:
+      return "OLLAMA";
+    default:
+      return "AUTO";
+  }
+}
+
+function setUnifiedAssistantOpen(open = true) {
+  const drawer = document.getElementById("ai-drawer");
+  const button = document.getElementById("ai-fab");
+  if (!drawer) return;
+  drawer.classList.toggle("open", Boolean(open));
+  drawer.setAttribute("aria-hidden", open ? "false" : "true");
+  button?.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) {
+    window.setTimeout(() => drawer.querySelector("[data-perplexity-query]")?.focus(), 80);
+  }
+}
+
+function toggleUnifiedAssistant() {
+  const drawer = document.getElementById("ai-drawer");
+  setUnifiedAssistantOpen(!drawer?.classList.contains("open"));
+}
+
+function bindUnifiedAssistantLauncher() {
+  const launcher = document.getElementById("ai-fab");
+  if (launcher && launcher.dataset.unifiedAiBound !== "true") {
+    launcher.dataset.unifiedAiBound = "true";
+    launcher.removeAttribute("onclick");
+    launcher.onclick = null;
+    launcher.setAttribute("aria-controls", "ai-drawer");
+    launcher.setAttribute("aria-expanded", document.getElementById("ai-drawer")?.classList.contains("open") ? "true" : "false");
+    launcher.addEventListener("click", toggleUnifiedAssistant);
+  }
+
+  const closeButton = document.querySelector("#ai-drawer .ai-close");
+  if (closeButton && closeButton.dataset.unifiedAiBound !== "true") {
+    closeButton.dataset.unifiedAiBound = "true";
+    closeButton.removeAttribute("onclick");
+    closeButton.onclick = null;
+    closeButton.addEventListener("click", () => setUnifiedAssistantOpen(false));
+  }
+
+  window.openAIAssistant = () => setUnifiedAssistantOpen(true);
+  window.closeAIAssistant = () => setUnifiedAssistantOpen(false);
 }
 
 function setBusy(panel, busy) {
@@ -122,7 +185,7 @@ function getAppState(contextName, query = "") {
 
 function currentSettings() {
   return {
-    mode: localStorage.getItem(SETTINGS.mode) || DEFAULT_PERPLEXITY_MODE,
+    mode: normalizeMode(localStorage.getItem(SETTINGS.mode) || DEFAULT_PERPLEXITY_MODE),
     verbosity: localStorage.getItem(SETTINGS.verbosity) || "balanced",
     responseLength: localStorage.getItem(SETTINGS.length) || "medium",
     enabled: isEnabled(),
@@ -136,8 +199,9 @@ function currentSettings() {
 }
 
 function modeOptions(selected = DEFAULT_PERPLEXITY_MODE) {
-  return PERPLEXITY_RESEARCH_MODES.map((mode) =>
-    `<option value="${escapeHtml(mode.id)}"${mode.id === selected ? " selected" : ""}>${escapeHtml(mode.label)}</option>`
+  const normalized = normalizeMode(selected);
+  return ASSISTANT_MODES.map((mode) =>
+    `<option value="${escapeHtml(mode.id)}"${mode.id === normalized ? " selected" : ""}>${escapeHtml(mode.label)}</option>`
   ).join("");
 }
 
@@ -155,29 +219,38 @@ function providerOptions(selected = AI_PROVIDER_IDS.AUTO) {
 function panelTemplate(hostId, contextName) {
   const settings = currentSettings();
   const status = settings.enabled && settings.proxyBase ? "WEB-GROUNDED" : settings.ollamaEnabled ? "LOCAL_CONTEXT" : "UNAVAILABLE";
+  const providerStatus = providerStatusLabel(settings.provider);
+  const isFloatingAssistant = contextName === "ai-lab";
   return `<section class="ytt-perplexity-panel" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
-        <div class="ytt-perplexity-title">YucaTana AI Research</div>
-        <div class="ytt-perplexity-subtitle">Context-aware research for ${escapeHtml(contextName === "ai-lab" ? "AI Lab" : contextName)}. Perplexity is web-grounded; Ollama is local context only.</div>
+        <div class="ytt-perplexity-title">${isFloatingAssistant ? "YucaTana AI" : "YucaTana AI Research"}</div>
+        <div class="ytt-perplexity-subtitle">One assistant, routed through Perplexity for cited research or Local Ollama for context-only reasoning.</div>
       </div>
-      <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
+      <div class="ytt-perplexity-head-actions">
+        <span class="ytt-provider-status" data-provider-status="${escapeHtml(settings.provider)}">${providerStatus}</span>
+        <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
+        ${isFloatingAssistant ? '<button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close AI assistant">Close</button>' : ""}
+      </div>
     </div>
     <form class="ytt-perplexity-form" data-perplexity-form>
+      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-provider">Provider</label>
       <div class="ytt-perplexity-mode-row">
-        <select class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select>
-        <span class="ytt-perplexity-provider-badge" data-provider-badge>${settings.provider === AI_PROVIDER_IDS.OLLAMA ? "LOCAL" : settings.provider === AI_PROVIDER_IDS.PERPLEXITY ? "WEB" : "AUTO"}</span>
+        <select id="${escapeHtml(hostId)}-provider" class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select>
+        <span class="ytt-perplexity-provider-badge" data-provider-badge>${providerStatus}</span>
       </div>
+      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-mode">Mode</label>
       <div class="ytt-perplexity-mode-row">
-        <select class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select>
+        <select id="${escapeHtml(hostId)}-mode" class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select>
         <button class="ytt-perplexity-btn" type="button" data-perplexity-retry>Retry</button>
       </div>
       <div class="ytt-perplexity-query-row">
-        <input class="ytt-perplexity-input" data-perplexity-query placeholder="Ask Perplexity Finance..." autocomplete="off">
+        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask YucaTana AI..." rows="3"></textarea>
         <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
+        <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>
       </div>
     </form>
-    <div class="ytt-perplexity-output" data-perplexity-output>${settings.proxyBase || settings.ollamaEnabled ? "Ask a finance question to start AI research." : "Perplexity proxy not configured. Local Ollama is disabled."}</div>
+    <div class="ytt-perplexity-output" data-perplexity-output>${settings.proxyBase || settings.ollamaEnabled ? "Ask a finance question to start AI research." : "Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin."}</div>
     <div class="ytt-perplexity-meta" data-perplexity-meta>
       <span>${settings.enabled ? "ENABLED" : "DISABLED"}</span>
       <span>${settings.proxyBase ? "PERPLEXITY READY" : "PERPLEXITY PROXY REQUIRED"}</span>
@@ -224,7 +297,7 @@ function updateOutput(panel, result = {}) {
     const stamp = formatTimestamp(result.timestamp);
     const lastRequest = state.lastRequestAt ? formatTimestamp(state.lastRequestAt) : "";
     const latency = Number.isFinite(Number(result.latencyMs)) ? `<span>${Math.round(Number(result.latencyMs))}MS</span>` : "";
-    meta.innerHTML = `${provider ? `<span>PROVIDER ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL ${escapeHtml(model)}</span>` : ""}<span>${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
+    meta.innerHTML = `${provider ? `<span>PROVIDER: ${escapeHtml(provider)}</span>` : ""}${model ? `<span>MODEL: ${escapeHtml(model)}</span>` : ""}<span>DATA QUALITY: ${escapeHtml(quality)}</span><span>${escapeHtml(stamp)}</span>${lastRequest ? `<span>LAST REQUEST ${escapeHtml(lastRequest)}</span>` : ""}${latency}`;
   }
   if (tickers) {
     tickers.innerHTML = (Array.isArray(result.tickers) ? result.tickers : []).map((ticker) => `<span>${escapeHtml(ticker)}</span>`).join("");
@@ -299,7 +372,7 @@ function renderOllamaHealthRow(state = {}) {
 function classifyClientError(error) {
   switch (error?.code) {
     case "PROXY_REQUIRED":
-      return { status: "PROXY REQUIRED", message: "Perplexity proxy not configured. Set API_PROXY_BASE in Settings/Admin." };
+      return { status: "PROXY REQUIRED", message: "Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin." };
     case "PROXY_OFFLINE":
       return { status: "FAILED", message: "Perplexity proxy offline. Check API_PROXY_BASE or Cloudflare Worker deployment." };
     case "RATE_LIMITED":
@@ -316,7 +389,7 @@ function classifyClientError(error) {
       return { status: "DISABLED", message: "Local AI is disabled. Enable Local AI / Ollama in Settings/Admin." };
     case "OLLAMA_UNAVAILABLE":
     case "OLLAMA_MODEL_UNAVAILABLE":
-      return { status: "UNAVAILABLE", message: error.message || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running." };
+      return { status: "UNAVAILABLE", message: error.message || "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running." };
     case "OLLAMA_INVALID_RESPONSE":
       return { status: "ERROR", message: "Invalid response from local Ollama." };
     case "OLLAMA_TIMEOUT":
@@ -335,7 +408,7 @@ async function ask(panel, contextName, forceQuery = "") {
   const output = panel.querySelector("[data-perplexity-output]");
   const state = getPanelState(panel);
   if (!query) {
-    setLocalNotice(panel, "DEGRADED", "Enter a Perplexity Finance question before asking.");
+    setLocalNotice(panel, "DEGRADED", "Enter an AI research question before asking.");
     return;
   }
   if (query.length > MAX_QUERY_LENGTH) {
@@ -440,9 +513,26 @@ function bindPanel(host, contextName) {
   panel.querySelector("[data-ai-provider]")?.addEventListener("change", (event) => {
     localStorage.setItem(SETTINGS.provider, event.target.value || AI_PROVIDER_IDS.AUTO);
     const badge = panel.querySelector("[data-provider-badge]");
-    if (badge) {
-      badge.textContent = event.target.value === AI_PROVIDER_IDS.OLLAMA ? "LOCAL" : event.target.value === AI_PROVIDER_IDS.PERPLEXITY ? "WEB" : "AUTO";
+    const status = panel.querySelector("[data-provider-status]");
+    const label = providerStatusLabel(event.target.value || AI_PROVIDER_IDS.AUTO);
+    if (badge) badge.textContent = label;
+    if (status) {
+      status.textContent = label;
+      status.dataset.providerStatus = event.target.value || AI_PROVIDER_IDS.AUTO;
     }
+  });
+  panel.querySelector("[data-ai-panel-close]")?.addEventListener("click", () => setUnifiedAssistantOpen(false));
+  panel.querySelector("[data-perplexity-clear]")?.addEventListener("click", () => {
+    const input = panel.querySelector("[data-perplexity-query]");
+    if (input) input.value = "";
+    updateOutput(panel, {
+      answer: "Ask a finance question to start AI research.",
+      dataQuality: "UNAVAILABLE",
+      timestamp: new Date().toISOString(),
+      citations: [],
+      sources: [],
+      tickers: [],
+    });
   });
   panel.querySelector("[data-perplexity-retry]")?.addEventListener("click", () => {
     const previous = panelState.get(panel);
@@ -495,7 +585,7 @@ function saveSettings() {
   localStorage.setItem(SETTINGS.proxy, proxy);
   localStorage.setItem(SETTINGS.verbosity, document.getElementById("perplexity-verbosity")?.value || "balanced");
   localStorage.setItem(SETTINGS.length, document.getElementById("perplexity-length")?.value || "medium");
-  localStorage.setItem(SETTINGS.mode, document.getElementById("perplexity-default-mode")?.value || DEFAULT_PERPLEXITY_MODE);
+  localStorage.setItem(SETTINGS.mode, normalizeMode(document.getElementById("perplexity-default-mode")?.value || DEFAULT_PERPLEXITY_MODE));
   localStorage.setItem(SETTINGS.provider, document.getElementById("ai-provider-selection")?.value || AI_PROVIDER_IDS.AUTO);
   localStorage.setItem(SETTINGS.ollamaEnabled, document.getElementById("ollama-enabled")?.value || "false");
   localStorage.setItem(SETTINGS.ollamaEndpoint, (document.getElementById("ollama-endpoint")?.value || DEFAULT_OLLAMA_ENDPOINT).trim());
@@ -537,7 +627,7 @@ async function refreshOllamaHealth({ test = false } = {}) {
   }
 
   if (!test) {
-    updateOllamaSourceHealth("UNAVAILABLE", "Local AI enabled. Use Test Ollama to confirm localhost is running.");
+    updateOllamaSourceHealth("UNAVAILABLE", "Local AI enabled. Use Test Ollama to confirm 127.0.0.1 is running.");
     return;
   }
 
@@ -553,11 +643,12 @@ async function refreshOllamaHealth({ test = false } = {}) {
       : `Ollama is running, but ${settings.ollamaModel} was not listed by /api/tags.`;
     updateOllamaSourceHealth("RUNNING", `${modelDetail} Endpoint ${result.endpoint}.`, result.latencyMs, result.lastSuccessAt);
   } else {
-    updateOllamaSourceHealth(result.status, result.error || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.", result.latencyMs);
+    updateOllamaSourceHealth(result.status, result.error || "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running.", result.latencyMs);
   }
 }
 
 function mountAll() {
+  bindUnifiedAssistantLauncher();
   document.querySelectorAll("[data-perplexity-panel]").forEach((host) => {
     bindPanel(host, host.dataset.panelContext || "ai-lab");
   });
@@ -571,6 +662,7 @@ function scheduleMount() {
 
 window.YTTPerplexity = { mountAll, refreshHealth, saveSettings };
 window.YTTOllama = { refreshHealth: () => refreshOllamaHealth({ test: true }) };
+window.YTTUnifiedAI = { open: () => setUnifiedAssistantOpen(true), close: () => setUnifiedAssistantOpen(false), toggle: toggleUnifiedAssistant };
 window.addEventListener("ytt:source-health-refresh", refreshHealth);
 window.addEventListener("ytt:source-health-refresh", () => refreshOllamaHealth({ test: false }));
 document.addEventListener("DOMContentLoaded", () => {

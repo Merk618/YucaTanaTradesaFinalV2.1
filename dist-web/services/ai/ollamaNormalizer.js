@@ -4,7 +4,7 @@ export function normalizeOllamaResponse(payload = {}, { model = "qwen2.5:7b", er
   const hasError = Boolean(error || data.error);
 
   return {
-    answer: answer || (hasError ? String(error || data.error) : "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running."),
+    answer: answer || (hasError ? String(error || data.error) : "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running."),
     provider: "OLLAMA",
     model: data.model || model,
     timestamp: data.created_at || new Date().toISOString(),
@@ -15,6 +15,6 @@ export function normalizeOllamaResponse(payload = {}, { model = "qwen2.5:7b", er
   };
 }
 
-export function unavailableOllamaResponse(message = "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.", model = "qwen2.5:7b") {
+export function unavailableOllamaResponse(message = "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running.", model = "qwen2.5:7b") {
   return normalizeOllamaResponse({}, { model, error: message });
 }

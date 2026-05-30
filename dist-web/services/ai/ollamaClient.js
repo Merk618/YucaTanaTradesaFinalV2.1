@@ -1,7 +1,7 @@
 import { normalizeOllamaResponse, unavailableOllamaResponse } from "./ollamaNormalizer.js";
 import { STOCK_REASONING_SYSTEM_PROMPT, buildStockReasoningPrompt } from "./stockReasoningPrompt.js";
 
-export const DEFAULT_OLLAMA_ENDPOINT = "http://localhost:11434";
+export const DEFAULT_OLLAMA_ENDPOINT = "http://127.0.0.1:11434";
 export const DEFAULT_OLLAMA_MODEL = "qwen2.5:7b";
 
 export class OllamaClientError extends Error {
@@ -26,7 +26,7 @@ async function fetchWithTimeout(fetchImpl, url, options, timeoutMs) {
     if (error?.name === "AbortError") {
       throw new OllamaClientError("Local AI request timed out. Confirm Ollama is running.", "OLLAMA_TIMEOUT");
     }
-    throw new OllamaClientError("Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.", "OLLAMA_UNAVAILABLE");
+    throw new OllamaClientError("Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running.", "OLLAMA_UNAVAILABLE");
   } finally {
     clearTimeout(timeout);
   }
@@ -43,7 +43,7 @@ async function readJsonSafely(response) {
 }
 
 function classifyOllamaStatus(status, payload = {}) {
-  const message = payload.error || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.";
+  const message = payload.error || "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running.";
   if (status === 404) return new OllamaClientError("Ollama model unavailable. Pull qwen2.5:7b or update the model setting.", "OLLAMA_MODEL_UNAVAILABLE", status);
   return new OllamaClientError(message, "OLLAMA_UNAVAILABLE", status);
 }
@@ -98,7 +98,7 @@ export function createOllamaClient({ endpoint = DEFAULT_OLLAMA_ENDPOINT, model =
         model: selectedModel,
         latencyMs: Date.now() - started,
         lastSuccessAt: null,
-        error: error?.message || "Local AI unavailable. Start Ollama and confirm http://localhost:11434 is running.",
+        error: error?.message || "Local Ollama unavailable. Start Ollama and confirm http://127.0.0.1:11434 is running.",
       };
     }
   }
