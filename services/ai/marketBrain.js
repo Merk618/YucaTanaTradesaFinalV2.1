@@ -72,11 +72,23 @@ function collectCandidates(query = "", state = {}) {
     .filter(() => !stockOnly)
     .map(([symbol, coin]) => normalizeCrypto(String(symbol).toUpperCase(), coin))
     .filter((asset) => finite(asset.price) || finite(asset.changePercent));
+  const aiHeatmap = asArray(state.aiHeatmap?.aiHeatmapRows)
+    .filter((row) => !watchlistOnly || watchlist.has(String(row.symbol || "").toUpperCase()))
+    .filter((row) => !cryptoOnly || row.assetType === "crypto")
+    .filter((row) => !stockOnly || row.assetType === "stock")
+    .map((row) => ({
+      ...row,
+      symbol: String(row.symbol || "").toUpperCase(),
+      assetType: row.assetType || "unknown",
+      changePercent: row.changePercent ?? row.changePct,
+    }))
+    .filter((asset) => asset.symbol && (finite(asset.price) || finite(asset.changePercent)));
 
   if (watchlistOnly && !watchlist.size) return [];
-  if (upper.includes("CRYPTO")) return crypto;
-  if (upper.includes("STOCK")) return stocks;
-  return [...stocks, ...crypto];
+  if (upper.includes("AIHEATMAP") || upper.includes("AI HEATMAP")) return aiHeatmap;
+  if (upper.includes("CRYPTO")) return [...crypto, ...aiHeatmap.filter((row) => row.assetType === "crypto")];
+  if (upper.includes("STOCK")) return [...stocks, ...aiHeatmap.filter((row) => row.assetType === "stock")];
+  return [...stocks, ...crypto, ...aiHeatmap];
 }
 
 function buildRankings(query = "", state = {}, sourceHealth = {}) {

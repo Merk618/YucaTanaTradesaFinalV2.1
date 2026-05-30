@@ -41,6 +41,7 @@ export function buildAIDecisionContext({ query = "", mode = "", appState = {}, y
       sourceHealth: compact(appState.sourceHealth || yttContext.marketContext?.sourceHealth || {}),
       externalSignals: compact(appState.externalSignals || yttContext.externalSignals || []),
       stockDeepDive: compact(appState.stockDeepDive || yttContext.stockDeepDive || null),
+      aiHeatmap: compact(appState.aiHeatmap || yttContext.aiHeatmap || null),
       missingData: marketBrain.missingData || [],
       timestamp: new Date().toISOString(),
     },

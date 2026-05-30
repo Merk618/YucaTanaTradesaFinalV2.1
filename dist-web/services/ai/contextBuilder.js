@@ -17,6 +17,15 @@ function compactObject(value, depth = 0) {
 function selectedAssetFromState(state = {}) {
   if (state.symbolIntent?.selectedAsset) return state.symbolIntent.selectedAsset;
   const selectedSymbol = state.selectedSymbol || state.ticker || state.crypto || state.heatmapSelection?.symbol || state.heatmapSelection;
+  const aiHeatmapRow = state.aiHeatmap?.selectedAIHeatmapRow;
+  if (state.activeTab === "aiheatmap" && aiHeatmapRow?.symbol) {
+    return {
+      symbol: String(aiHeatmapRow.symbol).toUpperCase(),
+      assetType: aiHeatmapRow.assetType || "unknown",
+      quote: aiHeatmapRow.assetType === "stock" ? compactObject(aiHeatmapRow) : null,
+      market: aiHeatmapRow.assetType === "crypto" ? compactObject(aiHeatmapRow) : null,
+    };
+  }
   if (!selectedSymbol) return null;
   const symbol = String(selectedSymbol).toUpperCase();
   const stock = state.stockQuotes?.[symbol];
@@ -39,9 +48,12 @@ export function buildPerplexityContext(state = {}) {
     watchlist: Array.isArray(state.watchlist) ? state.watchlist.slice(0, MAX_WATCHLIST) : [],
     externalSignals: Array.isArray(state.externalSignals) ? compactObject(state.externalSignals) : [],
     stockDeepDive: compactObject(state.stockDeepDive || null),
+    aiHeatmap: compactObject(state.aiHeatmap || null),
     marketContext: {
       stockQuotes: compactObject(state.stockQuotes || {}),
       cryptoMarkets: compactObject(state.cryptoMarkets || {}),
+      aiHeatmapRows: compactObject(state.aiHeatmap?.aiHeatmapRows || []),
+      aiHeatmapTechnicalContext: compactObject(state.aiHeatmap?.aiHeatmapTechnicalContext || null),
       sourceHealth: compactObject(state.sourceHealth || {}),
       symbolResolution: compactObject(state.symbolIntent?.metadata || {}),
       newsCount: Number(state.newsCount || 0),

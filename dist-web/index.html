@@ -9,9 +9,11 @@
   <link rel="stylesheet" href="styles/heatmap.css">
   <link rel="stylesheet" href="styles/perplexity.css">
   <link rel="stylesheet" href="styles/stockDeepDive.css">
+  <link rel="stylesheet" href="styles/aiHeatmapTab.css">
   <script type="module" src="scripts/heatmap.js"></script>
   <script type="module" src="scripts/perplexityResearch.js"></script>
   <script type="module" src="scripts/stockDeepDive.js"></script>
+  <script type="module" src="scripts/aiHeatmapTab.js"></script>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -2608,6 +2610,7 @@
     .nav-btn[data-tab="options"] { --tab-accent: #c084fc; }
     .nav-btn[data-tab="stocks"] { --tab-accent: #00c805; }
     .nav-btn[data-tab="crypto"] { --tab-accent: #f59e0b; }
+    .nav-btn[data-tab="aiheatmap"] { --tab-accent: #ffd87a; }
     .nav-btn[data-tab="crypto-hunter"] { --tab-accent: #ff5000; }
     .nav-btn[data-tab="portfolio"] { --tab-accent: #34d399; }
     .nav-btn[data-tab="charts"] { --tab-accent: #60a5fa; }
@@ -3133,6 +3136,7 @@
       <button class="nav-btn" data-tab="options" onclick="showTab('options')">⊕&nbsp;&nbsp;Option Flows</button>
       <button class="nav-btn" data-tab="stocks" onclick="showTab('stocks')">◈&nbsp;&nbsp;Stocks</button>
       <button class="nav-btn" data-tab="crypto" onclick="showTab('crypto')">◎&nbsp;&nbsp;Crypto</button>
+      <button class="nav-btn" data-tab="aiheatmap" onclick="showTab('aiheatmap')">◩&nbsp;&nbsp;AIheatmap</button>
       <button class="nav-btn" data-tab="crypto-hunter" onclick="showTab('crypto-hunter')">✦&nbsp;&nbsp;Crypto Hunter</button>
       <button class="nav-btn" data-tab="portfolio" onclick="showTab('portfolio')">◻&nbsp;&nbsp;Portfolio</button>
       <button class="nav-btn" data-tab="charts" onclick="showTab('charts')">◫&nbsp;&nbsp;Charts</button>
@@ -3260,6 +3264,12 @@
           <div id="binance-status" class="stream-panel"><span class="pulse-dot" style="background:#ff5000"></span><span>BINANCE WS — AWAITING API KEY</span></div>
         </div>
       </div>
+
+      <section id="tab-aiheatmap" class="tab-content ytt-aiheatmap-tab" aria-label="AIheatmap">
+        <div class="ytt-aiheatmap-shell">
+          <div class="ytt-aiheatmap-empty">AIheatmap terminal is initializing.</div>
+        </div>
+      </section>
 
       <div id="tab-crypto-hunter" class="tab-content">
         <iframe class="standalone-frame" src="about:blank" data-src="legacy/CryptoHunter.html" title="Crypto Hunter Bot Trader" style="width:100%;border:none;display:block;background:#030508;"></iframe>
@@ -4111,6 +4121,9 @@ function showTab(tabId) {
     newsLoaded = true;
     loadNewsFeeds(activeNewsMode);
   }
+  if (tabId === 'aiheatmap') {
+    setTimeout(() => window.YTTAIHeatmap?.ensureReady?.(), 80);
+  }
 }
 
 function updateMarketStatus() {
@@ -4926,6 +4939,11 @@ function renderSourceHealth() {
     ['finnhub', 'Finnhub Stocks', 'Quote snapshots for stock scanners'],
     ['coingecko', 'CoinGecko Crypto', 'Crypto metadata, caps, volume, 24h/7d'],
     ['binance', 'Binance WS', 'Live crypto stream / RSI source'],
+    ['aiheatmap-engine', 'AIheatmap Engine', 'Scoped stock/crypto heatmap scan module'],
+    ['aiheatmap-technical', 'AIheatmap Technical Engine', 'RSI, MACD, VWAP, support/resistance calculations'],
+    ['aiheatmap-tradingview', 'AIheatmap TradingView', 'Advanced chart with RSI/MACD studies'],
+    ['aiheatmap-crypto', 'AIheatmap Crypto Data', 'CoinGecko/Binance data route for AIheatmap'],
+    ['aiheatmap-stock', 'AIheatmap Stock Data', 'MooMoo/Finnhub stock route for AIheatmap'],
     ['perplexity', 'Perplexity AI', 'Finance research via API proxy only'],
     ['tradier', 'Tradier Pro', 'Options chains, Greeks, official equity source'],
     ['alpaca', 'Alpaca', 'Portfolio and historical OHLCV'],
@@ -5025,21 +5043,32 @@ function appendAIMessage(role, html) {
 
 function buildAIContext() {
   const activeTab = document.body.dataset.activeTab || localStorage.getItem('activeTab') || 'dashboard';
+  const aiHeatmapContext = window.YTTAIHeatmap?.getContext?.() || null;
   const selectedRow = activeTab === 'crypto'
     ? document.querySelector('#crypto-body tr.is-selected, #crypto-production-heatmap .ytt-heatmap-cell.is-selected')
     : activeTab === 'stocks'
       ? document.querySelector('#stocks-body tr.is-selected, #stocks-production-heatmap .ytt-heatmap-cell.is-selected')
+      : activeTab === 'aiheatmap'
+        ? document.querySelector('#aiheatmap-grid .ytt-aiheatmap-cell.is-selected')
       : document.querySelector('.data-table tr.is-selected, .ytt-heatmap-cell.is-selected');
   const stockDeepDiveContext = window.YTTStockDeepDive?.getContext?.() || null;
-  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || (activeTab === 'stocks' ? stockDeepDiveContext?.selectedDeepDiveSymbol : '') || '';
+  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || selectedRow?.dataset?.aihSymbol || (activeTab === 'stocks' ? stockDeepDiveContext?.selectedDeepDiveSymbol : '') || (activeTab === 'aiheatmap' ? aiHeatmapContext?.selectedAIHeatmapSymbol : '') || '';
+  const selectedAssetType = activeTab === 'crypto'
+    ? 'crypto'
+    : activeTab === 'stocks'
+      ? 'stock'
+      : activeTab === 'aiheatmap'
+        ? aiHeatmapContext?.selectedAIHeatmapRow?.assetType || ''
+        : '';
   return {
     activeTab,
     selectedSymbol,
-    selectedAssetType: activeTab === 'crypto' ? 'crypto' : activeTab === 'stocks' ? 'stock' : '',
+    selectedAssetType,
     heatmapSelection: selectedSymbol ? { symbol: selectedSymbol, activeTab } : null,
     sourceHealth: sourceHealthState,
     stockQuotes: liveStockQuotes,
     cryptoMarkets: liveCryptoMarkets,
+    aiHeatmap: aiHeatmapContext,
     stockDeepDive: stockDeepDiveContext,
     externalSignals: JSON.parse(localStorage.getItem('YTT_EXTERNAL_SIGNALS') || '[]'),
     watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]'),
