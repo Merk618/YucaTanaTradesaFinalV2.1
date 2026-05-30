@@ -85,19 +85,54 @@ function formatPercent(value) {
   return `${Number(value).toFixed(2)}%`;
 }
 
+function priceCard({
+  requestedSymbol = "",
+  resolvedSymbol = "",
+  assetType = "unknown",
+  name = "Unavailable",
+  price = null,
+  change = null,
+  changePct = null,
+  primaryDataSource = "Unavailable",
+  fallbackUsed = false,
+  timestamp = "",
+  dataQuality = "UNAVAILABLE",
+  confidence = "none",
+} = {}) {
+  return [
+    `Requested Symbol: ${requestedSymbol || "Unavailable"}`,
+    `Resolved Symbol: ${resolvedSymbol || "Unavailable"}`,
+    `Asset Type: ${assetType || "Unavailable"}`,
+    `Name: ${name || "Unavailable"}`,
+    `Price: ${formatMoney(price)}`,
+    `Change: ${isFiniteNumber(change) ? formatMoney(change) : "Unavailable"}`,
+    `Change %: ${formatPercent(changePct)}`,
+    `Primary Data Source: ${primaryDataSource || "Unavailable"}`,
+    `Fallback Used: ${fallbackUsed ? "true" : "false"}`,
+    `Timestamp: ${timestamp || "Unavailable"}`,
+    `Data Quality: ${dataQuality || "UNAVAILABLE"}`,
+    `Resolution Confidence: ${confidence || "none"}`,
+  ].join("\n");
+}
+
 function stockPriceAnswer(quote, meta) {
   const unavailable = quote.dataQuality === "UNAVAILABLE";
+  const card = priceCard({
+    requestedSymbol: meta.requestedSymbol,
+    resolvedSymbol: quote.symbol || meta.resolvedSymbol,
+    assetType: "stock",
+    name: "Unavailable",
+    price: quote.price,
+    change: quote.change,
+    changePct: quote.changePct,
+    primaryDataSource: quote.provider || meta.primaryDataSource,
+    fallbackUsed: quote.fallbackUsed,
+    timestamp: quote.timestamp,
+    dataQuality: quote.dataQuality,
+    confidence: meta.resolutionConfidence,
+  });
   return {
-    answer: unavailable
-      ? `${quote.symbol} price is unavailable from currently connected stock data providers.`
-      : [
-          `${quote.symbol} stock price`,
-          `Price: ${formatMoney(quote.price)}`,
-          `Change: ${formatPercent(quote.changePct)}`,
-          `Source: ${quote.provider}`,
-          `Fallback Used: ${quote.fallbackUsed ? "yes" : "no"}`,
-          `Timestamp: ${quote.timestamp}`,
-        ].join("\n"),
+    answer: unavailable ? `${card}\n\n${quote.symbol} price is unavailable from currently connected stock data providers.` : card,
     provider: "YTT DATA ROUTER",
     dataQuality: quote.dataQuality,
     timestamp: quote.timestamp,
@@ -110,18 +145,22 @@ function stockPriceAnswer(quote, meta) {
 
 function cryptoPriceAnswer(snapshot, meta) {
   const unavailable = snapshot.dataQuality === "UNAVAILABLE";
+  const card = priceCard({
+    requestedSymbol: meta.requestedSymbol,
+    resolvedSymbol: snapshot.symbol || meta.resolvedSymbol,
+    assetType: "crypto",
+    name: snapshot.name || "Unavailable",
+    price: snapshot.price,
+    change: null,
+    changePct: snapshot.changePct24h,
+    primaryDataSource: snapshot.source || snapshot.provider || meta.primaryDataSource,
+    fallbackUsed: false,
+    timestamp: snapshot.timestamp,
+    dataQuality: snapshot.dataQuality,
+    confidence: meta.resolutionConfidence,
+  });
   return {
-    answer: unavailable
-      ? `${snapshot.symbol} price is unavailable from currently connected crypto data providers.`
-      : [
-          `${snapshot.symbol} crypto price`,
-          `Name: ${snapshot.name || snapshot.symbol}`,
-          "Asset type: crypto",
-          `Price: ${formatMoney(snapshot.price)}`,
-          `24h Change: ${formatPercent(snapshot.changePct24h)}`,
-          `Source: ${snapshot.source || snapshot.provider}`,
-          `Timestamp: ${snapshot.timestamp}`,
-        ].join("\n"),
+    answer: unavailable ? `${card}\n\n${snapshot.symbol} price is unavailable from currently connected crypto data providers.` : card,
     provider: "YTT DATA ROUTER",
     dataQuality: snapshot.dataQuality,
     timestamp: snapshot.timestamp,

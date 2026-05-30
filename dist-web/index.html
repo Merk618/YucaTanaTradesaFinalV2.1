@@ -3316,7 +3316,7 @@ let adminStarTimer = null;
 const VAULT_ACCESS_CODE = '142010';
 const FINNHUB_SYMBOLS = ['NVDA','TSLA','META','AVGO','ORCL','MSFT','MU','XOM'];
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
-const COINGECKO_MARKET_IDS = ['bitcoin','ethereum','solana','ripple','sui','binancecoin','avalanche-2','dogecoin'];
+const COINGECKO_MARKET_IDS = ['bitcoin','ethereum','solana','ripple','sui','binancecoin','avalanche-2','dogecoin','stellar','pepe'];
 const COINGECKO_MARKETS_URL = 'https://api.coingecko.com/api/v3/coins/markets';
 const BINANCE_STREAM_SYMBOLS = {
   BTC: 'btcusdt',
@@ -3326,7 +3326,21 @@ const BINANCE_STREAM_SYMBOLS = {
   SUI: 'suiusdt',
   BNB: 'bnbusdt',
   AVAX: 'avaxusdt',
-  DOGE: 'dogeusdt'
+  DOGE: 'dogeusdt',
+  XLM: 'xlmusdt',
+  PEPE: 'pepeusdt'
+};
+const DIRECT_CRYPTO_SYMBOLS = {
+  BTC: 'Bitcoin',
+  ETH: 'Ethereum',
+  SOL: 'Solana',
+  XRP: 'XRP',
+  SUI: 'Sui',
+  BNB: 'BNB',
+  AVAX: 'Avalanche',
+  DOGE: 'Dogecoin',
+  XLM: 'Stellar / Stellar Lumens',
+  PEPE: 'Pepe'
 };
 const HOSTED_STATIC_ENV = /^https?:$/.test(window.location.protocol) && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
 const FILE_STATIC_ENV = window.location.protocol === 'file:';
@@ -3878,18 +3892,24 @@ function saveKeys() {
     if (msg) msg.textContent = 'UNLOCK VAULT BEFORE SAVING KEYS';
     return;
   }
+  ensureFinnhubSettings();
   const tradier = document.getElementById('input-tradier')?.value;
   const finnhub = document.getElementById('input-finnhub')?.value;
   const alpacaKey = document.getElementById('input-alpaca-key')?.value;
   const alpacaSecret = document.getElementById('input-alpaca-secret')?.value;
-  const apiProxy = document.getElementById('input-api-proxy')?.value.trim();
+  const apiProxyInput = document.getElementById('input-api-proxy');
+  const apiProxy = apiProxyInput?.value.trim() || '';
   if (tradier && !tradier.includes('●')) localStorage.setItem('TRADIER_KEY', tradier);
   if (finnhub && !finnhub.includes('●')) localStorage.setItem('FINNHUB_KEY', finnhub);
   if (alpacaKey && !alpacaKey.includes('●')) localStorage.setItem('ALPACA_KEY', alpacaKey);
   if (alpacaSecret && !alpacaSecret.includes('●')) localStorage.setItem('ALPACA_SECRET', alpacaSecret);
-  if (apiProxy) localStorage.setItem('API_PROXY_BASE', apiProxy);
+  if (apiProxyInput) {
+    if (apiProxy) localStorage.setItem('API_PROXY_BASE', apiProxy);
+    else localStorage.removeItem('API_PROXY_BASE');
+  }
   const perplexityProxy = document.getElementById('input-perplexity-proxy');
   if (perplexityProxy && apiProxy) perplexityProxy.value = apiProxy;
+  window.YTTPerplexity?.saveSettings?.();
   const badge = document.getElementById('keys-saved-badge');
   if (badge) {
     badge.style.opacity = '1';
@@ -3911,6 +3931,7 @@ function maskInputs() {
 }
 
 function loadSavedKeys() {
+  ensureFinnhubSettings();
   const map = {
     'input-tradier': 'TRADIER_KEY',
     'input-finnhub': 'FINNHUB_KEY',
@@ -3928,6 +3949,8 @@ function loadSavedKeys() {
   if (proxyInput) proxyInput.value = localStorage.getItem('API_PROXY_BASE') || '';
   const perplexityProxyInput = document.getElementById('input-perplexity-proxy');
   if (perplexityProxyInput) perplexityProxyInput.value = localStorage.getItem('API_PROXY_BASE') || '';
+  const moomooBridge = document.getElementById('moomoo-bridge-url');
+  if (moomooBridge) moomooBridge.value = localStorage.getItem('MOOMOO_BRIDGE_URL') || 'http://127.0.0.1:8765';
 }
 
 async function hashVaultPassword(password) {
@@ -4055,6 +4078,19 @@ function exportSettings() {
     'TRADIER_MODE',
     'FINNHUB_KEY',
     'API_PROXY_BASE',
+    'PERPLEXITY_ENABLED',
+    'PERPLEXITY_VERBOSITY',
+    'PERPLEXITY_RESPONSE_LENGTH',
+    'PERPLEXITY_RESEARCH_MODE',
+    'AI_PROVIDER_SELECTION',
+    'OLLAMA_ENABLED',
+    'OLLAMA_ENDPOINT',
+    'OLLAMA_MODEL',
+    'OLLAMA_PROVIDER_MODE',
+    'MOOMOO_OPEND_ENABLED',
+    'MOOMOO_BRIDGE_URL',
+    'MOOMOO_PRIMARY_STOCK_DATA',
+    'MOOMOO_OPTIONS_DATA_ENABLED',
     'YTT_VAULT_HASH',
     'watchlist',
     'activeTab',
@@ -4088,13 +4124,22 @@ function clearLocalSettings() {
     'PERPLEXITY_VERBOSITY',
     'PERPLEXITY_RESPONSE_LENGTH',
     'PERPLEXITY_RESEARCH_MODE',
+    'AI_PROVIDER_SELECTION',
+    'OLLAMA_ENABLED',
+    'OLLAMA_ENDPOINT',
+    'OLLAMA_MODEL',
+    'OLLAMA_PROVIDER_MODE',
+    'MOOMOO_OPEND_ENABLED',
+    'MOOMOO_BRIDGE_URL',
+    'MOOMOO_PRIMARY_STOCK_DATA',
+    'MOOMOO_OPTIONS_DATA_ENABLED',
     'watchlist',
     'newsMode'
   ].forEach(key => localStorage.removeItem(key));
   loadSavedKeys();
   renderWatchlist();
   updateDeploymentHealth();
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy'].forEach(id => {
+  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy','ollama-endpoint','ollama-model','moomoo-bridge-url'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -4668,6 +4713,34 @@ async function submitAIQuestion(event) {
 
 function localAssistantAnswer(question) {
   const upper = question.toUpperCase();
+  const directPrice = /\b(PRICE|QUOTE|SNAPSHOT)\b/.test(upper);
+  const explicitCrypto = Object.keys(DIRECT_CRYPTO_SYMBOLS).find(sym => new RegExp(`(^|[^A-Z0-9])${sym}([^A-Z0-9]|$)`).test(upper));
+  if (explicitCrypto) {
+    const c = liveCryptoMarkets[explicitCrypto];
+    const price = Number(c?.binancePrice ?? c?.current_price);
+    const change = Number(c?.price_change_percentage_24h_in_currency ?? c?.price_change_percentage_24h);
+    const source = c ? (c.binancePrice ? 'CoinGecko + Binance' : 'CoinGecko') : 'CoinGecko/Binance';
+    const quality = Number.isFinite(price) ? 'LIVE' : 'UNAVAILABLE';
+    const card = [
+      `Requested Symbol: ${explicitCrypto}`,
+      `Resolved Symbol: ${explicitCrypto}`,
+      'Asset Type: crypto',
+      `Name: ${escapeHtml(c?.name || DIRECT_CRYPTO_SYMBOLS[explicitCrypto])}`,
+      `Price: ${Number.isFinite(price) ? formatMoney(price) : 'Unavailable'}`,
+      'Change: Unavailable',
+      `Change %: ${Number.isFinite(change) ? formatPct(change) : 'Unavailable'}`,
+      `Primary Data Source: ${source}`,
+      'Fallback Used: false',
+      `Timestamp: ${escapeHtml(c?.last_updated || c?.lastUpdated || new Date().toISOString())}`,
+      `Data Quality: ${quality}`,
+      `Resolution Confidence: ${c ? 'loaded-crypto-cache' : 'known-crypto-symbol'}`
+    ].join('<br>');
+    if (directPrice || upper.includes('SETUP')) {
+      return quality === 'UNAVAILABLE'
+        ? `${card}<br><br>${explicitCrypto} price is unavailable from currently connected crypto data providers.`
+        : card;
+    }
+  }
   const ticker = Object.keys(liveStockQuotes).find(sym => upper.includes(sym));
   const crypto = Object.keys(liveCryptoMarkets).find(sym => upper.includes(sym));
   const healthBad = Object.values(sourceHealthState).filter(s => s.tone === 'dn').length;

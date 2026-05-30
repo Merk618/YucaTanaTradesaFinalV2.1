@@ -39,6 +39,12 @@ async function main() {
   assert.equal(xlm.metadata.primaryDataSource, "CoinGecko/Binance");
   assert.equal(xlm.metadata.fallbackUsed, false);
   assert.ok(!xlm.directAnswer.answer.includes("NVDA"));
+  assert.ok(!xlm.directAnswer.answer.includes("FINNHUB"));
+  assert.match(xlm.directAnswer.answer, /Requested Symbol: XLM/);
+  assert.match(xlm.directAnswer.answer, /Resolved Symbol: XLM/);
+  assert.match(xlm.directAnswer.answer, /Asset Type: crypto/);
+  assert.match(xlm.directAnswer.answer, /Primary Data Source: CoinGecko/);
+  assert.match(xlm.directAnswer.answer, /Fallback Used: false/);
 
   const btc = await resolveSymbolIntent({ query: "BTC price", state: selectedNvdaState, settings, fetchImpl: failingFetch });
   assert.equal(btc.assetType, "crypto");
@@ -58,6 +64,14 @@ async function main() {
   assert.equal(nvda.selectedAsset.symbol, "NVDA");
   assert.equal(nvda.metadata.fallbackUsed, true);
   assert.equal(nvda.selectedAsset.quote.provider, "FINNHUB");
+  assert.match(nvda.directAnswer.answer, /Asset Type: stock/);
+  assert.match(nvda.directAnswer.answer, /Fallback Used: true/);
+
+  const unknown = await resolveSymbolIntent({ query: "ZZZZ price", state: selectedNvdaState, settings, fetchImpl: failingFetch });
+  assert.equal(unknown.assetType, "stock");
+  assert.equal(unknown.selectedAsset.symbol, "ZZZZ");
+  assert.equal(unknown.directAnswer.dataQuality, "UNAVAILABLE");
+  assert.ok(!unknown.directAnswer.answer.includes("NVDA"));
 
   const sofi = await resolveSymbolIntent({ query: "SOFI options", state: selectedNvdaState, settings, fetchImpl: failingFetch });
   assert.equal(sofi.assetType, "option_chain");
