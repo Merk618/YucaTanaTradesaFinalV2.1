@@ -83,24 +83,12 @@ function collectCandidates(query = "", state = {}) {
       changePercent: row.changePercent ?? row.changePct,
     }))
     .filter((asset) => asset.symbol && (finite(asset.price) || finite(asset.changePercent)));
-  const cryptoScannerPro = asArray(state.cryptoScannerPro?.cryptoScannerProRows)
-    .filter((row) => !watchlistOnly || watchlist.has(String(row.symbol || "").toUpperCase()))
-    .filter(() => !stockOnly)
-    .map((row) => ({
-      ...row,
-      symbol: String(row.symbol || "").toUpperCase(),
-      assetType: "crypto",
-      changePercent: row.changePercent ?? row.changePct ?? row.change24h,
-      source: row.provider || row.source || "Crypto Scanner Pro",
-      dataQuality: row.dataQuality || state.cryptoScannerPro?.cryptoScannerProDataQuality || "RECENT",
-    }))
-    .filter((asset) => asset.symbol && (finite(asset.price) || finite(asset.changePercent)));
 
   if (watchlistOnly && !watchlist.size) return [];
   if (upper.includes("AIHEATMAP") || upper.includes("AI HEATMAP")) return aiHeatmap;
-  if (upper.includes("CRYPTO")) return [...cryptoScannerPro, ...crypto, ...aiHeatmap.filter((row) => row.assetType === "crypto")];
+  if (upper.includes("CRYPTO")) return [...crypto, ...aiHeatmap.filter((row) => row.assetType === "crypto")];
   if (upper.includes("STOCK")) return [...stocks, ...aiHeatmap.filter((row) => row.assetType === "stock")];
-  return [...stocks, ...cryptoScannerPro, ...crypto, ...aiHeatmap];
+  return [...stocks, ...crypto, ...aiHeatmap];
 }
 
 function buildRankings(query = "", state = {}, sourceHealth = {}) {

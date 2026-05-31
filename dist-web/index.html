@@ -10,12 +10,10 @@
   <link rel="stylesheet" href="styles/perplexity.css">
   <link rel="stylesheet" href="styles/stockDeepDive.css">
   <link rel="stylesheet" href="styles/aiHeatmapTab.css">
-  <link rel="stylesheet" href="styles/cryptoScannerProTab.css">
   <script type="module" src="scripts/heatmap.js"></script>
   <script type="module" src="scripts/perplexityResearch.js"></script>
   <script type="module" src="scripts/stockDeepDive.js"></script>
   <script type="module" src="scripts/aiHeatmapTab.js"></script>
-  <script type="module" src="scripts/cryptoScannerProTab.js"></script>
   <style>
     :root {
       --bg: #0f0f0f;
@@ -3243,11 +3241,29 @@
         </div>
       </div>
 
-      <section id="tab-crypto" class="tab-content tab-panel">
-        <div class="ytt-crypto-scanner-pro">
-          <div class="crypto-tv-empty">Crypto Scanner Pro is initializing.</div>
+      <div id="tab-crypto" class="tab-content">
+        <div class="crypto-grid">
+          <div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">BTC Dominance</div><div class="kpi-value shimmer"></div></div><div class="kpi-card"><div class="kpi-label">Fear &amp; Greed</div><div class="kpi-value shimmer"></div></div><div class="kpi-card"><div class="kpi-label">Total Mkt Cap</div><div class="kpi-value shimmer"></div></div><div class="kpi-card"><div class="kpi-label">24h Volume</div><div class="kpi-value shimmer"></div></div></div>
+          <button id="scan-btn-crypto" class="scan-btn" onclick="startScan('crypto')">SCAN NOW</button>
+          <div class="progress-shell"><div id="scan-bar-crypto" class="progress-bar"></div></div>
+          <div id="scan-log-crypto" class="scan-log"></div>
+          <div class="detail-grid">
+            <div class="detail-card"><h3>Market Structure</h3><div class="micro-list"><div class="micro-row"><span>BTC Dominance</span><span class="shimmer"></span></div><div class="micro-row"><span>Stablecoin Flow</span><span class="shimmer"></span></div></div></div>
+            <div class="detail-card"><h3>Funding Watch</h3><p>Funding, basis, and exchange-spread fields remain locked until live exchange endpoints are connected.</p></div>
+            <div class="detail-card"><h3>Volume Impulse</h3><div class="spark-slot"></div></div>
+            <div class="detail-card"><h3>Stream Quality</h3><div class="micro-list"><div class="micro-row"><span>Latency</span><span class="shimmer"></span></div><div class="micro-row"><span>Reconnects</span><span class="shimmer"></span></div></div></div>
+          </div>
+          <div class="ytt-market-workspace" data-market-workspace="crypto">
+            <div class="ytt-market-primary">
+              <div class="panel"><div class="panel-header">TradingView Crypto Chart <span class="source-tag">OFFICIAL WIDGET</span></div><div class="ytt-tv-frame"><div id="crypto-production-tv"></div></div></div>
+              <div class="panel"><div class="panel-header">Crypto Heatmap <span class="source-tag">LIVE DATA ONLY</span></div><div id="crypto-production-heatmap" class="ytt-heatmap-grid"><div class="ytt-detail-empty">Data unavailable — retrying</div></div></div>
+            </div>
+            <aside id="crypto-asset-detail-panel" class="ytt-detail-panel"><div class="panel"><div class="panel-header">Selected Crypto Detail</div><p class="ytt-detail-empty">Data unavailable — retrying</p></div></aside>
+          </div>
+          <div class="panel"><div class="panel-header">Crypto Scanner <span class="source-tag">COINGECKO + BINANCE</span></div><table class="data-table"><thead><tr><th>RANK</th><th>COIN</th><th>PRICE</th><th>24H</th><th>7D</th><th>SPARK</th><th>MARKET CAP</th><th>VOLUME</th><th>RSI</th><th>SIGNAL</th></tr></thead><tbody id="crypto-body"></tbody></table></div>
+          <div id="binance-status" class="stream-panel"><span class="pulse-dot" style="background:#ff5000"></span><span>BINANCE WS — AWAITING API KEY</span></div>
         </div>
-      </section>
+      </div>
 
       <section id="tab-aiheatmap" class="tab-content ytt-aiheatmap-tab" aria-label="AIheatmap">
         <div class="ytt-aiheatmap-shell">
@@ -4108,9 +4124,6 @@ function showTab(tabId) {
   if (tabId === 'aiheatmap') {
     setTimeout(() => window.YTTAIHeatmap?.ensureReady?.(), 80);
   }
-  if (tabId === 'crypto') {
-    setTimeout(() => window.YTTCryptoScannerPro?.ensureReady?.(), 80);
-  }
 }
 
 function updateMarketStatus() {
@@ -4604,9 +4617,8 @@ async function loadCoinGeckoMarkets(logEl = null) {
   const body = document.getElementById('crypto-body');
   if (!body) return;
   const status = document.getElementById('binance-status');
-  const scannerProRoot = document.querySelector('#tab-crypto .ytt-crypto-scanner-pro');
   setLoaderState('coingecko', 'PENDING', 'Loading crypto market data from CoinGecko.');
-  if (status && !scannerProRoot) status.innerHTML = '<span class="pulse-dot" style="background:#c9a84c"></span><span>COINGECKO — LOADING MARKET DATA</span>';
+  if (status) status.innerHTML = '<span class="pulse-dot" style="background:#c9a84c"></span><span>COINGECKO — LOADING MARKET DATA</span>';
   try {
     const params = new URLSearchParams({
       vs_currency: 'usd',
@@ -4624,33 +4636,31 @@ async function loadCoinGeckoMarkets(logEl = null) {
       acc[String(coin.symbol || '').toUpperCase()] = coin;
       return acc;
     }, {});
-    if (!scannerProRoot) {
-      body.innerHTML = data.map((coin, index) => {
-        const change24 = Number(coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h);
-        const change7d = Number(coin.price_change_percentage_7d_in_currency);
-        const spark = renderSparkline(coin.sparkline_in_7d?.price || []);
-        return `
-          <tr data-symbol="${escapeHtml(String(coin.symbol || '').toUpperCase())}">
-            <td>${index + 1}</td>
-            <td><span style="display:inline-flex;align-items:center;gap:8px;"><img src="${escapeHtml(coin.image)}" alt="" style="width:18px;height:18px;border-radius:50%;">${escapeHtml(String(coin.symbol || '').toUpperCase())}</span></td>
-            <td class="price">${formatMoney(Number(coin.current_price))}</td>
-            <td class="${change24 >= 0 ? 'up' : 'dn'}">${formatPct(change24)}</td>
-            <td class="${change7d >= 0 ? 'up' : 'dn'}">${formatPct(change7d)}</td>
-            <td>${spark}</td>
-            <td>${formatCompactNumber(Number(coin.market_cap))}</td>
-            <td>${formatCompactNumber(Number(coin.total_volume))}</td>
-            <td>${shimmerCell(48)}</td>
-            <td><span class="badge-neutral">AWAITING BINANCE</span></td>
-          </tr>`;
-      }).join('');
-    }
+    body.innerHTML = data.map((coin, index) => {
+      const change24 = Number(coin.price_change_percentage_24h_in_currency ?? coin.price_change_percentage_24h);
+      const change7d = Number(coin.price_change_percentage_7d_in_currency);
+      const spark = renderSparkline(coin.sparkline_in_7d?.price || []);
+      return `
+        <tr data-symbol="${escapeHtml(String(coin.symbol || '').toUpperCase())}">
+          <td>${index + 1}</td>
+          <td><span style="display:inline-flex;align-items:center;gap:8px;"><img src="${escapeHtml(coin.image)}" alt="" style="width:18px;height:18px;border-radius:50%;">${escapeHtml(String(coin.symbol || '').toUpperCase())}</span></td>
+          <td class="price">${formatMoney(Number(coin.current_price))}</td>
+          <td class="${change24 >= 0 ? 'up' : 'dn'}">${formatPct(change24)}</td>
+          <td class="${change7d >= 0 ? 'up' : 'dn'}">${formatPct(change7d)}</td>
+          <td>${spark}</td>
+          <td>${formatCompactNumber(Number(coin.market_cap))}</td>
+          <td>${formatCompactNumber(Number(coin.total_volume))}</td>
+          <td>${shimmerCell(48)}</td>
+          <td><span class="badge-neutral">AWAITING BINANCE</span></td>
+        </tr>`;
+    }).join('');
     window.YTTHeatmap?.renderCrypto(liveCryptoMarkets);
-    if (status && !scannerProRoot) status.innerHTML = '<span class="pulse-dot" style="background:#00c805"></span><span>COINGECKO — CONNECTED / BINANCE RSI AWAITING STREAM</span>';
+    if (status) status.innerHTML = '<span class="pulse-dot" style="background:#00c805"></span><span>COINGECKO — CONNECTED / BINANCE RSI AWAITING STREAM</span>';
     if (logEl) logEl.innerHTML += '<div>> CoinGecko market data loaded ✓</div>';
     setLoaderState('coingecko', 'LIVE', 'Crypto market data loaded. Connecting live stream.');
   } catch (error) {
     const message = describeNetworkError(error);
-    if (status && !scannerProRoot) status.innerHTML = '<span class="pulse-dot" style="background:#ff5000"></span><span>COINGECKO — SOURCE ERROR / RETRY ON SCAN</span>';
+    if (status) status.innerHTML = '<span class="pulse-dot" style="background:#ff5000"></span><span>COINGECKO — SOURCE ERROR / RETRY ON SCAN</span>';
     if (logEl) logEl.innerHTML += `<div>> CoinGecko error: ${escapeHtml(message)} — retrying on next scan</div>`;
     showApiNotice('CoinGecko unavailable', message);
     setLoaderState('coingecko', 'UNAVAILABLE', 'CoinGecko unavailable. The app will keep retry controls active.');
@@ -4678,10 +4688,6 @@ function renderSparkline(points) {
 function applyBinanceTick(symbol, price, changePct, quoteVolume) {
   if (!Number.isFinite(price)) return;
   const row = document.querySelector(`#crypto-body tr[data-symbol="${symbol}"]`);
-  if (row?.dataset?.scannerProRow === 'true') {
-    window.YTTCryptoScannerPro?.applyLiveTick?.(symbol, price, changePct, quoteVolume);
-    return;
-  }
   if (row?.children?.length) {
     row.children[2].textContent = formatMoney(price);
     row.children[3].textContent = formatPct(changePct);
@@ -4933,12 +4939,6 @@ function renderSourceHealth() {
     ['finnhub', 'Finnhub Stocks', 'Quote snapshots for stock scanners'],
     ['coingecko', 'CoinGecko Crypto', 'Crypto metadata, caps, volume, 24h/7d'],
     ['binance', 'Binance WS', 'Live crypto stream / RSI source'],
-    ['crypto-scanner-pro-ui', 'Crypto Scanner Pro UI', 'Scoped Crypto tab scanner layout'],
-    ['crypto-scanner-coingecko', 'CoinGecko Scanner Data', 'Crypto scanner rows and market snapshots'],
-    ['crypto-scanner-binance', 'Binance Live Feed', 'Public crypto price stream for scanner rows'],
-    ['crypto-scanner-tradingview', 'TradingView Crypto Chart', 'Crypto tab embedded TradingView chart'],
-    ['crypto-scanner-signals', 'Crypto Signal Classifier', 'Price-change scanner signal labels'],
-    ['crypto-scanner-category-heat', 'Crypto Category Heat', 'Computed category averages from scan rows'],
     ['aiheatmap-engine', 'AIheatmap Engine', 'Scoped stock/crypto heatmap scan module'],
     ['aiheatmap-technical', 'AIheatmap Technical Engine', 'RSI, MACD, VWAP, support/resistance calculations'],
     ['aiheatmap-tradingview', 'AIheatmap TradingView', 'Advanced chart with RSI/MACD studies'],
@@ -4976,12 +4976,6 @@ async function refreshSourceHealth() {
     finnhub: { tone: 'warn', label: 'CHECKING', detail: 'Checking quote route.' },
     coingecko: { tone: 'warn', label: 'CHECKING', detail: 'Checking public market endpoint.' },
     binance: sourceHealthState.binance || { tone: 'warn', label: 'PUBLIC WS', detail: 'Public Binance ticker stream connects from the hosted browser when available.' },
-    'crypto-scanner-pro-ui': sourceHealthState['crypto-scanner-pro-ui'] || { tone: 'warn', label: 'READY', detail: 'Crypto Scanner Pro UI mounts when the Crypto tab opens.' },
-    'crypto-scanner-coingecko': sourceHealthState['crypto-scanner-coingecko'] || { tone: 'warn', label: 'UNKNOWN', detail: 'Run Scan Now to load CoinGecko scanner rows.' },
-    'crypto-scanner-binance': sourceHealthState['crypto-scanner-binance'] || { tone: 'warn', label: 'PARTIAL', detail: 'Binance live badge becomes LIVE only when the WebSocket opens.' },
-    'crypto-scanner-tradingview': sourceHealthState['crypto-scanner-tradingview'] || { tone: window.TradingView ? 'up' : 'warn', label: window.TradingView ? 'CONNECTED' : 'UNAVAILABLE', detail: window.TradingView ? 'TradingView script is available.' : 'TradingView script is loading or blocked.' },
-    'crypto-scanner-signals': sourceHealthState['crypto-scanner-signals'] || { tone: 'warn', label: 'READY', detail: 'Signal classifier waits for scan rows.' },
-    'crypto-scanner-category-heat': sourceHealthState['crypto-scanner-category-heat'] || { tone: 'warn', label: 'UNAVAILABLE', detail: 'Category heat is computed after scanner rows load.' },
     perplexity: sourceHealthState.perplexity || {
       tone: localStorage.getItem('PERPLEXITY_ENABLED') === 'false' ? 'warn' : getApiProxyBase() ? 'warn' : 'dn',
       label: localStorage.getItem('PERPLEXITY_ENABLED') === 'false' ? 'DISABLED' : getApiProxyBase() ? 'CHECKING' : 'PROXY REQUIRED',
@@ -5050,16 +5044,15 @@ function appendAIMessage(role, html) {
 function buildAIContext() {
   const activeTab = document.body.dataset.activeTab || localStorage.getItem('activeTab') || 'dashboard';
   const aiHeatmapContext = window.YTTAIHeatmap?.getContext?.() || null;
-  const cryptoScannerProContext = window.YTTCryptoScannerPro?.getContext?.() || null;
   const selectedRow = activeTab === 'crypto'
-    ? document.querySelector('#crypto-body tr.is-selected')
+    ? document.querySelector('#crypto-body tr.is-selected, #crypto-production-heatmap .ytt-heatmap-cell.is-selected')
     : activeTab === 'stocks'
       ? document.querySelector('#stocks-body tr.is-selected, #stocks-production-heatmap .ytt-heatmap-cell.is-selected')
       : activeTab === 'aiheatmap'
         ? document.querySelector('#aiheatmap-grid .ytt-aiheatmap-cell.is-selected')
       : document.querySelector('.data-table tr.is-selected, .ytt-heatmap-cell.is-selected');
   const stockDeepDiveContext = window.YTTStockDeepDive?.getContext?.() || null;
-  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || selectedRow?.dataset?.aihSymbol || (activeTab === 'crypto' ? cryptoScannerProContext?.cryptoScannerProSelectedSymbol : '') || (activeTab === 'stocks' ? stockDeepDiveContext?.selectedDeepDiveSymbol : '') || (activeTab === 'aiheatmap' ? aiHeatmapContext?.selectedAIHeatmapSymbol : '') || '';
+  const selectedSymbol = selectedRow?.dataset?.symbol || selectedRow?.dataset?.heatmapSymbol || selectedRow?.dataset?.aihSymbol || (activeTab === 'stocks' ? stockDeepDiveContext?.selectedDeepDiveSymbol : '') || (activeTab === 'aiheatmap' ? aiHeatmapContext?.selectedAIHeatmapSymbol : '') || '';
   const selectedAssetType = activeTab === 'crypto'
     ? 'crypto'
     : activeTab === 'stocks'
@@ -5076,7 +5069,6 @@ function buildAIContext() {
     stockQuotes: liveStockQuotes,
     cryptoMarkets: liveCryptoMarkets,
     aiHeatmap: aiHeatmapContext,
-    cryptoScannerPro: cryptoScannerProContext,
     stockDeepDive: stockDeepDiveContext,
     externalSignals: JSON.parse(localStorage.getItem('YTT_EXTERNAL_SIGNALS') || '[]'),
     watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]'),
