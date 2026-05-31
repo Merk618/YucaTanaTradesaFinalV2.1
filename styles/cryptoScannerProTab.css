@@ -1,0 +1,684 @@
+.ytt-crypto-scanner-pro,
+.ytt-crypto-scanner-pro * {
+  box-sizing: border-box;
+}
+
+.ytt-crypto-scanner-pro {
+  --csp-bg: #070709;
+  --csp-panel: #101014;
+  --csp-panel-2: #151519;
+  --csp-gold: #ffd700;
+  --csp-gold-dim: #b8860b;
+  --csp-text: rgba(246,246,248,0.94);
+  --csp-muted: rgba(214,214,224,0.66);
+  --csp-line: rgba(255,215,0,0.18);
+  --csp-green: #00f5a0;
+  --csp-red: #ff4d5d;
+  position: relative;
+  display: grid;
+  gap: 18px;
+  min-height: 100%;
+  padding: 18px;
+  border: 1px solid rgba(255,215,0,0.16);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255,215,0,0.055), transparent 34%),
+    radial-gradient(circle at 82% 4%, rgba(0,245,160,0.06), transparent 24%),
+    var(--csp-bg);
+  color: var(--csp-text);
+  overflow: hidden;
+}
+
+.ytt-crypto-scanner-pro .yt-header,
+.ytt-crypto-scanner-pro .tv-chart-card,
+.ytt-crypto-scanner-pro .yt-card,
+.ytt-crypto-scanner-pro .live-price-badge,
+.ytt-crypto-scanner-pro .scan-modal {
+  border: 1px solid var(--csp-line);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), transparent),
+    rgba(16,16,20,0.98);
+  box-shadow: 0 18px 46px rgba(0,0,0,0.34);
+}
+
+.ytt-crypto-scanner-pro .yt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.ytt-crypto-scanner-pro .yt-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.ytt-crypto-scanner-pro .yt-logo-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,215,0,0.42);
+  background: linear-gradient(145deg, rgba(255,215,0,0.18), rgba(184,134,11,0.08));
+  color: var(--csp-gold);
+  font: 950 14px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .yt-kicker,
+.ytt-crypto-scanner-pro .yt-section-label,
+.ytt-crypto-scanner-pro .source-pill {
+  color: var(--csp-muted);
+  font: 900 9px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro h2,
+.ytt-crypto-scanner-pro h3,
+.ytt-crypto-scanner-pro p {
+  margin: 0;
+}
+
+.ytt-crypto-scanner-pro h2 {
+  color: var(--csp-gold);
+  font: 950 24px/1.05 var(--ui, system-ui, sans-serif);
+  letter-spacing: 0;
+}
+
+.ytt-crypto-scanner-pro h3 {
+  color: var(--csp-text);
+  font: 900 14px/1.2 var(--ui, system-ui, sans-serif);
+}
+
+.ytt-crypto-scanner-pro p {
+  color: var(--csp-muted);
+  font: 650 12px/1.55 var(--ui, system-ui, sans-serif);
+}
+
+.ytt-crypto-scanner-pro .yt-header-meta,
+.ytt-crypto-scanner-pro .yt-nav,
+.ytt-crypto-scanner-pro .timeframe-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ytt-crypto-scanner-pro .yt-clock,
+.ytt-crypto-scanner-pro .yt-live-badge {
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 999px;
+  background: rgba(7,7,9,0.86);
+  padding: 8px 11px;
+  color: rgba(245,245,247,0.9);
+  font: 900 10px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .yt-live-badge {
+  border-color: rgba(255,215,0,0.26);
+  color: var(--csp-gold);
+}
+
+.ytt-crypto-scanner-pro .yt-live-badge[data-tone="green"] {
+  border-color: rgba(0,245,160,0.38);
+  color: var(--csp-green);
+}
+
+.ytt-crypto-scanner-pro .yt-live-badge[data-tone="red"] {
+  border-color: rgba(255,77,93,0.38);
+  color: var(--csp-red);
+}
+
+.ytt-crypto-scanner-pro .yt-nav {
+  border: 1px solid rgba(255,215,0,0.12);
+  border-radius: 14px;
+  background: rgba(11,11,13,0.98);
+  padding: 8px;
+}
+
+.ytt-crypto-scanner-pro .yt-nav button,
+.ytt-crypto-scanner-pro .tf-btn,
+.ytt-crypto-scanner-pro .signal-filter,
+.ytt-crypto-scanner-pro .preset-grid button,
+.ytt-crypto-scanner-pro .symbol-cell,
+.ytt-crypto-scanner-pro .mover-row {
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(16,16,20,0.98);
+  color: rgba(245,245,247,0.82);
+  cursor: pointer;
+  font: 850 10px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .yt-nav button {
+  border-radius: 999px;
+  min-height: 32px;
+  padding: 0 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro .yt-nav button.is-active,
+.ytt-crypto-scanner-pro .tf-btn.is-active,
+.ytt-crypto-scanner-pro .signal-filter.is-active {
+  border-color: rgba(255,215,0,0.48);
+  background: rgba(255,215,0,0.12);
+  color: var(--csp-gold);
+}
+
+.ytt-crypto-scanner-pro .yt-nav button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.ytt-crypto-scanner-pro .tv-chart-card {
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.ytt-crypto-scanner-pro .tv-chart-head,
+.ytt-crypto-scanner-pro .yt-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ytt-crypto-scanner-pro .tf-btn {
+  min-width: 43px;
+  min-height: 30px;
+  border-radius: 10px;
+}
+
+.ytt-crypto-scanner-pro .tv-chart-wrap {
+  position: relative;
+  height: 520px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: #08080a;
+  overflow: hidden;
+}
+
+.ytt-crypto-scanner-pro .crypto-tv-empty,
+.ytt-crypto-scanner-pro .empty-module,
+.ytt-crypto-scanner-pro .empty-row td {
+  color: var(--csp-muted);
+  font: 700 12px var(--ui, system-ui, sans-serif);
+}
+
+.ytt-crypto-scanner-pro .crypto-tv-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+.ytt-crypto-scanner-pro .scanner-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.ytt-crypto-scanner-pro .scanner-panel,
+.ytt-crypto-scanner-pro .results-column,
+.ytt-crypto-scanner-pro .side-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.ytt-crypto-scanner-pro .side-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.ytt-crypto-scanner-pro .alerts-card {
+  grid-column: 1 / -1;
+}
+
+.ytt-crypto-scanner-pro .yt-card {
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.ytt-crypto-scanner-pro .scanner-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.ytt-crypto-scanner-pro .scan-now-btn {
+  min-height: 46px;
+  border: 1px solid rgba(255,215,0,0.58);
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, rgba(255,215,0,0.18), rgba(184,134,11,0.30), rgba(255,215,0,0.18)),
+    #12100a;
+  color: var(--csp-gold);
+  cursor: pointer;
+  font: 950 12px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: 0 14px 30px rgba(184,134,11,0.16);
+}
+
+.ytt-crypto-scanner-pro .field-row {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0;
+  color: var(--csp-muted);
+  font: 850 10px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro .field-row input,
+.ytt-crypto-scanner-pro .field-row select {
+  min-height: 38px;
+  border: 1px solid rgba(255,215,0,0.16);
+  border-radius: 12px;
+  background: rgba(8,8,10,0.92);
+  color: var(--csp-text);
+  padding: 0 11px;
+}
+
+.ytt-crypto-scanner-pro .field-row strong {
+  color: var(--csp-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ytt-crypto-scanner-pro .signal-buttons,
+.ytt-crypto-scanner-pro .preset-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ytt-crypto-scanner-pro .signal-filter,
+.ytt-crypto-scanner-pro .preset-grid button {
+  min-height: 32px;
+  border-radius: 999px;
+  padding: 0 10px;
+}
+
+.ytt-crypto-scanner-pro .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ytt-crypto-scanner-pro .stats-grid div {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  background: rgba(8,8,10,0.74);
+  padding: 9px;
+}
+
+.ytt-crypto-scanner-pro .stats-grid span {
+  display: block;
+  color: var(--csp-muted);
+  font: 800 8px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro .stats-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--csp-text);
+  font: 900 13px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.ytt-crypto-scanner-pro .results-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  background: rgba(8,8,10,0.72);
+}
+
+.ytt-crypto-scanner-pro .results-table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ytt-crypto-scanner-pro .results-table th,
+.ytt-crypto-scanner-pro .results-table td {
+  border-bottom: 1px solid rgba(255,255,255,0.065);
+  padding: 10px;
+  text-align: left;
+  vertical-align: middle;
+  font: 800 11px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .results-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(16,16,20,0.98);
+  color: rgba(255,215,0,0.84);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro .results-table tr {
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ytt-crypto-scanner-pro .results-table tr:hover,
+.ytt-crypto-scanner-pro .results-table tr.is-selected {
+  background: rgba(255,215,0,0.07);
+  box-shadow: inset 3px 0 0 rgba(255,215,0,0.72);
+}
+
+.ytt-crypto-scanner-pro .symbol-cell {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+}
+
+.ytt-crypto-scanner-pro .symbol-cell strong {
+  color: var(--csp-text);
+  font: 950 13px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .symbol-cell span,
+.ytt-crypto-scanner-pro .results-table small {
+  color: var(--csp-muted);
+  font: 750 9px var(--ui, system-ui, sans-serif);
+}
+
+.ytt-crypto-scanner-pro .up {
+  color: var(--csp-green);
+}
+
+.ytt-crypto-scanner-pro .down {
+  color: var(--csp-red);
+}
+
+.ytt-crypto-scanner-pro .neutral {
+  color: var(--csp-muted);
+}
+
+.ytt-crypto-scanner-pro .signal-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border: 1px solid rgba(255,215,0,0.22);
+  border-radius: 999px;
+  padding: 0 8px;
+  color: var(--csp-gold);
+  background: rgba(255,215,0,0.08);
+}
+
+.ytt-crypto-scanner-pro .signal-pill.hyper,
+.ytt-crypto-scanner-pro .signal-pill.surge,
+.ytt-crypto-scanner-pro .signal-pill.breakout,
+.ytt-crypto-scanner-pro .signal-pill.momentum {
+  border-color: rgba(0,245,160,0.25);
+  color: var(--csp-green);
+  background: rgba(0,245,160,0.07);
+}
+
+.ytt-crypto-scanner-pro .signal-pill.overbought,
+.ytt-crypto-scanner-pro .signal-pill.reversal {
+  border-color: rgba(255,77,93,0.25);
+  color: var(--csp-red);
+  background: rgba(255,77,93,0.07);
+}
+
+.ytt-crypto-scanner-pro .sparkline {
+  width: 116px;
+  height: 34px;
+}
+
+.ytt-crypto-scanner-pro .sparkline-empty {
+  color: var(--csp-muted);
+  font: 800 10px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .category-heat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.ytt-crypto-scanner-pro .heat-card {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  background: rgba(8,8,10,0.78);
+  padding: 11px;
+}
+
+.ytt-crypto-scanner-pro .heat-card.up {
+  border-color: rgba(0,245,160,0.18);
+  background: linear-gradient(145deg, rgba(0,245,160,0.10), rgba(8,8,10,0.78));
+}
+
+.ytt-crypto-scanner-pro .heat-card.down {
+  border-color: rgba(255,77,93,0.18);
+  background: linear-gradient(145deg, rgba(255,77,93,0.10), rgba(8,8,10,0.78));
+}
+
+.ytt-crypto-scanner-pro .heat-card span,
+.ytt-crypto-scanner-pro .heat-card small {
+  display: block;
+  color: var(--csp-muted);
+  font: 800 9px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .heat-card strong {
+  display: block;
+  margin: 7px 0 3px;
+  color: var(--csp-text);
+  font: 950 17px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.ytt-crypto-scanner-pro .movers-list,
+.ytt-crypto-scanner-pro .alerts-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ytt-crypto-scanner-pro .mover-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  border-radius: 13px;
+  padding: 10px;
+  text-align: left;
+}
+
+.ytt-crypto-scanner-pro .mover-row strong,
+.ytt-crypto-scanner-pro .mover-row em {
+  display: block;
+}
+
+.ytt-crypto-scanner-pro .mover-row strong {
+  color: var(--csp-text);
+}
+
+.ytt-crypto-scanner-pro .mover-row em,
+.ytt-crypto-scanner-pro .mover-row i {
+  color: var(--csp-muted);
+  font-style: normal;
+}
+
+.ytt-crypto-scanner-pro .alert-row {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  background: rgba(8,8,10,0.76);
+  padding: 11px;
+}
+
+.ytt-crypto-scanner-pro .alert-row span {
+  color: var(--csp-gold);
+  font: 900 9px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.12em;
+}
+
+.ytt-crypto-scanner-pro .alert-row strong {
+  margin-left: 8px;
+  color: var(--csp-text);
+  font: 950 11px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .alert-row p {
+  margin-top: 6px;
+}
+
+.ytt-crypto-scanner-pro .alert-row small {
+  display: block;
+  margin-top: 7px;
+  color: var(--csp-muted);
+  font: 800 9px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.ytt-crypto-scanner-pro .live-price-badge {
+  position: sticky;
+  bottom: 10px;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 9px 13px;
+  color: var(--csp-gold);
+  font: 900 10px var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ytt-crypto-scanner-pro .status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--csp-gold);
+  box-shadow: 0 0 12px rgba(255,215,0,0.62);
+}
+
+.ytt-crypto-scanner-pro .live-price-badge[data-tone="green"] {
+  color: var(--csp-green);
+}
+
+.ytt-crypto-scanner-pro .live-price-badge[data-tone="green"] .status-dot {
+  background: var(--csp-green);
+  box-shadow: 0 0 12px rgba(0,245,160,0.62);
+}
+
+.ytt-crypto-scanner-pro .live-price-badge[data-tone="red"] {
+  color: var(--csp-red);
+}
+
+.ytt-crypto-scanner-pro .live-price-badge[data-tone="red"] .status-dot {
+  background: var(--csp-red);
+  box-shadow: 0 0 12px rgba(255,77,93,0.62);
+}
+
+.ytt-crypto-scanner-pro .scan-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.62);
+}
+
+.ytt-crypto-scanner-pro .scan-overlay[hidden] {
+  display: none;
+}
+
+.ytt-crypto-scanner-pro .scan-modal {
+  width: min(420px, calc(100% - 32px));
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.ytt-crypto-scanner-pro .scan-modal h3 {
+  margin: 6px 0;
+  color: var(--csp-gold);
+}
+
+.ytt-crypto-scanner-pro .scan-progress {
+  height: 9px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.ytt-crypto-scanner-pro .scan-progress span {
+  display: block;
+  width: 4%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--csp-gold-dim), var(--csp-gold), var(--csp-green));
+  transition: width 0.25s ease;
+}
+
+.ytt-crypto-scanner-pro .tick-up {
+  animation: cspTickUp 0.65s ease;
+}
+
+.ytt-crypto-scanner-pro .tick-down {
+  animation: cspTickDown 0.65s ease;
+}
+
+@keyframes cspTickUp {
+  0% { background: rgba(0,245,160,0.18); }
+  100% { background: transparent; }
+}
+
+@keyframes cspTickDown {
+  0% { background: rgba(255,77,93,0.18); }
+  100% { background: transparent; }
+}
+
+@media (max-width: 1120px) {
+  .ytt-crypto-scanner-pro .scanner-layout,
+  .ytt-crypto-scanner-pro .side-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .ytt-crypto-scanner-pro {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .ytt-crypto-scanner-pro .yt-header,
+  .ytt-crypto-scanner-pro .tv-chart-head,
+  .ytt-crypto-scanner-pro .yt-card-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ytt-crypto-scanner-pro .tv-chart-wrap {
+    height: 420px;
+  }
+
+  .ytt-crypto-scanner-pro .category-heat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ytt-crypto-scanner-pro *,
+  .ytt-crypto-scanner-pro *::before,
+  .ytt-crypto-scanner-pro *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

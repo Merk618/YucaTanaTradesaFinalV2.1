@@ -62,6 +62,8 @@ const DEFAULT_PROMPT_CHIPS = [
   "Find strongest crypto",
   "Risk review",
   "Explain data quality",
+];
+const EXTERNAL_SIGNAL_PROMPT_CHIPS = [
   "Review Prosperio plays",
   "Compare Prosperio vs YucaTana score",
 ];
@@ -271,6 +273,27 @@ function currentSettings() {
   };
 }
 
+function externalSignalsReady() {
+  try {
+    const signalSettings = externalSignalProvider.settings().prosperio;
+    const storedSignals = externalSignalProvider.listSignals();
+    return Boolean(signalSettings.enabled && storedSignals.length);
+  } catch {
+    return false;
+  }
+}
+
+function visibleCommandModeChips() {
+  const showExternal = externalSignalsReady();
+  return COMMAND_MODE_CHIPS.filter(([value]) => value !== "external_signals" || showExternal);
+}
+
+function visiblePromptChips() {
+  return externalSignalsReady()
+    ? [...DEFAULT_PROMPT_CHIPS, ...EXTERNAL_SIGNAL_PROMPT_CHIPS]
+    : DEFAULT_PROMPT_CHIPS;
+}
+
 function modeOptions(selected = DEFAULT_PERPLEXITY_MODE) {
   const normalized = normalizeMode(selected);
   return ASSISTANT_MODES.map((mode) =>
@@ -414,10 +437,10 @@ function panelTemplate(hostId, contextName) {
   const providerStatus = providerStatusLabel(settings.provider);
   const isFloatingAssistant = contextName === "ai-lab";
   if (!isFloatingAssistant) return compactPanelTemplate(hostId, contextName, settings, status, providerStatus);
-  const modeChips = COMMAND_MODE_CHIPS.map(([value, label]) =>
+  const modeChips = visibleCommandModeChips().map(([value, label]) =>
     `<button class="ytt-ai-chip${value === settings.mode ? " is-active" : ""}" type="button" data-ytt-mode-chip="${escapeHtml(value)}">${escapeHtml(label)}</button>`
   ).join("");
-  const promptChips = promptChipHtml(DEFAULT_PROMPT_CHIPS);
+  const promptChips = promptChipHtml(visiblePromptChips());
   return `<section class="ytt-perplexity-panel ytt-ai-command-center" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
