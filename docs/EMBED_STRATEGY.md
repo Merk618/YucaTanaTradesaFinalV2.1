@@ -17,6 +17,15 @@ Official widgets should be used only where they add real value and must remain l
 - Charts: TradingView Advanced Chart plus Technical Analysis widget.
 - News/Macro: TradingView Top Stories or Economic Calendar, only if loaded after the tab is visible.
 
+## Loader Direction
+
+If future TradingView widgets are expanded, use a local loader module such as `services/widgets/tradingViewWidgetLoader.js` or an equivalent app-local script. The loader should:
+
+- create widgets only after the owning tab/section is visible
+- reuse existing TradingView script availability
+- render command-style loading/fallback frames
+- avoid replacing custom Crypto Scanner Pro, Stock Deep-Dive, or YucaTana AI surfaces
+
 ## Rules
 
 - Lazy-load only when tab/section is visible.

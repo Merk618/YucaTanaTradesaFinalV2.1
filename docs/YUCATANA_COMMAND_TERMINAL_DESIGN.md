@@ -33,6 +33,22 @@ These tokens are applied to post-login app shell surfaces and do not intentional
 - Main workspace
 - YucaTana AI command assistant
 
+## Tab Environments
+
+Each non-protected tab receives a subtle scoped background identity:
+
+- News: macro pulse grid and headline-band sweep
+- Option Flows: options-chain grid and delta/gamma-inspired glow
+- Stocks: graphite/gold sector-map texture
+- Crypto: digital asset node/liquidity texture
+- AIheatmap: tile field and radar-like heat glow
+- Crypto Hunter: bot/risk-gate scanline environment
+- Portfolio: account-sleeve stability grid
+- Charts: technical chart grid and signal-line texture
+- Settings/Admin: vault/security grid
+
+Dashboard and Meridian are excluded from these environment layers.
+
 ## Command Language
 
 Non-protected tabs use command headers such as:
@@ -43,6 +59,10 @@ Non-protected tabs use command headers such as:
 - `> OPTIONS FLOW CONSOLE READY`
 
 Each command header includes read-only / manual / provider state metadata. These labels are UI organization only and do not alter provider behavior.
+
+## Motion
+
+The command terminal uses CSS transitions first, with a small vanilla `IntersectionObserver` helper for reveal-on-scroll. It does not add GSAP, Lenis, Lottie, Three.js, Spline, video, or blocking external animation scripts.
 
 ## Protected Areas
 

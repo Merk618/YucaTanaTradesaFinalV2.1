@@ -1,0 +1,222 @@
+/* YucaTana Cyber-Fintech Command OS
+   Post-login visual shell only. Sign-in, Dashboard, and Meridian surfaces are excluded. */
+
+body.ytt-signed-in {
+  --ytt-bg-base: #050705;
+  --ytt-bg-command: #07100c;
+  --ytt-bg-panel: #0d120e;
+  --ytt-bg-panel-elevated: #141a12;
+  --ytt-bg-panel-hot: #1a180d;
+  --ytt-gold: #f5d76e;
+  --ytt-gold-2: #d8b84c;
+  --ytt-gold-soft: rgba(245, 215, 110, 0.18);
+  --ytt-gold-edge: rgba(245, 215, 110, 0.44);
+  --ytt-emerald: #00e5a0;
+  --ytt-emerald-soft: rgba(0, 229, 160, 0.12);
+  --ytt-emerald-edge: rgba(0, 229, 160, 0.28);
+  --ytt-red: #ff4d6d;
+  --ytt-red-soft: rgba(255, 77, 109, 0.12);
+  --ytt-text-main: rgba(248, 242, 220, 0.96);
+  --ytt-text-soft: rgba(225, 218, 190, 0.76);
+  --ytt-text-muted: rgba(185, 178, 150, 0.58);
+  --ytt-border-soft: rgba(245, 215, 110, 0.16);
+  --ytt-border-strong: rgba(245, 215, 110, 0.42);
+}
+
+body.ytt-signed-in .content {
+  scrollbar-color: rgba(245, 215, 110, 0.46) rgba(7, 16, 12, 0.72);
+  scrollbar-width: thin;
+}
+
+body.ytt-signed-in .content::-webkit-scrollbar,
+body.ytt-signed-in .tab-content::-webkit-scrollbar,
+body.ytt-signed-in .ai-messages::-webkit-scrollbar,
+body.ytt-signed-in .ytt-ai-response::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body.ytt-signed-in .content::-webkit-scrollbar-track,
+body.ytt-signed-in .tab-content::-webkit-scrollbar-track,
+body.ytt-signed-in .ai-messages::-webkit-scrollbar-track,
+body.ytt-signed-in .ytt-ai-response::-webkit-scrollbar-track {
+  background: rgba(7, 16, 12, 0.72);
+}
+
+body.ytt-signed-in .content::-webkit-scrollbar-thumb,
+body.ytt-signed-in .tab-content::-webkit-scrollbar-thumb,
+body.ytt-signed-in .ai-messages::-webkit-scrollbar-thumb,
+body.ytt-signed-in .ytt-ai-response::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(7, 16, 12, 0.72);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--ytt-gold), rgba(0, 229, 160, 0.62));
+}
+
+body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+  border-radius: 12px;
+  background-color: rgba(7, 16, 12, 0.18);
+  background-repeat: no-repeat, repeat, repeat, no-repeat;
+  background-size: auto, 44px 44px, 44px 44px, auto;
+  background-position: 0 0, 0 0, 0 0, 50% 50%;
+  animation: yttTabEnvDrift 18s linear infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian).is-entering {
+  animation: yttTabEnter 220ms var(--ytt-ease-premium) both, yttTabEnvDrift 18s linear infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian).is-leaving {
+  opacity: 0.65;
+  transform: translateY(4px);
+  transition: opacity 140ms ease, transform 140ms var(--ytt-ease-premium);
+}
+
+body.ytt-signed-in #tab-news {
+  background-image:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.065), transparent 35%, rgba(255, 255, 255, 0.026) 50%, transparent 70%),
+    linear-gradient(rgba(245, 215, 110, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 215, 110, 0.018) 1px, transparent 1px),
+    radial-gradient(circle at 76% 16%, rgba(245, 215, 110, 0.12), transparent 32%);
+}
+
+body.ytt-signed-in #tab-options {
+  background-image:
+    radial-gradient(circle at 82% 12%, rgba(192, 132, 252, 0.10), transparent 30%),
+    linear-gradient(rgba(192, 132, 252, 0.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 215, 110, 0.020) 1px, transparent 1px),
+    linear-gradient(135deg, transparent 42%, rgba(245, 215, 110, 0.08), transparent 58%);
+}
+
+body.ytt-signed-in #tab-stocks {
+  background-image:
+    radial-gradient(circle at 18% 10%, rgba(0, 229, 160, 0.08), transparent 30%),
+    linear-gradient(rgba(245, 215, 110, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 160, 0.018) 1px, transparent 1px),
+    repeating-linear-gradient(90deg, transparent 0 68px, rgba(245, 215, 110, 0.028) 69px, transparent 70px);
+}
+
+body.ytt-signed-in #tab-crypto {
+  background-image:
+    radial-gradient(circle at 82% 22%, rgba(0, 229, 160, 0.11), transparent 28%),
+    radial-gradient(circle, rgba(245, 215, 110, 0.10) 1px, transparent 1.5px),
+    linear-gradient(90deg, rgba(0, 229, 160, 0.018) 1px, transparent 1px),
+    linear-gradient(125deg, transparent 30%, rgba(0, 229, 160, 0.07), transparent 62%);
+}
+
+body.ytt-signed-in #tab-aiheatmap {
+  background-image:
+    radial-gradient(circle at 50% 12%, rgba(245, 215, 110, 0.11), transparent 28%),
+    linear-gradient(rgba(245, 215, 110, 0.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 77, 109, 0.020) 1px, transparent 1px),
+    conic-gradient(from 90deg at 74% 32%, transparent, rgba(0, 229, 160, 0.08), transparent 36%);
+}
+
+body.ytt-signed-in #tab-crypto-hunter {
+  background-image:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.08), transparent 30%, rgba(0, 229, 160, 0.035)),
+    linear-gradient(rgba(245, 215, 110, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 160, 0.026) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 54px, rgba(245, 215, 110, 0.035) 55px, transparent 56px);
+}
+
+body.ytt-signed-in #tab-portfolio {
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(122, 162, 255, 0.10), transparent 28%),
+    linear-gradient(rgba(245, 215, 110, 0.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 162, 255, 0.020) 1px, transparent 1px),
+    radial-gradient(circle at 80% 76%, rgba(245, 215, 110, 0.08), transparent 30%);
+}
+
+body.ytt-signed-in #tab-charts {
+  background-image:
+    linear-gradient(105deg, transparent 18%, rgba(0, 229, 160, 0.07), transparent 34%, rgba(245, 215, 110, 0.06), transparent 62%),
+    linear-gradient(rgba(245, 215, 110, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 160, 0.020) 1px, transparent 1px),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(245, 215, 110, 0.030) 35px, transparent 36px);
+}
+
+body.ytt-signed-in #tab-settings {
+  background-image:
+    radial-gradient(circle at 82% 14%, rgba(122, 162, 255, 0.10), transparent 28%),
+    linear-gradient(rgba(245, 215, 110, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 162, 255, 0.020) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 42px, rgba(245, 215, 110, 0.026) 43px, transparent 44px);
+}
+
+body.ytt-signed-in #tab-aiheatmap[data-aiheatmap-mode="stocks"] {
+  background-image:
+    radial-gradient(circle at 28% 16%, rgba(0, 229, 160, 0.10), transparent 30%),
+    linear-gradient(rgba(245, 215, 110, 0.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 160, 0.020) 1px, transparent 1px),
+    conic-gradient(from 120deg at 72% 34%, transparent, rgba(245, 215, 110, 0.08), transparent 38%);
+}
+
+body.ytt-signed-in .ytt-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 420ms var(--ytt-ease-premium), transform 420ms var(--ytt-ease-premium), border-color 220ms ease, box-shadow 220ms ease;
+}
+
+body.ytt-signed-in .ytt-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.ytt-signed-in :is(.panel, .detail-card, .kpi-card, .vault-provider-section, .market-mini-card):not(#tab-dashboard *):not(#tab-meridian *) {
+  position: relative;
+}
+
+body.ytt-signed-in :is(.panel, .detail-card, .kpi-card, .vault-provider-section, .market-mini-card):not(#tab-dashboard *):not(#tab-meridian *):focus-within {
+  border-color: var(--ytt-border-strong);
+  box-shadow: 0 0 0 1px rgba(245, 215, 110, 0.18), 0 0 32px rgba(245, 215, 110, 0.10);
+}
+
+body.ytt-signed-in :is(.field, .option-search, .ai-input, textarea, select):not(.auth-input):focus {
+  outline: 1px solid rgba(245, 215, 110, 0.44);
+  outline-offset: 2px;
+  box-shadow: inset 0 -1px 0 var(--ytt-gold), 0 0 24px rgba(245, 215, 110, 0.10);
+}
+
+body.ytt-signed-in .data-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(0, 229, 160, 0.075), rgba(245, 215, 110, 0.040));
+  color: var(--ytt-text-main);
+}
+
+body.ytt-signed-in .status-chip.green,
+body.ytt-signed-in #keys-saved-badge {
+  box-shadow: 0 0 18px rgba(0, 229, 160, 0.10);
+}
+
+body.ytt-signed-in #keys-saved-badge:not(:empty) {
+  animation: yttConfirmPulse 1.8s var(--ytt-ease-premium) both;
+}
+
+body.ytt-signed-in .ytt-heatmap-cell:hover,
+body.ytt-signed-in .ytt-aiheatmap-cell:hover {
+  box-shadow: 0 0 0 1px var(--ytt-border-strong), 0 0 22px rgba(245, 215, 110, 0.16);
+  transform: translateY(-1px);
+}
+
+@keyframes yttTabEnvDrift {
+  0% { background-position: 0 0, 0 0, 0 0, 50% 50%; }
+  100% { background-position: 36px 0, 0 44px, 44px 0, 50% 50%; }
+}
+
+@keyframes yttTabEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes yttConfirmPulse {
+  0% { transform: scale(0.98); box-shadow: 0 0 0 rgba(0, 229, 160, 0); }
+  35% { transform: scale(1.02); box-shadow: 0 0 28px rgba(0, 229, 160, 0.20); }
+  100% { transform: scale(1); box-shadow: 0 0 12px rgba(0, 229, 160, 0.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.ytt-signed-in :is(.main, .main *):not(#tab-dashboard *):not(#tab-meridian *) {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

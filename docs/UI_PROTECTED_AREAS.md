@@ -27,6 +27,8 @@ Status:
 - Dashboard animation content remains isolated.
 - New tab entrance animation is explicitly excluded for `#tab-dashboard`.
 - Command-terminal panel styling excludes `#tab-dashboard` internals.
+- Tab-specific background environments exclude `#tab-dashboard`.
+- Reveal-on-scroll motion excludes `#tab-dashboard`.
 
 ## Meridian Animations
 
@@ -40,6 +42,8 @@ Status:
 - Meridian animation content remains isolated.
 - New tab entrance animation is explicitly excluded for `#tab-meridian`.
 - Command-terminal panel styling excludes `#tab-meridian` internals.
+- Tab-specific background environments exclude `#tab-meridian`.
+- Reveal-on-scroll motion excludes `#tab-meridian`.
 
 ## Scope Boundary
 
