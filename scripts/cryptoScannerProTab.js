@@ -60,7 +60,8 @@ function changeClass(value) {
 }
 
 function root() {
-  return document.querySelector("#tab-crypto .ytt-crypto-scanner-pro");
+  if (typeof document === "undefined") return null;
+  return document.getElementById("crypto-scanner-pro-root") || document.querySelector("#tab-crypto .ytt-crypto-scanner-pro");
 }
 
 function proxyBase() {
@@ -506,11 +507,13 @@ export function getContext() {
   };
 }
 
-export function ensureReady() {
+export function mountCryptoScannerProTab() {
   const host = root();
   if (!host) return;
-  if (!state.mounted) {
+  host.classList.add("ytt-crypto-scanner-pro");
+  if (!state.mounted && host.dataset.mounted !== "true") {
     host.innerHTML = shellHtml();
+    host.dataset.mounted = "true";
     bindEvents();
     renderEmpty();
     startClock();
@@ -527,4 +530,25 @@ export function ensureReady() {
   }, 250);
 }
 
-window.YTTCryptoScannerPro = { ensureReady, scanNow, getContext, applyLiveTick };
+export function ensureReady() {
+  mountCryptoScannerProTab();
+}
+
+function mountWhenDomReady() {
+  mountCryptoScannerProTab();
+}
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountWhenDomReady, { once: true });
+  } else {
+    mountWhenDomReady();
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("ytt:tab-change", (event) => {
+    if (event?.detail?.tabId === "crypto") mountCryptoScannerProTab();
+  });
+  window.YTTCryptoScannerPro = { ensureReady, mountCryptoScannerProTab, scanNow, getContext, applyLiveTick };
+}

@@ -14,11 +14,18 @@ assert.ok(tabStart > -1, "Crypto tab should exist");
 assert.ok(indexHtml.includes("styles/cryptoScannerProTab.css"), "Crypto Scanner Pro stylesheet should be linked");
 assert.ok(indexHtml.includes("scripts/cryptoScannerProTab.js"), "Crypto Scanner Pro script should be linked");
 assert.ok(indexHtml.includes("<script async src=\"https://s3.tradingview.com/tv.js\"></script>"), "TradingView script should be async");
+assert.ok(cryptoTabHtml.includes('id="crypto-scanner-pro-root"'), "Crypto Scanner Pro mount root should render in Crypto tab");
 assert.ok(cryptoTabHtml.includes("ytt-crypto-scanner-pro"), "Crypto Scanner Pro root should render in Crypto tab");
+assert.ok(!cryptoTabHtml.includes("Crypto Scanner Pro shell is ready to mount."), "Legacy placeholder text should not remain in the Crypto tab");
 assert.ok(!cryptoTabHtml.includes("crypto-grid"), "Old crypto dashboard grid should not remain visible");
 assert.ok(!cryptoTabHtml.includes("crypto-production-heatmap"), "Old crypto heatmap should not remain visible");
 assert.ok(!cryptoTabHtml.includes("crypto-production-tv"), "Old crypto chart block should not remain visible");
-assert.ok(!/document\.addEventListener\(['"]DOMContentLoaded/.test(cryptoScript), "Crypto scanner module must not auto-run on DOMContentLoaded");
+assert.ok(cryptoScript.includes("export function mountCryptoScannerProTab"), "Crypto scanner should expose a robust mount function");
+assert.ok(/document\.addEventListener\(\"DOMContentLoaded\"/.test(cryptoScript), "Crypto scanner shell should mount on DOMContentLoaded");
+assert.ok(cryptoScript.includes('host.dataset.mounted = "true"'), "Crypto scanner mount should mark the root as mounted");
+assert.ok(cryptoScript.includes('host.dataset.mounted !== "true"'), "Crypto scanner mount should be duplicate-safe");
+assert.ok(cryptoScript.includes('window.addEventListener("ytt:tab-change"'), "Crypto scanner should listen for tab activation events");
+assert.ok(indexHtml.includes("ytt:tab-change"), "Tab system should publish activation events");
 assert.ok(!/ensureReady\(\{?\s*autoScan/.test(cryptoScript), "Crypto scanner must not auto scan");
 assert.ok(!/initBinanceStream\(\);/.test(indexHtml), "Binance stream should not start on page load");
 assert.ok(!/loadCoinGeckoMarkets\(\);/.test(indexHtml), "CoinGecko should not load from seedSkeletonTables on page load");
@@ -28,6 +35,11 @@ assert.ok(indexHtml.includes("stock-deep-dive-section"), "Stock Deep-Dive should
 for (const needle of ["YUCATANATRADES", "crypto-scan-now", "crypto-pro-tv-widget", "crypto-results-table", "crypto-body", "crypto-category-heat", "crypto-top-movers", "crypto-signal-alerts", "PRICES: BINANCE LIVE", "cryptoScannerProRows"]) {
   assert.ok(cryptoScript.includes(needle), `${needle} should be implemented`);
 }
+
+const mountBody = cryptoScript.slice(cryptoScript.indexOf("export function mountCryptoScannerProTab"), cryptoScript.indexOf("export function ensureReady"));
+assert.ok(!mountBody.includes("runCryptoScannerProScan"), "Mount must not fetch CoinGecko scanner data");
+assert.ok(!mountBody.includes("new WebSocket"), "Mount must not start Binance WebSocket");
+assert.ok(!mountBody.includes("scanNow("), "Mount must not trigger Scan Now");
 
 assert.ok(cryptoStyle.includes(".ytt-crypto-scanner-pro .results-table"), "Crypto scanner CSS should be scoped");
 for (const cssNeedle of ["--bg-primary: #000", "--gold-bright: #f5c842", "--gold-border: rgba(245,200,66,.55)", "Orbitron"]) {
