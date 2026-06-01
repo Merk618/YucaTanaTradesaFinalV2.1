@@ -33,6 +33,10 @@
       --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
       --ui: "Rajdhani", Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
       --serif: "Cormorant Garamond", Georgia, serif;
+      --ytt-ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+      --ytt-motion-fast: 140ms;
+      --ytt-motion-base: 220ms;
+      --ytt-motion-slow: 320ms;
     }
 
     * { box-sizing: border-box; }
@@ -2970,6 +2974,646 @@
       .market-box { min-width: 122px; font-size: 9px; }
       .nav-btn { height: 38px; padding: 0 12px; font-size: 10px; }
     }
+
+    /* Phase polish: premium left navigation rail and terminal hierarchy */
+    body {
+      --ytt-rail-expanded: 244px;
+      --ytt-rail-collapsed: 76px;
+      --ytt-topbar-height: 76px;
+      --ytt-ribbon-height: 46px;
+      display: block;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 8%, rgba(245,217,120,0.10), transparent 28%),
+        linear-gradient(135deg, #030508 0%, #08090c 48%, #050402 100%);
+    }
+
+    body.nav-collapsed {
+      --ytt-rail-expanded: var(--ytt-rail-collapsed);
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--ytt-rail-expanded);
+      height: 100vh;
+      z-index: 80;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "brand"
+        "nav"
+        "footer";
+      gap: 16px;
+      padding: 18px 12px;
+      overflow: hidden;
+      border-right: 1px solid rgba(245,217,120,0.18);
+      border-bottom: 0;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.07), transparent 18%, rgba(245,217,120,0.045) 56%, transparent 84%),
+        radial-gradient(circle at 0% 12%, rgba(245,217,120,0.18), transparent 34%),
+        linear-gradient(180deg, rgba(5,7,10,0.98), rgba(8,8,9,0.94) 58%, rgba(6,4,2,0.98));
+      -webkit-backdrop-filter: blur(24px) saturate(1.18);
+      backdrop-filter: blur(24px) saturate(1.18);
+      box-shadow: 18px 0 58px rgba(0,0,0,0.38);
+      transition: width var(--ytt-motion-slow) var(--ytt-ease-premium), transform var(--ytt-motion-slow) var(--ytt-ease-premium), box-shadow var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    .sidebar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, transparent 0%, rgba(245,217,120,0.11) 48%, transparent 68%);
+      transform: translateX(-112%);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .sidebar:hover::before {
+      animation: glassSweep 1.8s var(--ytt-ease-premium) both;
+    }
+
+    .sidebar::after {
+      left: auto;
+      right: -1px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      height: auto;
+      background: linear-gradient(180deg, transparent, rgba(245,217,120,0.72), rgba(0,200,5,0.22), transparent);
+      animation: none;
+    }
+
+    .rail-brand {
+      grid-area: brand;
+      position: relative;
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 34px;
+      align-items: center;
+      gap: 10px;
+      min-height: 58px;
+      padding: 8px;
+      border: 1px solid rgba(245,217,120,0.14);
+      background: rgba(255,255,255,0.028);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .rail-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(245,217,120,0.34);
+      color: var(--gold-bright);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(245,217,120,0.24), transparent 58%),
+        rgba(9,10,12,0.86);
+      font: 800 14px var(--mono);
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 24px rgba(212,175,55,0.12);
+    }
+
+    .rail-wordmark {
+      min-width: 0;
+      overflow: hidden;
+      transition: opacity var(--ytt-motion-base) var(--ytt-ease-premium), transform var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    .rail-wordmark .logo {
+      display: block;
+      font: 800 19px var(--ui);
+      letter-spacing: 0.11em;
+      color: var(--gold-bright);
+      white-space: nowrap;
+    }
+
+    .rail-wordmark .subtitle {
+      display: block;
+      margin-top: 0;
+      color: rgba(245,245,240,0.62);
+      font: 700 10px var(--mono);
+      letter-spacing: 0.32em;
+      white-space: nowrap;
+    }
+
+    .nav-collapse-toggle {
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(245,217,120,0.22);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.035);
+      color: var(--gold-bright);
+      cursor: pointer;
+      transition: transform var(--ytt-motion-base) var(--ytt-ease-premium), border-color var(--ytt-motion-fast) ease, background var(--ytt-motion-fast) ease;
+    }
+
+    .nav-collapse-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(245,217,120,0.58);
+      background: rgba(245,217,120,0.08);
+    }
+
+    .nav {
+      grid-area: nav;
+      width: 100%;
+      min-width: 0;
+      display: grid;
+      align-content: start;
+      gap: 7px;
+      padding: 0;
+      overflow: visible auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(245,217,120,0.28) transparent;
+    }
+
+    .nav-btn {
+      --tab-accent: #D4AF37;
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      height: 44px;
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      align-items: center;
+      justify-content: start;
+      gap: 10px;
+      padding: 0 12px;
+      clip-path: none;
+      border: 1px solid transparent;
+      border-left: 2px solid transparent;
+      border-radius: 8px;
+      color: rgba(230,236,246,0.66);
+      text-align: left;
+      overflow: hidden;
+      background: rgba(255,255,255,0.018);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
+      transition: transform var(--ytt-motion-base) var(--ytt-ease-premium), color var(--ytt-motion-fast) ease, border-color var(--ytt-motion-fast) ease, background var(--ytt-motion-base) var(--ytt-ease-premium), box-shadow var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    .nav-btn::before {
+      inset: 0;
+      width: auto;
+      height: auto;
+      border-radius: inherit;
+      background: linear-gradient(110deg, transparent 0%, color-mix(in srgb, var(--tab-accent) 18%, transparent) 42%, rgba(255,255,255,0.09) 50%, transparent 66%);
+      opacity: 0;
+      transform: translateX(-110%);
+      transition: opacity var(--ytt-motion-fast) ease;
+      pointer-events: none;
+    }
+
+    .nav-btn::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: var(--tab-accent);
+      opacity: 0;
+      transform: scaleY(0.3);
+      transition: opacity var(--ytt-motion-fast) ease, transform var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    .nav-icon {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 7px;
+      color: color-mix(in srgb, var(--tab-accent) 72%, #fff);
+      background: rgba(0,0,0,0.22);
+      font: 800 15px var(--mono);
+      transition: transform var(--ytt-motion-base) var(--ytt-ease-premium), border-color var(--ytt-motion-fast) ease, background var(--ytt-motion-fast) ease;
+    }
+
+    .nav-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font: 800 12px var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: opacity var(--ytt-motion-base) var(--ytt-ease-premium), transform var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    .nav-btn:hover {
+      transform: translateX(3px);
+      color: #fff7d7;
+      border-color: color-mix(in srgb, var(--tab-accent) 24%, transparent);
+      background:
+        radial-gradient(circle at 0% 50%, color-mix(in srgb, var(--tab-accent) 16%, transparent), transparent 62%),
+        rgba(255,255,255,0.036);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.20), inset 0 0 0 1px rgba(255,255,255,0.035);
+    }
+
+    .nav-btn:hover::before {
+      opacity: 1;
+      animation: glassGlint 0.78s var(--ytt-ease-premium) both;
+    }
+
+    .nav-btn:hover .nav-icon {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--tab-accent) 36%, transparent);
+      background: color-mix(in srgb, var(--tab-accent) 12%, rgba(0,0,0,0.28));
+    }
+
+    .nav-btn.active {
+      color: #fff8db;
+      transform: none;
+      border-color: color-mix(in srgb, var(--tab-accent) 44%, transparent);
+      border-left-color: var(--tab-accent);
+      background:
+        radial-gradient(circle at 0% 50%, color-mix(in srgb, var(--tab-accent) 23%, transparent), transparent 64%),
+        linear-gradient(90deg, color-mix(in srgb, var(--tab-accent) 13%, rgba(255,255,255,0.03)), rgba(255,255,255,0.024));
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tab-accent) 20%, transparent),
+        0 0 24px color-mix(in srgb, var(--tab-accent) 14%, transparent);
+      animation: none;
+      text-shadow: none;
+    }
+
+    .nav-btn.active::after {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .nav-btn.active .nav-icon {
+      border-color: color-mix(in srgb, var(--tab-accent) 44%, transparent);
+      box-shadow: 0 0 18px color-mix(in srgb, var(--tab-accent) 16%, transparent);
+    }
+
+    .rail-footer {
+      grid-area: footer;
+      min-width: 0;
+    }
+
+    .version {
+      display: block;
+      margin: 0;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(245,217,120,0.16);
+      color: rgba(245,245,240,0.70);
+      background: rgba(255,255,255,0.026);
+      font-size: 10px;
+      text-align: center;
+      transition: opacity var(--ytt-motion-base) var(--ytt-ease-premium);
+    }
+
+    body.nav-collapsed .sidebar {
+      width: var(--ytt-rail-collapsed);
+      padding-inline: 10px;
+    }
+
+    body.nav-collapsed .rail-brand {
+      grid-template-columns: 44px;
+      justify-content: center;
+      padding-inline: 5px;
+    }
+
+    body.nav-collapsed .rail-wordmark,
+    body.nav-collapsed .nav-label,
+    body.nav-collapsed .version {
+      opacity: 0;
+      transform: translateX(-8px);
+      pointer-events: none;
+      width: 0;
+    }
+
+    body.nav-collapsed .nav-collapse-toggle {
+      position: absolute;
+      right: -9px;
+      top: 20px;
+      transform: rotate(180deg);
+      background: rgba(10,10,12,0.95);
+    }
+
+    body.nav-collapsed .nav-btn {
+      grid-template-columns: 36px;
+      justify-content: center;
+      padding-inline: 8px;
+    }
+
+    .main {
+      position: relative;
+      margin-top: 0;
+      margin-left: var(--ytt-rail-expanded);
+      width: calc(100vw - var(--ytt-rail-expanded));
+      height: 100vh;
+      overflow: hidden;
+      transition: margin-left var(--ytt-motion-slow) var(--ytt-ease-premium), width var(--ytt-motion-slow) var(--ytt-ease-premium);
+    }
+
+    .terminal-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 45;
+      height: var(--ytt-topbar-height);
+      display: grid;
+      grid-template-columns: auto minmax(240px, 1fr) auto auto auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 22px;
+      border-bottom: 1px solid rgba(245,217,120,0.13);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(245,217,120,0.10), transparent 42%),
+        rgba(5,7,10,0.84);
+      -webkit-backdrop-filter: blur(20px) saturate(1.16);
+      backdrop-filter: blur(20px) saturate(1.16);
+      box-shadow: 0 16px 46px rgba(0,0,0,0.24);
+    }
+
+    .mobile-nav-toggle {
+      display: none;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(245,217,120,0.26);
+      border-radius: 9px;
+      background: rgba(255,255,255,0.04);
+      color: var(--gold-bright);
+      font: 900 18px var(--mono);
+      cursor: pointer;
+      transition: transform var(--ytt-motion-fast) var(--ytt-ease-premium), border-color var(--ytt-motion-fast) ease, background var(--ytt-motion-fast) ease;
+    }
+
+    .mobile-nav-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(245,217,120,0.56);
+      background: rgba(245,217,120,0.08);
+    }
+
+    .topbar-brand {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .topbar-brand strong {
+      color: var(--gold-bright);
+      font: 800 18px var(--ui);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-kicker {
+      color: rgba(245,245,240,0.58);
+      font: 700 10px var(--mono);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .topbar-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .market-box {
+      min-width: 148px;
+      width: auto;
+      justify-self: end;
+      padding: 8px 11px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.036);
+      border: 1px solid rgba(245,217,120,0.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .account-actions {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .account-btn,
+    .small-btn,
+    .save-btn,
+    .btn-primary {
+      transition: transform var(--ytt-motion-fast) var(--ytt-ease-premium), box-shadow var(--ytt-motion-fast) ease, border-color var(--ytt-motion-fast) ease, filter var(--ytt-motion-fast) ease;
+    }
+
+    .account-btn:active,
+    .small-btn:active,
+    .save-btn:active,
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.985);
+      filter: brightness(0.92);
+    }
+
+    .market-ribbon {
+      height: var(--ytt-ribbon-height);
+      margin: 0;
+      padding: 8px 22px;
+      border-bottom: 1px solid rgba(245,217,120,0.10);
+      background: rgba(255,255,255,0.018);
+    }
+
+    .content {
+      height: calc(100vh - var(--ytt-topbar-height) - var(--ytt-ribbon-height));
+      padding: 22px;
+      overflow: auto;
+      scroll-behavior: smooth;
+    }
+
+    .tab-content:not(#tab-dashboard):not(#tab-meridian).active {
+      animation: tabGlassIn var(--ytt-motion-base) var(--ytt-ease-premium) both;
+    }
+
+    #tab-dashboard.active,
+    #tab-meridian.active {
+      animation: none;
+    }
+
+    .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      max-width: 1720px;
+      margin-inline: auto;
+    }
+
+    #tab-crypto,
+    #tab-aiheatmap,
+    #tab-stocks,
+    #tab-settings,
+    #tab-news,
+    #tab-options,
+    #tab-portfolio,
+    #tab-charts,
+    #tab-crypto-hunter {
+      padding-top: 2px;
+    }
+
+    .panel,
+    .kpi-card,
+    .stream-panel,
+    .banner,
+    .source-card,
+    .news-source-card,
+    .vault-provider-section,
+    .detail-card {
+      border-radius: 8px;
+      transition: transform var(--ytt-motion-base) var(--ytt-ease-premium), border-color var(--ytt-motion-fast) ease, box-shadow var(--ytt-motion-base) var(--ytt-ease-premium), background var(--ytt-motion-base) ease;
+    }
+
+    .panel:hover,
+    .kpi-card:hover,
+    .source-card:hover,
+    .news-source-card:hover,
+    .vault-provider-section:hover {
+      transform: translateY(-3px);
+    }
+
+    #tab-dashboard .panel:hover,
+    #tab-dashboard .kpi-card:hover,
+    #tab-dashboard .source-card:hover {
+      transform: none;
+    }
+
+    .panel-header,
+    .vault-section-title {
+      letter-spacing: 0.11em;
+    }
+
+    .vault-provider-grid {
+      gap: 18px;
+    }
+
+    .vault-provider-section {
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.058), rgba(255,255,255,0.018)),
+        rgba(8,10,12,0.64);
+    }
+
+    .vault-provider-actions {
+      gap: 8px;
+    }
+
+    .status-chip,
+    .vault-status,
+    #keys-saved-badge {
+      transition: transform var(--ytt-motion-fast) var(--ytt-ease-premium), border-color var(--ytt-motion-fast) ease, background var(--ytt-motion-fast) ease, color var(--ytt-motion-fast) ease;
+    }
+
+    .status-chip:hover,
+    .vault-status:hover {
+      transform: translateY(-1px);
+    }
+
+    .meridian-frame,
+    .standalone-frame,
+    #tab-meridian iframe,
+    #tab-crypto-hunter iframe {
+      height: calc(100vh - var(--ytt-topbar-height) - var(--ytt-ribbon-height) - 44px) !important;
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        --ytt-rail-expanded: 76px;
+      }
+
+      .rail-wordmark,
+      .nav-label,
+      .version {
+        opacity: 0;
+        width: 0;
+        pointer-events: none;
+      }
+
+      .rail-brand {
+        grid-template-columns: 44px;
+        justify-content: center;
+      }
+
+      .nav-collapse-toggle {
+        display: none;
+      }
+
+      .nav-btn {
+        grid-template-columns: 36px;
+        justify-content: center;
+        padding-inline: 8px;
+      }
+
+      .terminal-topbar {
+        grid-template-columns: auto minmax(180px, 1fr) auto auto;
+      }
+
+      .topbar-status {
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        --ytt-rail-expanded: 0px;
+        --ytt-topbar-height: 70px;
+      }
+
+      .sidebar {
+        width: min(282px, 86vw);
+        transform: translateX(-100%);
+      }
+
+      body.mobile-nav-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100vw;
+      }
+
+      .terminal-topbar {
+        grid-template-columns: auto 1fr;
+        padding-inline: 14px;
+      }
+
+      .mobile-nav-toggle {
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .topbar-brand strong {
+        font-size: 15px;
+      }
+
+      .market-box,
+      .account-actions {
+        display: none;
+      }
+
+      .market-ribbon {
+        padding-inline: 12px;
+      }
+
+      .content {
+        padding: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar,
+      .sidebar *,
+      .main,
+      .main *:not(#tab-dashboard *):not(#tab-meridian *):not(.signin-shell *),
+      .market-ribbon,
+      .terminal-topbar {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3128,36 +3772,53 @@
     </div>
   </section>
 
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="logo">YUCATANA</div>
-      <div class="subtitle">TRADES</div>
+  <aside class="sidebar" aria-label="Primary navigation">
+    <div class="rail-brand">
+      <div class="rail-mark" aria-hidden="true">YT</div>
+      <div class="rail-wordmark">
+        <div class="logo">YUCATANA</div>
+        <div class="subtitle">TRADES</div>
+      </div>
+      <button id="nav-collapse-toggle" class="nav-collapse-toggle" type="button" aria-label="Collapse navigation" aria-pressed="false">‹</button>
+    </div>
+    <nav class="nav" aria-label="Main sections">
+      <button class="nav-btn" data-tab="dashboard" onclick="showTab('dashboard')" title="Dashboard"><span class="nav-icon">▦</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-btn" data-tab="meridian" onclick="showTab('meridian')" title="Meridian"><span class="nav-icon">★</span><span class="nav-label">Meridian</span></button>
+      <button class="nav-btn" data-tab="news" onclick="showTab('news')" title="News"><span class="nav-icon">◬</span><span class="nav-label">News</span></button>
+      <button class="nav-btn" data-tab="options" onclick="showTab('options')" title="Option Flows"><span class="nav-icon">⊕</span><span class="nav-label">Option Flows</span></button>
+      <button class="nav-btn" data-tab="stocks" onclick="showTab('stocks')" title="Stocks"><span class="nav-icon">◈</span><span class="nav-label">Stocks</span></button>
+      <button class="nav-btn" data-tab="crypto" onclick="showTab('crypto')" title="Crypto"><span class="nav-icon">◎</span><span class="nav-label">Crypto</span></button>
+      <button class="nav-btn" data-tab="aiheatmap" onclick="showTab('aiheatmap')" title="AIheatmap"><span class="nav-icon">◩</span><span class="nav-label">AIheatmap</span></button>
+      <button class="nav-btn" data-tab="crypto-hunter" onclick="showTab('crypto-hunter')" title="Crypto Hunter"><span class="nav-icon">✦</span><span class="nav-label">Crypto Hunter</span></button>
+      <button class="nav-btn" data-tab="portfolio" onclick="showTab('portfolio')" title="Portfolio"><span class="nav-icon">◻</span><span class="nav-label">Portfolio</span></button>
+      <button class="nav-btn" data-tab="charts" onclick="showTab('charts')" title="Charts"><span class="nav-icon">◫</span><span class="nav-label">Charts</span></button>
+      <button class="nav-btn" data-tab="settings" onclick="showTab('settings')" title="Settings"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></button>
+    </nav>
+    <div class="rail-footer">
+      <div class="version">v1.0 · OBSERVE</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="terminal-topbar" aria-label="Terminal utility bar">
+      <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-label="Open navigation">☰</button>
+      <div class="topbar-brand">
+        <span class="topbar-kicker">YucaTanaTrades Terminal</span>
+        <strong>Market Command Center</strong>
+      </div>
       <div class="market-box">
         <div><span id="market-dot"></span><span id="market-label">MARKET CLOSED</span></div>
         <div id="clock">--:--:-- CT</div>
       </div>
-    </div>
-    <nav class="nav">
-      <button class="nav-btn" data-tab="dashboard" onclick="showTab('dashboard')">▦&nbsp;&nbsp;Dashboard</button>
-      <button class="nav-btn" data-tab="meridian" onclick="showTab('meridian')">★&nbsp;&nbsp;Meridian</button>
-      <button class="nav-btn" data-tab="news" onclick="showTab('news')">◬&nbsp;&nbsp;News</button>
-      <button class="nav-btn" data-tab="options" onclick="showTab('options')">⊕&nbsp;&nbsp;Option Flows</button>
-      <button class="nav-btn" data-tab="stocks" onclick="showTab('stocks')">◈&nbsp;&nbsp;Stocks</button>
-      <button class="nav-btn" data-tab="crypto" onclick="showTab('crypto')">◎&nbsp;&nbsp;Crypto</button>
-      <button class="nav-btn" data-tab="aiheatmap" onclick="showTab('aiheatmap')">◩&nbsp;&nbsp;AIheatmap</button>
-      <button class="nav-btn" data-tab="crypto-hunter" onclick="showTab('crypto-hunter')">✦&nbsp;&nbsp;Crypto Hunter</button>
-      <button class="nav-btn" data-tab="portfolio" onclick="showTab('portfolio')">◻&nbsp;&nbsp;Portfolio</button>
-      <button class="nav-btn" data-tab="charts" onclick="showTab('charts')">◫&nbsp;&nbsp;Charts</button>
-      <button class="nav-btn" data-tab="settings" onclick="showTab('settings')">⚙&nbsp;&nbsp;Settings</button>
-    </nav>
-    <div class="account-actions" aria-label="Account controls">
-      <button class="account-btn" type="button" onclick="openAccountSettings()">Profile / Account Settings</button>
-      <button class="account-btn signout" type="button" onclick="signOut()">Sign Out</button>
-    </div>
-    <div class="version">v1.0 · LIVE</div>
-  </aside>
-
-  <main class="main">
+      <div class="topbar-status" aria-label="System status">
+        <span class="status-chip green">READ ONLY</span>
+        <span class="status-chip red">LIVE TRADING OFF</span>
+      </div>
+      <div class="account-actions" aria-label="Account controls">
+        <button class="account-btn" type="button" onclick="openAccountSettings()">Profile / Account Settings</button>
+        <button class="account-btn signout" type="button" onclick="signOut()">Sign Out</button>
+      </div>
+    </header>
     <div class="market-ribbon">
       <div class="ticker-track">
         <div class="ticker-set">
@@ -4105,6 +4766,31 @@ function hydrateTabFrame(tabId) {
   });
 }
 
+function initNavigationShell() {
+  const collapseToggle = document.getElementById('nav-collapse-toggle');
+  const mobileToggle = document.getElementById('mobile-nav-toggle');
+  const collapsed = localStorage.getItem('ytt_nav_collapsed') === 'true';
+  document.body.classList.toggle('nav-collapsed', collapsed);
+  if (collapseToggle) {
+    collapseToggle.setAttribute('aria-pressed', String(collapsed));
+    collapseToggle.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+    collapseToggle.addEventListener('click', () => {
+      const next = !document.body.classList.contains('nav-collapsed');
+      document.body.classList.toggle('nav-collapsed', next);
+      localStorage.setItem('ytt_nav_collapsed', String(next));
+      collapseToggle.setAttribute('aria-pressed', String(next));
+      collapseToggle.setAttribute('aria-label', next ? 'Expand navigation' : 'Collapse navigation');
+    });
+  }
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', () => {
+      const open = !document.body.classList.contains('mobile-nav-open');
+      document.body.classList.toggle('mobile-nav-open', open);
+      mobileToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    });
+  }
+}
+
 function showTab(tabId) {
   document.body.dataset.activeTab = tabId;
   document.querySelectorAll('.tab-content').forEach(t => {
@@ -4120,6 +4806,8 @@ function showTab(tabId) {
   }
   const btn = document.querySelector(`[data-tab="${tabId}"]`);
   if (btn) btn.classList.add('active');
+  document.body.classList.remove('mobile-nav-open');
+  document.getElementById('mobile-nav-toggle')?.setAttribute('aria-label', 'Open navigation');
   localStorage.setItem('activeTab', tabId);
   window.dispatchEvent(new CustomEvent('ytt:tab-change', { detail: { tabId } }));
   if (tabId === 'news' && !newsLoaded) {
@@ -5773,6 +6461,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFrontendCanvas();
   initPremiumCursor();
   initAuthControls();
+  initNavigationShell();
   initNewsModal();
   ensureFinnhubSettings();
   initVault();

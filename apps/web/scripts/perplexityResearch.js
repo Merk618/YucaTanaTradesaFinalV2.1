@@ -1490,7 +1490,12 @@ document.addEventListener("DOMContentLoaded", () => {
   renderExecutionSafetyHealth();
   renderSupplementalMarketHealthRows();
   const observerRoot = document.body || document.documentElement;
-  if (observerRoot) {
-    new MutationObserver(scheduleMount).observe(observerRoot, { childList: true, subtree: true });
+  if (observerRoot && observerRoot instanceof Node) {
+    try {
+      new MutationObserver(scheduleMount).observe(observerRoot, { childList: true, subtree: true });
+    } catch (error) {
+      // Some embedded browser wrappers expose a body-like object before it is a native Node.
+      scheduleMount();
+    }
   }
 });
