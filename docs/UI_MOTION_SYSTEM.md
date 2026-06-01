@@ -27,6 +27,9 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Sidebar-only scanline sweep
 - Sidebar-only terminal grid shimmer
 - Bottom safety/status dot pulse
+- Command header entrance and gold edge treatment
+- Ticker token hover glow
+- Panel bracket/sweep treatment on non-protected tabs
 
 ## Performance Rules
 
@@ -37,6 +40,8 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Keep interactions fast and subtle.
 - Keep sidebar ambience scoped to `.sidebar`.
 - Do not add global canvas effects.
+- Do not animate Dashboard or Meridian iframe contents.
+- Do not animate TradingView iframes directly.
 
 ## Reduced Motion
 

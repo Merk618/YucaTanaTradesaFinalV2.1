@@ -26,6 +26,7 @@ Protected:
 Status:
 - Dashboard animation content remains isolated.
 - New tab entrance animation is explicitly excluded for `#tab-dashboard`.
+- Command-terminal panel styling excludes `#tab-dashboard` internals.
 
 ## Meridian Animations
 
@@ -38,6 +39,7 @@ Protected:
 Status:
 - Meridian animation content remains isolated.
 - New tab entrance animation is explicitly excluded for `#tab-meridian`.
+- Command-terminal panel styling excludes `#tab-meridian` internals.
 
 ## Scope Boundary
 
