@@ -1,18 +1,15 @@
 import { DEFAULT_MOOMOO_BRIDGE_URL, createMooMooClient } from "./moomooClient.js";
+import { PROVIDER_SETTING_KEYS, readProviderSetting } from "../settings/providerSettings.js";
 
 export const MOOMOO_SETTINGS_KEYS = {
-  enabled: "MOOMOO_OPEND_ENABLED",
-  bridgeUrl: "MOOMOO_BRIDGE_URL",
-  primaryStocks: "MOOMOO_PRIMARY_STOCK_DATA",
-  optionsEnabled: "MOOMOO_OPTIONS_DATA_ENABLED",
+  enabled: PROVIDER_SETTING_KEYS.localBridges.moomooBridgeEnabled,
+  bridgeUrl: PROVIDER_SETTING_KEYS.localBridges.moomooBridgeUrl,
+  primaryStocks: PROVIDER_SETTING_KEYS.localBridges.moomooPrimaryStockEnabled,
+  optionsEnabled: PROVIDER_SETTING_KEYS.localBridges.moomooOptionsEnabled,
 };
 
 function storageValue(storage, key) {
-  try {
-    return storage?.getItem?.(key) || "";
-  } catch {
-    return "";
-  }
+  return readProviderSetting(storage, key);
 }
 
 export function getMooMooSettings(storage = globalThis.localStorage) {

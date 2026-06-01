@@ -141,6 +141,7 @@ async function main() {
   await copyDir(path.join(root, "services", "ai"), path.join(distWeb, "services", "ai"));
   await copyDir(path.join(root, "services", "crypto"), path.join(distWeb, "services", "crypto"));
   await copyDir(path.join(root, "services", "marketData"), path.join(distWeb, "services", "marketData"));
+  await copyDir(path.join(root, "services", "settings"), path.join(distWeb, "services", "settings"));
   await copyDir(path.join(root, "services", "signals"), path.join(distWeb, "services", "signals"));
   await copyDir(path.join(root, "services", "stocks"), path.join(distWeb, "services", "stocks"));
   await rewriteDistWebModuleImports();

@@ -1874,6 +1874,16 @@
       gap: 6px;
       min-width: 0;
     }
+    .vault-field-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .vault-field-actions .small-btn {
+      min-height: 26px;
+      padding: 0 9px;
+      font-size: 9px;
+    }
     .vault-field-block.full { grid-column: 1 / -1; }
     .vault-field-block label,
     .vault-field-label {
@@ -3411,7 +3421,7 @@
                     </div>
                     <div class="vault-field-block">
                       <label for="vault-ollama-provider-mode">Provider Mode</label>
-                      <select id="vault-ollama-provider-mode" class="field vault-field"><option value="disabled">Disabled</option><option value="local_reasoning">Local Reasoning</option><option value="auto">Auto</option></select>
+                      <select id="vault-ollama-provider-mode" class="field vault-field"><option value="auto">Auto</option><option value="local_reasoning">Local Only</option><option value="disabled">Disabled</option></select>
                     </div>
                     <div class="vault-field-block">
                       <label for="vault-ollama-endpoint">Ollama Endpoint</label>
@@ -3432,27 +3442,38 @@
                     <div class="vault-field-block">
                       <label for="input-finnhub">Finnhub API Key</label>
                       <input id="input-finnhub" data-key="FINNHUB_KEY" class="field vault-field" type="password" placeholder="Enter Finnhub key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-finnhub')">CLEAR KEY</button></div>
                       <div class="key-hint">Used for: stock quotes / fallback stock data.</div>
                     </div>
                     <div class="vault-field-block">
                       <label for="input-fred">FRED API Key</label>
                       <input id="input-fred" data-key="FRED_API_KEY" class="field vault-field" type="password" placeholder="Optional macro key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-fred')">CLEAR KEY</button></div>
                       <div class="key-hint">Optional macro dashboard: rates, inflation, unemployment.</div>
                     </div>
                     <div class="vault-field-block">
                       <label for="input-alpha-vantage">Alpha Vantage API Key</label>
                       <input id="input-alpha-vantage" data-key="ALPHA_VANTAGE_API_KEY" class="field vault-field" type="password" placeholder="Optional indicator key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-alpha-vantage')">CLEAR KEY</button></div>
                       <div class="key-hint">Optional indicators: RSI, MACD, SMA/EMA, Bollinger Bands.</div>
                     </div>
                     <div class="vault-field-block">
                       <label for="input-fmp">FMP API Key</label>
                       <input id="input-fmp" data-key="FMP_API_KEY" class="field vault-field" type="password" placeholder="Optional FMP key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-fmp')">CLEAR KEY</button></div>
                       <div class="key-hint">Optional future fundamentals, ratios, earnings, analyst estimates.</div>
                     </div>
                     <div class="vault-field-block">
                       <label for="input-marketaux">MarketAux API Key</label>
                       <input id="input-marketaux" data-key="MARKETAUX_API_KEY" class="field vault-field" type="password" placeholder="Optional news key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-marketaux')">CLEAR KEY</button></div>
                       <div class="key-hint">Optional future news, sentiment, catalyst detection.</div>
+                    </div>
+                    <div class="vault-field-block">
+                      <label for="input-coingecko">CoinGecko API Key</label>
+                      <input id="input-coingecko" data-key="COINGECKO_API_KEY" class="field vault-field" type="password" placeholder="Optional CoinGecko key...">
+                      <div class="vault-field-actions"><button class="small-btn vault-field" type="button" onclick="clearVaultSecret('input-coingecko')">CLEAR KEY</button></div>
+                      <div class="key-hint">Optional: crypto scanner, symbol registry, market caps. Public no-key mode remains supported.</div>
                     </div>
                     <div class="vault-field-block">
                       <label for="input-sec-contact">SEC User-Agent Contact</label>
@@ -3466,12 +3487,13 @@
                     <button class="small-btn vault-field" type="button" onclick="testConnection('alpha-vantage')">TEST ALPHA VANTAGE</button><span id="status-alpha-vantage" class="status-chip">UNKNOWN</span>
                     <button class="small-btn vault-field" type="button" onclick="testConnection('fmp')">TEST FMP</button><span id="status-fmp" class="status-chip">UNKNOWN</span>
                     <button class="small-btn vault-field" type="button" onclick="testConnection('marketaux')">TEST MARKETAUX</button><span id="status-marketaux" class="status-chip">UNKNOWN</span>
+                    <button class="small-btn vault-field" type="button" onclick="testConnection('coingecko')">TEST COINGECKO</button><span id="status-coingecko" class="status-chip">PUBLIC_MODE</span>
                   </div>
                 </section>
 
                 <section class="vault-provider-section">
                   <div class="vault-section-title"><span>No-Key Public Providers</span><span class="status-chip green">No Key</span></div>
-                  <div class="vault-static-row"><span>CoinGecko - crypto prices, symbol registry, market caps, trending coins</span><button class="small-btn vault-field" type="button" onclick="testConnection('coingecko')">TEST</button><span id="status-coingecko" class="status-chip">UNKNOWN</span></div>
+                  <div class="vault-static-row"><span>CoinGecko Public Mode - crypto prices remain available without a saved key</span><span class="status-chip green">PUBLIC_MODE</span></div>
                   <div class="vault-static-row"><span>Binance Public API / WebSocket - crypto stream and exchangeInfo</span><button class="small-btn vault-field" type="button" onclick="testConnection('binance')">TEST</button><span id="status-binance" class="status-chip">UNKNOWN</span></div>
                   <div class="vault-static-row"><span>SEC EDGAR - filings, 10-K, 10-Q, 8-K metadata</span><button class="small-btn vault-field" type="button" onclick="testConnection('sec-edgar')">TEST</button><span id="status-sec-edgar" class="status-chip">UNKNOWN</span></div>
                   <div class="vault-static-row"><span>TradingView - embedded charts/widgets</span><span id="status-tradingview" class="status-chip green">EMBEDDED</span></div>
@@ -4156,30 +4178,57 @@ function updateClock() {
 }
 
 const MASKED_SECRET_VALUE = '●●●●●●●●●●●●';
+const PROVIDER_SETTING_KEYS = {
+  finnhubApiKey: 'FINNHUB_KEY',
+  fredApiKey: 'FRED_API_KEY',
+  alphaVantageApiKey: 'ALPHA_VANTAGE_API_KEY',
+  fmpApiKey: 'FMP_API_KEY',
+  marketAuxApiKey: 'MARKETAUX_API_KEY',
+  coinGeckoApiKey: 'COINGECKO_API_KEY',
+  secUserAgentContact: 'SEC_USER_AGENT_CONTACT',
+  apiProxyBase: 'API_PROXY_BASE',
+  perplexityEnabled: 'PERPLEXITY_ENABLED',
+  ollamaEnabled: 'OLLAMA_ENABLED',
+  ollamaEndpoint: 'OLLAMA_ENDPOINT',
+  ollamaModel: 'OLLAMA_MODEL',
+  ollamaProviderMode: 'OLLAMA_PROVIDER_MODE',
+  moomooBridgeEnabled: 'MOOMOO_OPEND_ENABLED',
+  moomooBridgeUrl: 'MOOMOO_BRIDGE_URL',
+  moomooPrimaryStockEnabled: 'MOOMOO_PRIMARY_STOCK_DATA',
+  moomooOptionsEnabled: 'MOOMOO_OPTIONS_DATA_ENABLED',
+  externalSignalsEnabled: 'PROSPERIO_SIGNALS_ENABLED',
+  externalSignalsTrustLevel: 'PROSPERIO_TRUST_LEVEL',
+  externalSignalsRequireConfirmation: 'PROSPERIO_REQUIRE_YTT_CONFIRMATION'
+};
+const VAULT_SECRET_ALIASES = {
+  FINNHUB_KEY: ['FINNHUB_KEY', 'FINNHUB_API_KEY'],
+  COINGECKO_API_KEY: ['COINGECKO_API_KEY', 'COINGECKO_KEY', 'YTT_COINGECKO_API_KEY']
+};
 const VAULT_SECRET_INPUTS = {
-  'input-finnhub': 'FINNHUB_KEY',
-  'input-fred': 'FRED_API_KEY',
-  'input-alpha-vantage': 'ALPHA_VANTAGE_API_KEY',
-  'input-fmp': 'FMP_API_KEY',
-  'input-marketaux': 'MARKETAUX_API_KEY'
+  'input-finnhub': PROVIDER_SETTING_KEYS.finnhubApiKey,
+  'input-fred': PROVIDER_SETTING_KEYS.fredApiKey,
+  'input-alpha-vantage': PROVIDER_SETTING_KEYS.alphaVantageApiKey,
+  'input-fmp': PROVIDER_SETTING_KEYS.fmpApiKey,
+  'input-marketaux': PROVIDER_SETTING_KEYS.marketAuxApiKey,
+  'input-coingecko': PROVIDER_SETTING_KEYS.coinGeckoApiKey
 };
 const VAULT_VALUE_INPUTS = {
-  'input-api-proxy': 'API_PROXY_BASE',
-  'input-sec-contact': 'SEC_USER_AGENT_CONTACT',
-  'vault-ollama-endpoint': 'OLLAMA_ENDPOINT',
-  'vault-ollama-model': 'OLLAMA_MODEL',
-  'vault-moomoo-bridge-url': 'MOOMOO_BRIDGE_URL'
+  'input-api-proxy': PROVIDER_SETTING_KEYS.apiProxyBase,
+  'input-sec-contact': PROVIDER_SETTING_KEYS.secUserAgentContact,
+  'vault-ollama-endpoint': PROVIDER_SETTING_KEYS.ollamaEndpoint,
+  'vault-ollama-model': PROVIDER_SETTING_KEYS.ollamaModel,
+  'vault-moomoo-bridge-url': PROVIDER_SETTING_KEYS.moomooBridgeUrl
 };
 const VAULT_SELECT_INPUTS = {
-  'vault-perplexity-enabled': 'PERPLEXITY_ENABLED',
-  'vault-ollama-enabled': 'OLLAMA_ENABLED',
-  'vault-ollama-provider-mode': 'OLLAMA_PROVIDER_MODE',
-  'vault-moomoo-enabled': 'MOOMOO_OPEND_ENABLED',
-  'vault-moomoo-primary-stocks': 'MOOMOO_PRIMARY_STOCK_DATA',
-  'vault-moomoo-options-enabled': 'MOOMOO_OPTIONS_DATA_ENABLED',
-  'vault-prosperio-enabled': 'PROSPERIO_SIGNALS_ENABLED',
-  'vault-prosperio-trust-level': 'PROSPERIO_TRUST_LEVEL',
-  'vault-prosperio-confirmation': 'PROSPERIO_REQUIRE_YTT_CONFIRMATION'
+  'vault-perplexity-enabled': PROVIDER_SETTING_KEYS.perplexityEnabled,
+  'vault-ollama-enabled': PROVIDER_SETTING_KEYS.ollamaEnabled,
+  'vault-ollama-provider-mode': PROVIDER_SETTING_KEYS.ollamaProviderMode,
+  'vault-moomoo-enabled': PROVIDER_SETTING_KEYS.moomooBridgeEnabled,
+  'vault-moomoo-primary-stocks': PROVIDER_SETTING_KEYS.moomooPrimaryStockEnabled,
+  'vault-moomoo-options-enabled': PROVIDER_SETTING_KEYS.moomooOptionsEnabled,
+  'vault-prosperio-enabled': PROVIDER_SETTING_KEYS.externalSignalsEnabled,
+  'vault-prosperio-trust-level': PROVIDER_SETTING_KEYS.externalSignalsTrustLevel,
+  'vault-prosperio-confirmation': PROVIDER_SETTING_KEYS.externalSignalsRequireConfirmation
 };
 const VAULT_DEFAULTS = {
   PERPLEXITY_ENABLED: 'true',
@@ -4197,7 +4246,33 @@ const VAULT_DEFAULTS = {
 };
 
 function isMaskedSecret(value) {
-  return String(value || '').includes('●');
+  return /[●*]{4,}/.test(String(value || ''));
+}
+
+function readVaultSecret(key) {
+  const keys = VAULT_SECRET_ALIASES[key] || [key];
+  for (const candidate of keys) {
+    const value = localStorage.getItem(candidate);
+    if (value) return value;
+  }
+  return '';
+}
+
+function clearVaultSecret(id) {
+  if (document.getElementById('vault-content')?.classList.contains('locked')) {
+    const msg = document.getElementById('vault-message');
+    if (msg) msg.textContent = 'UNLOCK VAULT BEFORE CLEARING KEYS';
+    return;
+  }
+  const key = VAULT_SECRET_INPUTS[id] || document.getElementById(id)?.dataset?.key;
+  if (!key) return;
+  (VAULT_SECRET_ALIASES[key] || [key]).forEach(candidate => localStorage.removeItem(candidate));
+  const el = document.getElementById(id);
+  if (el) el.value = '';
+  const msg = document.getElementById('vault-message');
+  if (msg) msg.textContent = 'KEY CLEARED';
+  updateDeploymentHealth();
+  refreshSourceHealth({ liveChecks: false });
 }
 
 function setSelectValue(id, value) {
@@ -4274,13 +4349,16 @@ function saveKeys() {
   }
   maskInputs();
   updateDeploymentHealth();
-  refreshSourceHealth();
+  refreshSourceHealth({ liveChecks: false });
+  const msg = document.getElementById('vault-message');
+  if (msg) msg.textContent = 'SETTINGS SAVED';
 }
 
 function maskInputs() {
   Object.keys(VAULT_SECRET_INPUTS).forEach(id => {
     const el = document.getElementById(id);
-    if (el && localStorage.getItem(el.dataset.key || id)) {
+    const key = VAULT_SECRET_INPUTS[id] || el?.dataset?.key || id;
+    if (el && readVaultSecret(key)) {
       el.value = MASKED_SECRET_VALUE;
       el.type = 'password';
     }
@@ -4291,9 +4369,11 @@ function loadSavedKeys() {
   ensureFinnhubSettings();
   Object.entries(VAULT_SECRET_INPUTS).forEach(([elId, storeKey]) => {
     const el = document.getElementById(elId);
-    if (el && localStorage.getItem(storeKey)) {
+    if (el && readVaultSecret(storeKey)) {
       el.value = MASKED_SECRET_VALUE;
       el.type = 'password';
+    } else if (el) {
+      el.value = '';
     }
   });
   Object.entries(VAULT_VALUE_INPUTS).forEach(([elId, storeKey]) => {
@@ -4382,14 +4462,14 @@ function updateDeploymentHealth() {
     el.textContent = value;
     el.className = tone || '';
   };
-  const hasTradier = Boolean(localStorage.getItem('TRADIER_KEY'));
   const hasFinnhub = Boolean(localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY'));
-  const hasAlpaca = Boolean(localStorage.getItem('ALPACA_KEY'));
   const hasProxy = Boolean(localStorage.getItem('API_PROXY_BASE'));
+  const hasOllama = localStorage.getItem('OLLAMA_ENABLED') === 'true';
   set('health-auth', 'LOCAL UI ONLY', 'gold');
   set('health-proxy', hasProxy ? 'CONFIGURED' : 'NOT CONFIGURED', hasProxy ? 'up' : 'dn');
-  set('health-tradier', hasTradier ? 'TRADIER KEY SAVED' : hasFinnhub ? 'FINNHUB STOCKS' : 'AWAITING KEY', (hasTradier || hasFinnhub) ? 'up' : 'dn');
-  set('health-alpaca', hasAlpaca ? 'KEY SAVED' : 'AWAITING KEY', hasAlpaca ? 'up' : 'dn');
+  set('health-stock-data', hasFinnhub ? 'FINNHUB FALLBACK READY' : hasProxy ? 'PROXY ROUTE READY' : 'MISSING STOCK KEY', (hasFinnhub || hasProxy) ? 'up' : 'dn');
+  set('health-ai-providers', hasProxy ? 'PERPLEXITY PROXY' : hasOllama ? 'LOCAL OLLAMA' : 'NOT CONFIGURED', (hasProxy || hasOllama) ? 'up' : 'dn');
+  set('health-execution', 'DISABLED', 'status-chip red');
   set('health-news', 'CLIENT FETCH', 'gold');
 }
 
@@ -4429,6 +4509,15 @@ function exportSettings() {
   const keys = [
     'TRADIER_MODE',
     'FINNHUB_KEY',
+    'FINNHUB_API_KEY',
+    'FRED_API_KEY',
+    'ALPHA_VANTAGE_API_KEY',
+    'FMP_API_KEY',
+    'MARKETAUX_API_KEY',
+    'COINGECKO_API_KEY',
+    'COINGECKO_KEY',
+    'YTT_COINGECKO_API_KEY',
+    'SEC_USER_AGENT_CONTACT',
     'API_PROXY_BASE',
     'PERPLEXITY_ENABLED',
     'PERPLEXITY_VERBOSITY',
@@ -4473,6 +4562,15 @@ function clearLocalSettings() {
   [
     'TRADIER_KEY',
     'FINNHUB_KEY',
+    'FINNHUB_API_KEY',
+    'FRED_API_KEY',
+    'ALPHA_VANTAGE_API_KEY',
+    'FMP_API_KEY',
+    'MARKETAUX_API_KEY',
+    'COINGECKO_API_KEY',
+    'COINGECKO_KEY',
+    'YTT_COINGECKO_API_KEY',
+    'SEC_USER_AGENT_CONTACT',
     'ALPACA_KEY',
     'ALPACA_SECRET',
     'TRADIER_MODE',
@@ -4501,7 +4599,7 @@ function clearLocalSettings() {
   loadSavedKeys();
   renderWatchlist();
   updateDeploymentHealth();
-  ['input-tradier','input-finnhub','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy','ollama-endpoint','ollama-model','moomoo-bridge-url','prosperio-symbol','prosperio-confidence','prosperio-entry-zone','prosperio-target','prosperio-risk-note','prosperio-source-url','prosperio-notes'].forEach(id => {
+  ['input-tradier','input-finnhub','input-fred','input-alpha-vantage','input-fmp','input-marketaux','input-coingecko','input-sec-contact','input-alpaca-key','input-alpaca-secret','input-api-proxy','input-perplexity-proxy','ollama-endpoint','ollama-model','moomoo-bridge-url','prosperio-symbol','prosperio-confidence','prosperio-entry-zone','prosperio-target','prosperio-risk-note','prosperio-source-url','prosperio-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -4884,63 +4982,138 @@ function changeChartSymbol() {
   }
 }
 
-function testConnection(api) {
-  const badge = document.getElementById('status-' + api);
-  if (!badge) return;
-  badge.textContent = 'TESTING...';
-  badge.style.color = 'var(--gold)';
-  if (api === 'finnhub') {
-    const key = localStorage.getItem('FINNHUB_KEY') || localStorage.getItem('FINNHUB_API_KEY');
-    if (!key) {
-      badge.textContent = 'NO KEY';
-      badge.style.color = 'var(--red)';
-      return;
+function setProviderStatus(api, label, tone = '') {
+  updateStatusTargets([`status-${api}`, `status-${api}-card`], label, tone);
+}
+
+function providerTimeout(ms = 6500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, done: () => clearTimeout(timer) };
+}
+
+async function testJsonEndpoint(url, options = {}, timeoutMs = 6500) {
+  const timeout = providerTimeout(timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: timeout.signal });
+    const text = await response.text();
+    let payload = {};
+    try { payload = text ? JSON.parse(text) : {}; } catch { payload = {}; }
+    if (!response.ok) {
+      const error = new Error(payload.error || payload["Error Message"] || `HTTP ${response.status}`);
+      error.status = response.status === 429 ? 'RATE_LIMITED' : 'FAILED';
+      throw error;
     }
-    fetchJsonWithRetry(`${FINNHUB_BASE_URL}/quote?symbol=AAPL&token=${encodeURIComponent(key)}`, {}, 2)
-      .then(data => {
-        if (Number(data?.c) > 0) {
-          badge.textContent = 'CONNECTED';
-          badge.style.color = 'var(--green)';
-        } else {
-          badge.textContent = 'FAILED';
-          badge.style.color = 'var(--red)';
-        }
-      })
-      .catch(() => {
-        badge.textContent = 'FAILED';
-        badge.style.color = 'var(--red)';
-      });
-    return;
+    return payload;
+  } finally {
+    timeout.done();
   }
-  setTimeout(() => {
-    const keyName = api === 'tradier' ? 'TRADIER_KEY' : api === 'finnhub' ? 'FINNHUB_KEY' : api === 'alpaca' ? 'ALPACA_KEY' : api.toUpperCase() + '_KEY';
-    const hasKey = localStorage.getItem(keyName);
-    if (api === 'coingecko' || api === 'binance' || hasKey) {
-      badge.textContent = 'CONNECTED';
-      badge.style.color = 'var(--green)';
-    } else {
-      badge.textContent = 'NO KEY';
-      badge.style.color = 'var(--red)';
+}
+
+async function testConnection(api) {
+  setProviderStatus(api, 'TESTING...', '');
+  try {
+    if (api === 'perplexity') {
+      if (localStorage.getItem('PERPLEXITY_ENABLED') === 'false') return setProviderStatus(api, 'DISABLED', '');
+      const base = getApiProxyBase();
+      if (!base) return setProviderStatus(api, 'PROXY REQUIRED', 'red');
+      await testJsonEndpoint(`${base}/health`);
+      return setProviderStatus(api, 'CONNECTED', 'green');
     }
-  }, 800);
+    if (api === 'ollama') {
+      if (localStorage.getItem('OLLAMA_ENABLED') !== 'true') return setProviderStatus(api, 'DISABLED', '');
+      const endpoint = (localStorage.getItem('OLLAMA_ENDPOINT') || VAULT_DEFAULTS.OLLAMA_ENDPOINT).replace(/\/+$/, '');
+      await testJsonEndpoint(`${endpoint}/api/tags`);
+      return setProviderStatus(api, 'RUNNING', 'green');
+    }
+    if (api === 'finnhub') {
+      const key = readVaultSecret('FINNHUB_KEY');
+      if (!key && !getApiProxyBase()) return setProviderStatus(api, 'MISSING_KEY', 'red');
+      const direct = `${FINNHUB_BASE_URL}/quote?symbol=AAPL&token=${encodeURIComponent(key || '')}`;
+      const data = await fetchJsonViaProxy('/finnhub/quote?symbol=AAPL', direct, {}, 1);
+      return setProviderStatus(api, Number(data?.c) > 0 ? 'CONNECTED' : 'FAILED', Number(data?.c) > 0 ? 'green' : 'red');
+    }
+    if (api === 'fred') {
+      const key = readVaultSecret('FRED_API_KEY');
+      if (!key) return setProviderStatus(api, 'MISSING_KEY', 'red');
+      await testJsonEndpoint(`https://api.stlouisfed.org/fred/series?series_id=FEDFUNDS&api_key=${encodeURIComponent(key)}&file_type=json`);
+      return setProviderStatus(api, 'CONNECTED', 'green');
+    }
+    if (api === 'alpha-vantage') {
+      const key = readVaultSecret('ALPHA_VANTAGE_API_KEY');
+      if (!key) return setProviderStatus(api, 'MISSING_KEY', 'red');
+      const data = await testJsonEndpoint(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=${encodeURIComponent(key)}`);
+      const rateLimited = data.Note || data.Information;
+      return setProviderStatus(api, rateLimited ? 'RATE_LIMITED' : 'CONNECTED', rateLimited ? '' : 'green');
+    }
+    if (api === 'fmp') {
+      const key = readVaultSecret('FMP_API_KEY');
+      if (!key) return setProviderStatus(api, 'MISSING_KEY', 'red');
+      await testJsonEndpoint(`https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=${encodeURIComponent(key)}`);
+      return setProviderStatus(api, 'CONNECTED', 'green');
+    }
+    if (api === 'marketaux') {
+      const key = readVaultSecret('MARKETAUX_API_KEY');
+      if (!key) return setProviderStatus(api, 'MISSING_KEY', 'red');
+      await testJsonEndpoint(`https://api.marketaux.com/v1/news/all?symbols=AAPL&limit=1&api_token=${encodeURIComponent(key)}`);
+      return setProviderStatus(api, 'CONNECTED', 'green');
+    }
+    if (api === 'coingecko') {
+      const key = readVaultSecret('COINGECKO_API_KEY');
+      const headers = key ? { 'x-cg-demo-api-key': key } : {};
+      await testJsonEndpoint('https://api.coingecko.com/api/v3/ping', { headers });
+      return setProviderStatus(api, key ? 'CONNECTED' : 'PUBLIC_MODE', 'green');
+    }
+    if (api === 'binance') {
+      await testJsonEndpoint('https://api.binance.com/api/v3/exchangeInfo?symbol=BTCUSDT');
+      return setProviderStatus(api, 'CONNECTED', 'green');
+    }
+    if (api === 'sec-edgar') {
+      const contact = (localStorage.getItem('SEC_USER_AGENT_CONTACT') || '').trim();
+      if (!contact) return setProviderStatus(api, 'MISSING_CONTACT', '');
+      await testJsonEndpoint('https://data.sec.gov/submissions/CIK0000320193.json');
+      return setProviderStatus(api, 'CONNECTED', 'green');
+    }
+    if (api === 'moomoo') {
+      if (localStorage.getItem('MOOMOO_OPEND_ENABLED') !== 'true') return setProviderStatus(api, 'DISABLED', '');
+      const bridge = (localStorage.getItem('MOOMOO_BRIDGE_URL') || VAULT_DEFAULTS.MOOMOO_BRIDGE_URL).replace(/\/+$/, '');
+      await testJsonEndpoint(`${bridge}/health`);
+      return setProviderStatus(api, 'RUNNING', 'green');
+    }
+    if (api === 'tradingview') {
+      return setProviderStatus(api, window.TradingView ? 'AVAILABLE' : 'EMBEDDED', 'green');
+    }
+    return setProviderStatus(api, 'UNKNOWN', '');
+  } catch (error) {
+    setProviderStatus(api, error.status === 'RATE_LIMITED' ? 'RATE_LIMITED' : 'FAILED', 'red');
+  }
 }
 
 function renderSourceHealth() {
   const list = document.getElementById('source-health-list');
   if (!list) return;
   const rows = [
-    ['proxy', 'API Proxy', 'Protects broker/API keys server-side'],
-    ['finnhub', 'Finnhub Stocks', 'Quote snapshots for stock scanners'],
-    ['coingecko', 'CoinGecko Crypto', 'Crypto metadata, caps, volume, 24h/7d'],
-    ['binance', 'Binance WS', 'Live crypto stream / RSI source'],
+    ['proxy', 'Perplexity/API Proxy', 'Protects server-side secrets and Perplexity finance route'],
+    ['ollama', 'Local Ollama', 'Local reasoning endpoint, no API key'],
+    ['moomoo', 'MooMoo OpenD Bridge', 'Read-only local stock/options bridge'],
+    ['finnhub', 'Finnhub Fallback', 'Fallback stock quotes'],
+    ['alpha-vantage', 'Alpha Vantage Indicators', 'Optional RSI, MACD, SMA/EMA fallback'],
+    ['fmp', 'FMP Fundamentals', 'Optional fundamentals and estimates'],
+    ['coingecko', 'CoinGecko Crypto', 'Crypto metadata, scanner, caps, volume, 24h/7d'],
+    ['binance', 'Binance Public', 'Live crypto stream and exchangeInfo'],
+    ['marketaux', 'MarketAux News', 'Optional ticker-linked news and sentiment'],
+    ['fred', 'FRED Macro', 'Optional rates, inflation, unemployment, macro dashboard'],
+    ['sec-edgar', 'SEC EDGAR', 'Filings and company facts'],
+    ['tradingview', 'TradingView', 'Embedded official widgets'],
     ['aiheatmap-engine', 'AIheatmap Engine', 'Scoped stock/crypto heatmap scan module'],
     ['aiheatmap-technical', 'AIheatmap Technical Engine', 'RSI, MACD, VWAP, support/resistance calculations'],
     ['aiheatmap-tradingview', 'AIheatmap TradingView', 'Advanced chart with RSI/MACD studies'],
     ['aiheatmap-crypto', 'AIheatmap Crypto Data', 'CoinGecko/Binance data route for AIheatmap'],
     ['aiheatmap-stock', 'AIheatmap Stock Data', 'MooMoo/Finnhub stock route for AIheatmap'],
     ['perplexity', 'Perplexity AI', 'Finance research via API proxy only'],
-    ['tradier', 'Tradier Pro', 'Options chains, Greeks, official equity source'],
-    ['alpaca', 'Alpaca', 'Portfolio and historical OHLCV'],
+    ['external-signals', 'External Signals', 'Manual Prosperio-style overlays only'],
+    ['broker-execution', 'Broker Execution', 'Disabled. Future server-side only'],
+    ['crypto-execution', 'Crypto Exchange Execution', 'Disabled. No exchange keys in frontend'],
     ['news', 'RSS News', 'Yahoo, Investing, CoinDesk, MarketWatch, Fed']
   ];
   list.innerHTML = rows.map(([key, label, fallback]) => {
@@ -4969,15 +5142,24 @@ async function refreshSourceHealth(options = {}) {
   sourceHealthState = {
     proxy: { tone: getApiProxyBase() ? 'warn' : 'dn', label: getApiProxyBase() ? 'CHECKING' : 'NOT SET', detail: getApiProxyBase() || 'Set API_PROXY_BASE in the vault to hide keys behind a backend.' },
     finnhub: { tone: 'warn', label: 'CHECKING', detail: 'Checking quote route.' },
-    coingecko: { tone: 'warn', label: 'CHECKING', detail: 'Checking public market endpoint.' },
+    fred: { tone: localStorage.getItem('FRED_API_KEY') ? 'warn' : 'dn', label: localStorage.getItem('FRED_API_KEY') ? 'KEY SAVED' : 'MISSING_KEY', detail: 'Optional FRED macro key.' },
+    'alpha-vantage': { tone: localStorage.getItem('ALPHA_VANTAGE_API_KEY') ? 'warn' : 'dn', label: localStorage.getItem('ALPHA_VANTAGE_API_KEY') ? 'KEY SAVED' : 'MISSING_KEY', detail: 'Optional technical indicator key.' },
+    fmp: { tone: localStorage.getItem('FMP_API_KEY') ? 'warn' : 'dn', label: localStorage.getItem('FMP_API_KEY') ? 'KEY SAVED' : 'MISSING_KEY', detail: 'Optional fundamentals provider.' },
+    marketaux: { tone: localStorage.getItem('MARKETAUX_API_KEY') ? 'warn' : 'dn', label: localStorage.getItem('MARKETAUX_API_KEY') ? 'KEY SAVED' : 'MISSING_KEY', detail: 'Optional news and sentiment provider.' },
+    coingecko: { tone: localStorage.getItem('COINGECKO_API_KEY') ? 'warn' : 'up', label: localStorage.getItem('COINGECKO_API_KEY') ? 'KEY SAVED' : 'PUBLIC_MODE', detail: localStorage.getItem('COINGECKO_API_KEY') ? 'Saved CoinGecko key available.' : 'Public no-key mode available.' },
     binance: sourceHealthState.binance || { tone: 'warn', label: 'PUBLIC WS', detail: 'Public Binance ticker stream connects from the hosted browser when available.' },
+    'sec-edgar': { tone: localStorage.getItem('SEC_USER_AGENT_CONTACT') ? 'warn' : 'warn', label: localStorage.getItem('SEC_USER_AGENT_CONTACT') ? 'CONTACT SAVED' : 'MISSING_CONTACT', detail: 'SEC EDGAR uses public endpoints; contact is recommended.' },
+    tradingview: { tone: 'up', label: 'EMBEDDED', detail: 'TradingView widgets are embedded client-side.' },
+    ollama: sourceHealthState.ollama || { tone: localStorage.getItem('OLLAMA_ENABLED') === 'true' ? 'warn' : 'warn', label: localStorage.getItem('OLLAMA_ENABLED') === 'true' ? 'CHECK LOCAL' : 'DISABLED', detail: 'Local Ollama is tested from Settings/Admin.' },
+    moomoo: sourceHealthState.moomoo || { tone: localStorage.getItem('MOOMOO_OPEND_ENABLED') === 'true' ? 'warn' : 'warn', label: localStorage.getItem('MOOMOO_OPEND_ENABLED') === 'true' ? 'CHECK BRIDGE' : 'DISABLED', detail: 'MooMoo is read-only through a local bridge.' },
     perplexity: sourceHealthState.perplexity || {
       tone: localStorage.getItem('PERPLEXITY_ENABLED') === 'false' ? 'warn' : getApiProxyBase() ? 'warn' : 'dn',
       label: localStorage.getItem('PERPLEXITY_ENABLED') === 'false' ? 'DISABLED' : getApiProxyBase() ? 'CHECKING' : 'PROXY REQUIRED',
       detail: getApiProxyBase() ? 'Perplexity finance research is routed through API_PROXY_BASE.' : 'Set API_PROXY_BASE. Perplexity keys must stay server-side.'
     },
-    tradier: { tone: localStorage.getItem('TRADIER_KEY') || getApiProxyBase() ? 'warn' : 'dn', label: localStorage.getItem('TRADIER_KEY') || getApiProxyBase() ? 'KEY/PROXY READY' : 'NO KEY', detail: 'Required for options chains and Greeks.' },
-    alpaca: { tone: localStorage.getItem('ALPACA_KEY') || getApiProxyBase() ? 'warn' : 'dn', label: localStorage.getItem('ALPACA_KEY') || getApiProxyBase() ? 'KEY/PROXY READY' : 'NO KEY', detail: 'Required for account, portfolio, and OHLCV.' },
+    'external-signals': { tone: localStorage.getItem('PROSPERIO_SIGNALS_ENABLED') === 'true' ? 'warn' : 'warn', label: localStorage.getItem('PROSPERIO_SIGNALS_ENABLED') === 'true' ? 'EXPERIMENTAL' : 'DISABLED', detail: 'Manual external signal overlays only.' },
+    'broker-execution': { tone: 'dn', label: 'DISABLED', detail: 'Broker execution is future server-side only.' },
+    'crypto-execution': { tone: 'dn', label: 'DISABLED', detail: 'No crypto exchange execution keys are stored in the frontend.' },
     news: { tone: newsItemsCache.length ? 'up' : 'warn', label: newsItemsCache.length ? 'LOADED' : 'CLIENT FETCH', detail: `${newsItemsCache.length || 0} articles cached in the current session.` }
   };
   renderSourceHealth();

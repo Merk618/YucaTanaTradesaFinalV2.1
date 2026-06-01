@@ -9,6 +9,7 @@ import {
   normalizeCryptoScannerSymbol,
   signalRank,
 } from "./cryptoScannerSignals.js";
+import { PROVIDER_SETTING_KEYS, readProviderSetting } from "../settings/providerSettings.js";
 
 export const COINGECKO_MARKETS_URL = "https://api.coingecko.com/api/v3/coins/markets";
 export const CRYPTO_SCANNER_DEFAULTS = {
@@ -44,7 +45,8 @@ function readStorageValue(keys = [], storage = globalThis.localStorage) {
 }
 
 export function getCoinGeckoApiKey({ storage = globalThis.localStorage } = {}) {
-  return readStorageValue(["COINGECKO_API_KEY", "COINGECKO_KEY", "YTT_COINGECKO_API_KEY"], storage);
+  return readProviderSetting(storage, PROVIDER_SETTING_KEYS.marketData.coinGeckoApiKey)
+    || readStorageValue(["COINGECKO_API_KEY", "COINGECKO_KEY", "YTT_COINGECKO_API_KEY"], storage);
 }
 
 export function normalizeCoinGeckoMarket(coin = {}, timestamp = new Date().toISOString()) {
