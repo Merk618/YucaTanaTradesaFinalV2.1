@@ -36,34 +36,28 @@ const panelState = new Map();
 const externalSignalProvider = createExternalSignalProvider();
 const ASSISTANT_MODES = [
   { id: "quick_summary", label: "Quick Summary" },
-  { id: "price", label: "Price" },
-  { id: "deep_research", label: "Deep Research / Cited Research" },
   { id: "setup_analysis", label: "Setup Analysis" },
-  { id: "scanner_summary", label: "Scanner Summary" },
   { id: "risk_review", label: "Risk Review" },
-  { id: "catalyst", label: "Catalyst" },
-  { id: "portfolio", label: "Portfolio" },
-  { id: "external_signals", label: "External Signals" },
+  { id: "deep_research", label: "Deep Research" },
 ];
 const ASSISTANT_MODE_IDS = new Set(ASSISTANT_MODES.map((mode) => mode.id));
 const COMMAND_MODE_CHIPS = [
-  ["price", "Price"],
+  ["quick_summary", "Quick"],
   ["setup_analysis", "Setup"],
-  ["scanner_summary", "Rank"],
   ["risk_review", "Risk"],
-  ["catalyst", "Catalyst"],
-  ["portfolio", "Portfolio"],
-  ["external_signals", "External Signals"],
-  ["deep_research", "Deep Research"],
+  ["deep_research", "Research"],
 ];
 const DEFAULT_PROMPT_CHIPS = [
-  "Analyze selected setup",
-  "Rank watchlist",
-  "Find strongest crypto",
-  "Risk review",
-  "Explain data quality",
-  "Review Prosperio plays",
-  "Compare Prosperio vs YucaTana score",
+  "Analyze Selected",
+  "Rank Watchlist",
+  "Find Strongest Crypto",
+  "Risk Review",
+  "Explain Data Quality",
+];
+const EXTERNAL_SIGNAL_PROMPT_CHIPS = [
+  "Review Prosperio Plays",
+  "Compare Prosperio vs YucaTana Score",
+  "External Signals",
 ];
 const SYMBOL_PROMPT_CHIPS = [
   "Why does this score this way?",
@@ -281,12 +275,26 @@ function modeOptions(selected = DEFAULT_PERPLEXITY_MODE) {
 function providerOptions(selected = AI_PROVIDER_IDS.AUTO) {
   const options = [
     [AI_PROVIDER_IDS.AUTO, "Auto"],
-    [AI_PROVIDER_IDS.PERPLEXITY, "Perplexity Research"],
     [AI_PROVIDER_IDS.OLLAMA, "Local Ollama"],
+    [AI_PROVIDER_IDS.PERPLEXITY, "Perplexity"],
   ];
   return options.map(([value, label]) =>
     `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(label)}</option>`
   ).join("");
+}
+
+function hasVisibleExternalSignals(settings = currentSettings()) {
+  return Boolean(settings.externalSignals?.prosperio?.enabled && externalSignalProvider.listSignals().length);
+}
+
+function assistantPromptChips(settings = currentSettings()) {
+  return hasVisibleExternalSignals(settings)
+    ? [...DEFAULT_PROMPT_CHIPS, ...EXTERNAL_SIGNAL_PROMPT_CHIPS]
+    : DEFAULT_PROMPT_CHIPS;
+}
+
+function statusText(value, fallback = "Unavailable") {
+  return value ? String(value).replace(/_/g, " ").toUpperCase() : fallback;
 }
 
 function signalSettingsHtml(settings) {
@@ -417,7 +425,9 @@ function panelTemplate(hostId, contextName) {
   const modeChips = COMMAND_MODE_CHIPS.map(([value, label]) =>
     `<button class="ytt-ai-chip${value === settings.mode ? " is-active" : ""}" type="button" data-ytt-mode-chip="${escapeHtml(value)}">${escapeHtml(label)}</button>`
   ).join("");
-  const promptChips = promptChipHtml(DEFAULT_PROMPT_CHIPS);
+  const visiblePromptChips = promptChipHtml(assistantPromptChips(settings));
+  const ollamaStatus = settings.ollamaEnabled ? "Enabled" : "Disabled";
+  const perplexityStatus = settings.proxyBase ? "Proxy Ready" : "Proxy Required";
   return `<section class="ytt-perplexity-panel ytt-ai-command-center" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
@@ -430,23 +440,17 @@ function panelTemplate(hostId, contextName) {
         <button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close AI assistant">Close</button>
       </div>
     </div>
-    <div class="ytt-ai-intel-strip" data-ytt-intel-strip>
-      <span><b>Regime</b><em data-ytt-regime>UNKNOWN</em></span>
-      <span><b>Data</b><em data-ytt-data-quality>${status}</em></span>
+    <div class="ytt-ai-status-row" data-ytt-intel-strip>
       <span><b>Provider</b><em data-ytt-provider>${providerStatus}</em></span>
-      <span><b>Health</b><em data-ytt-health>${settings.proxyBase || settings.ollamaEnabled ? "PARTIAL" : "PROXY REQUIRED"}</em></span>
+      <span><b>Data Quality</b><em data-ytt-data-quality>${statusText(status)}</em></span>
+      <span><b>Ollama</b><em data-ytt-ollama>${escapeHtml(ollamaStatus)}</em></span>
+      <span><b>Perplexity</b><em data-ytt-perplexity>${escapeHtml(perplexityStatus)}</em></span>
     </div>
     <div class="ytt-ai-mode-chips" data-ytt-mode-chips>${modeChips}</div>
     <form class="ytt-perplexity-form" data-perplexity-form>
-      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-provider">Provider</label>
-      <div class="ytt-perplexity-mode-row">
-        <select id="${escapeHtml(hostId)}-provider" class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select>
-        <span class="ytt-perplexity-provider-badge" data-provider-badge>${providerStatus}</span>
-      </div>
-      <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-mode">Mode</label>
-      <div class="ytt-perplexity-mode-row">
-        <select id="${escapeHtml(hostId)}-mode" class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select>
-        <button class="ytt-perplexity-btn" type="button" data-perplexity-retry>Retry</button>
+      <div class="ytt-ai-control-grid">
+        <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-provider"><span>Provider</span><select id="${escapeHtml(hostId)}-provider" class="ytt-perplexity-mode" data-ai-provider aria-label="AI provider">${providerOptions(settings.provider)}</select></label>
+        <label class="ytt-perplexity-label" for="${escapeHtml(hostId)}-mode"><span>Mode</span><select id="${escapeHtml(hostId)}-mode" class="ytt-perplexity-mode" data-perplexity-mode aria-label="Research mode">${modeOptions(settings.mode)}</select></label>
       </div>
       <div class="ytt-ai-symbol-row">
         <span class="ytt-ai-symbol-chip" data-ytt-symbol-chip>No symbol locked</span>
@@ -454,20 +458,23 @@ function panelTemplate(hostId, contextName) {
       </div>
       <div class="ytt-perplexity-query-row">
         <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask YucaTana AI about a ticker, setup, scanner, risk, catalyst, or portfolio move..." rows="3"></textarea>
-        <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
-        <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>
+        <div class="ytt-ai-input-actions">
+          <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
+          <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>
+          <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-retry hidden>Retry</button>
+        </div>
       </div>
     </form>
-    <div class="ytt-ai-prompt-chips" data-ytt-prompt-chips>${promptChips}</div>
+    <div class="ytt-ai-prompt-chips" data-ytt-prompt-chips>${visiblePromptChips}</div>
     <div class="ytt-perplexity-output ytt-ai-response-stack" data-perplexity-output>${settings.proxyBase || settings.ollamaEnabled ? "Ask a ticker, setup, ranking, risk, or catalyst question to start Market Brain analysis." : "Perplexity proxy is not configured. Add API_PROXY_BASE in Settings/Admin."}</div>
-    <div class="ytt-perplexity-meta" data-perplexity-meta>
+    <div class="ytt-perplexity-meta" data-perplexity-meta hidden>
       <span>${settings.enabled ? "ENABLED" : "DISABLED"}</span>
       <span>${settings.proxyBase ? "PERPLEXITY READY" : "PERPLEXITY PROXY REQUIRED"}</span>
       <span>${settings.ollamaEnabled ? "OLLAMA ENABLED" : "OLLAMA DISABLED"}</span>
     </div>
     <div class="ytt-perplexity-tickers" data-perplexity-tickers></div>
     <div class="ytt-perplexity-citations" data-perplexity-citations></div>
-    <div class="ytt-perplexity-actions">
+    <div class="ytt-perplexity-actions ytt-ai-response-actions" data-ytt-response-actions hidden>
       <button class="ytt-perplexity-btn" type="button" data-perplexity-copy>Copy</button>
       <button class="ytt-perplexity-btn" type="button" data-perplexity-regenerate>Regenerate</button>
     </div>
@@ -665,7 +672,8 @@ function updateAssistantChrome(panel, result = {}) {
   setText("[data-ytt-regime]", regime);
   setText("[data-ytt-data-quality]", quality);
   setText("[data-ytt-provider]", providerStatusLabel(provider === "PERPLEXITY" ? AI_PROVIDER_IDS.PERPLEXITY : provider === "OLLAMA" ? AI_PROVIDER_IDS.OLLAMA : currentSettings().provider));
-  setText("[data-ytt-health]", quality === "UNAVAILABLE" ? "PARTIAL" : "READY");
+  setText("[data-ytt-ollama]", currentSettings().ollamaEnabled ? "ENABLED" : "DISABLED");
+  setText("[data-ytt-perplexity]", currentSettings().proxyBase ? "PROXY READY" : "PROXY REQUIRED");
   setText("[data-ytt-symbol-chip]", symbolText);
   const promptHost = panel.querySelector("[data-ytt-prompt-chips]");
   if (promptHost && resolution.requestedSymbol && resolution.requestedSymbol !== "Unavailable") {
@@ -680,6 +688,13 @@ function updateAssistantChrome(panel, result = {}) {
   }
   const launcher = document.getElementById("ai-fab");
   if (launcher) launcher.dataset.aiStatus = quality === "UNAVAILABLE" ? "red" : quality === "FALLBACK" || quality === "PARTIAL" || quality === "LOCAL_CONTEXT" ? "yellow" : "green";
+}
+
+function setResponseControls(panel, { hasResponse = false, failed = false } = {}) {
+  const actions = panel.querySelector("[data-ytt-response-actions]");
+  const retry = panel.querySelector("[data-perplexity-retry]");
+  if (actions) actions.hidden = !hasResponse;
+  if (retry) retry.hidden = !failed;
 }
 
 function setQuality(panel, quality) {
@@ -705,6 +720,7 @@ function updateOutput(panel, result = {}) {
     output.classList.remove("is-loading");
     output.innerHTML = renderStructuredOutput(result);
   }
+  setResponseControls(panel, { hasResponse: Boolean(answer), failed: Boolean(result.failed) });
   setQuality(panel, quality);
   if (meta) {
     const stamp = formatTimestamp(result.timestamp);
@@ -1111,6 +1127,7 @@ async function ask(panel, contextName, forceQuery = "") {
       : { answer: classified.message, provider: isLocalError ? "OLLAMA" : "PERPLEXITY", model: isLocalError ? settings.ollamaModel : "", dataQuality: "UNAVAILABLE", timestamp: new Date().toISOString(), citations: [], tickers: [] };
     fallbackResult.provider = fallbackResult.provider || (isLocalError ? "OLLAMA" : "PERPLEXITY");
     fallbackResult.model = isLocalError ? settings.ollamaModel : fallbackResult.model;
+    fallbackResult.failed = true;
     updateOutput(panel, fallbackResult);
     if (isLocalError) updateOllamaSourceHealth(classified.status, `Last failure: ${classified.message}`);
     else updateSourceHealth(classified.status, `Last failure: ${classified.message}`);
@@ -1190,6 +1207,7 @@ function bindPanel(host, contextName) {
       sources: [],
       tickers: [],
     });
+    setResponseControls(panel, { hasResponse: false, failed: false });
   });
   panel.querySelector("[data-perplexity-retry]")?.addEventListener("click", () => {
     const previous = panelState.get(panel);

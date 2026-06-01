@@ -511,8 +511,8 @@ textarea.ytt-perplexity-input {
   height: 100%;
   max-height: min(78vh, calc(100vh - 126px));
   display: grid;
-  grid-template-rows: auto auto auto auto auto minmax(160px, 1fr) auto auto auto auto;
-  gap: 10px;
+  grid-template-rows: auto auto auto auto minmax(150px, 1fr) auto auto auto;
+  gap: 12px;
   padding: 16px;
   border: 0;
   border-radius: 22px;
@@ -541,13 +541,13 @@ textarea.ytt-perplexity-input {
   text-transform: uppercase;
 }
 
-.ytt-ai-intel-strip {
+.ytt-ai-status-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
-.ytt-ai-intel-strip span,
+.ytt-ai-status-row span,
 .ytt-ai-symbol-chip {
   min-width: 0;
   border: 1px solid rgba(255,215,0,0.14);
@@ -556,7 +556,7 @@ textarea.ytt-perplexity-input {
   padding: 8px;
 }
 
-.ytt-ai-intel-strip b {
+.ytt-ai-status-row b {
   display: block;
   color: rgba(210,210,220,0.58);
   font: 850 8px var(--mono);
@@ -564,7 +564,7 @@ textarea.ytt-perplexity-input {
   text-transform: uppercase;
 }
 
-.ytt-ai-intel-strip em {
+.ytt-ai-status-row em {
   display: block;
   margin-top: 3px;
   color: rgba(245,245,247,0.94);
@@ -576,11 +576,36 @@ textarea.ytt-perplexity-input {
   white-space: nowrap;
 }
 
+.ytt-ai-control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.ytt-ai-control-grid .ytt-perplexity-label {
+  display: grid;
+  gap: 6px;
+}
+
+.ytt-ai-input-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, auto));
+  gap: 8px;
+  align-items: stretch;
+}
+
 .ytt-ai-mode-chips,
 .ytt-ai-prompt-chips {
   display: flex;
   gap: 7px;
   flex-wrap: wrap;
+}
+
+.ytt-ai-prompt-chips {
+  max-height: 76px;
+  overflow-y: auto;
+  padding-right: 3px;
+  scrollbar-color: rgba(255,215,0,0.36) rgba(255,255,255,0.04);
 }
 
 .ytt-ai-chip,
@@ -630,7 +655,7 @@ textarea.ytt-perplexity-input {
 #ai-drawer .ytt-perplexity-setting,
 #ai-drawer .ytt-perplexity-output {
   border-radius: 14px;
-  background: rgba(16,16,20,0.98);
+  background: rgba(13,13,16,0.995);
   color: rgba(245,245,247,0.94);
   border-color: rgba(255,215,0,0.16);
 }
@@ -656,10 +681,23 @@ textarea.ytt-perplexity-input {
   min-height: 180px;
   max-height: none;
   overflow-y: auto;
-  padding: 10px;
+  padding: 12px;
   display: grid;
   gap: 10px;
+  border-color: rgba(255,215,0,0.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
   scrollbar-color: rgba(255,215,0,0.42) rgba(255,255,255,0.05);
+}
+
+#ai-drawer .ytt-perplexity-meta[hidden],
+#ai-drawer .ytt-perplexity-actions[hidden],
+#ai-drawer [data-perplexity-retry][hidden] {
+  display: none !important;
+}
+
+#ai-drawer .ytt-ai-response-actions {
+  justify-content: flex-end;
+  margin-top: 0;
 }
 
 .ytt-ai-card {
@@ -850,7 +888,9 @@ textarea.ytt-perplexity-input {
     max-height: calc(100vh - 116px);
   }
 
-  .ytt-ai-intel-strip,
+  .ytt-ai-status-row,
+  .ytt-ai-control-grid,
+  .ytt-ai-input-actions,
   .ytt-ai-card-grid,
   .ytt-ai-split,
   .ytt-ai-symbol-row,

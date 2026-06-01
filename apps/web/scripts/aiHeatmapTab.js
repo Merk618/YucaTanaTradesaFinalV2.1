@@ -179,6 +179,10 @@ function setSourceHealthFromState() {
 function renderRoot() {
   const root = $("#tab-aiheatmap");
   if (!root) return;
+  const modeLabel = state.mode === "stocks" ? "Stocks" : "Crypto";
+  const modeCopy = state.mode === "stocks"
+    ? "Stock-only heatmap. MooMoo/Finnhub rows stay unavailable until a visible manual scan is triggered."
+    : "Crypto-only heatmap. CoinGecko/Binance rows stay unavailable until a visible manual scan is triggered.";
   root.innerHTML = `
     <div class="ytt-aiheatmap-shell">
       <section class="ytt-aiheatmap-hero" aria-label="AI Heatmap Intelligence">
@@ -188,13 +192,13 @@ function renderRoot() {
           <p class="ytt-aiheatmap-subtitle">Stocks + crypto scanner with TradingView, RSI, MACD, support/resistance, VWAP context, and Market Brain decision support. Missing technicals stay labeled unavailable.</p>
         </div>
         <div class="ytt-aiheatmap-actions">
-          <div class="ytt-aiheatmap-mode-toggle" role="tablist" aria-label="AIheatmap mode">
-            <button class="ytt-aiheatmap-toggle" type="button" data-aih-mode="crypto">Crypto</button>
-            <button class="ytt-aiheatmap-toggle" type="button" data-aih-mode="stocks">Stocks</button>
+          <div class="ytt-aiheatmap-mode-toggle" role="tablist" aria-label="AIheatmap internal tabs">
+            <button class="ytt-aiheatmap-toggle" type="button" role="tab" data-aih-mode="crypto">Crypto</button>
+            <button class="ytt-aiheatmap-toggle" type="button" role="tab" data-aih-mode="stocks">Stocks</button>
           </div>
           <button id="aiheatmap-scan-now" class="ytt-aiheatmap-scan-button" type="button">
             <span>SCAN NOW</span>
-            <small>LIVE TOP 50 STOCK &amp; CRYPTO REFRESH</small>
+            <small>${escapeHtml(modeLabel)} heatmap refresh</small>
           </button>
           <div class="ytt-aiheatmap-status-pills">
             <span class="ytt-aiheatmap-pill"><strong>Stocks</strong> MooMoo/Finnhub</span>
@@ -206,21 +210,20 @@ function renderRoot() {
         </div>
       </section>
 
+      <section class="ytt-aiheatmap-subtab-head" aria-live="polite">
+        <div>
+          <div class="ytt-aiheatmap-card-kicker">${escapeHtml(modeLabel)} Subtab</div>
+          <h2>${escapeHtml(modeLabel)} Heatmap</h2>
+          <p>${escapeHtml(modeCopy)}</p>
+        </div>
+        <span class="ytt-aiheatmap-symbol-badge">${escapeHtml(state.mode.toUpperCase())}</span>
+      </section>
+
       <div class="ytt-aiheatmap-terminal">
-        <section class="ytt-aiheatmap-chart-card">
-          <div class="ytt-aiheatmap-panel-header">
-            <span>TRADINGVIEW PRICE / RSI / MACD</span>
-            <span id="aiheatmap-tv-symbol" class="ytt-aiheatmap-symbol-badge">AWAITING SCAN</span>
-          </div>
-          <div id="aiheatmap-tv-frame" class="ytt-aiheatmap-tv-frame"><div class="ytt-aiheatmap-tv-empty">Run Scan Now to load the TradingView chart.</div></div>
-        </section>
-
-        <aside id="aiheatmap-detail-panel" class="ytt-aiheatmap-detail-panel"></aside>
-
         <section class="ytt-aiheatmap-heatmap-card">
           <div class="ytt-aiheatmap-heatmap-toolbar">
             <div>
-              <div class="ytt-aiheatmap-card-kicker">TRADINGVIEW-STYLE AI HEATMAP</div>
+              <div class="ytt-aiheatmap-card-kicker">${escapeHtml(modeLabel.toUpperCase())} TRADINGVIEW-STYLE HEATMAP</div>
               <div class="ytt-aiheatmap-name" id="aiheatmap-last-scan">Last scan: ${escapeHtml(fmtTime(state.scanTimestamp))}</div>
             </div>
             <div class="ytt-aiheatmap-color-toggle" aria-label="Heatmap color mode">
@@ -232,6 +235,16 @@ function renderRoot() {
           <div id="aiheatmap-grid" class="ytt-aiheatmap-heatmap-grid"></div>
           <div id="aiheatmap-expanded-slot" class="ytt-aiheatmap-expanded-slot"></div>
         </section>
+
+        <section class="ytt-aiheatmap-chart-card">
+          <div class="ytt-aiheatmap-panel-header">
+            <span>TRADINGVIEW PRICE / RSI / MACD</span>
+            <span id="aiheatmap-tv-symbol" class="ytt-aiheatmap-symbol-badge">AWAITING SCAN</span>
+          </div>
+          <div id="aiheatmap-tv-frame" class="ytt-aiheatmap-tv-frame"><div class="ytt-aiheatmap-tv-empty">Run Scan Now to load the TradingView chart.</div></div>
+        </section>
+
+        <aside id="aiheatmap-detail-panel" class="ytt-aiheatmap-detail-panel"></aside>
 
         <section id="aiheatmap-scan-console" class="ytt-aiheatmap-scan-console">
           <div class="ytt-aiheatmap-panel-header">
@@ -247,13 +260,32 @@ function renderRoot() {
 
 function bind() {
   $("#tab-aiheatmap")?.addEventListener("click", (event) => {
+    if (event.target.closest("#aiheatmap-scan-now")) {
+      scanNow();
+      return;
+    }
+
     const modeButton = event.target.closest("[data-aih-mode]");
     if (modeButton) {
       state.mode = modeButton.dataset.aihMode || "crypto";
       localStorage.setItem("AI_HEATMAP_DEFAULT_MODE", state.mode);
+      state.rows = [];
+      state.sortedRows = [];
+      state.selectedSymbol = "";
+      state.selectedRow = null;
       state.expandedSymbol = "";
+      state.topMovers = [];
+      state.scanTimestamp = "";
+      state.dataQuality = "UNAVAILABLE";
+      state.source = "Unavailable";
+      state.warnings = [];
+      renderRoot();
       updateModeButtons();
-      scanNow();
+      updateColorButtons();
+      setConsoleStage({ index: -1 });
+      renderDetail();
+      renderHeatmap();
+      publishSelectionContext();
       return;
     }
 
@@ -286,8 +318,6 @@ function bind() {
       renderHeatmap();
     }
   });
-
-  $("#aiheatmap-scan-now")?.addEventListener("click", scanNow);
 }
 
 function updateModeButtons() {
@@ -372,7 +402,15 @@ function renderAll() {
   $("#aiheatmap-last-scan") && ($("#aiheatmap-last-scan").textContent = `Last scan: ${fmtTime(state.scanTimestamp)}`);
   renderDetail();
   renderHeatmap();
-  renderTradingView(getSelectedRow());
+  const selected = getSelectedRow();
+  if (selected) {
+    renderTradingView(selected);
+  } else {
+    const frame = $("#aiheatmap-tv-frame");
+    const badge = $("#aiheatmap-tv-symbol");
+    if (badge) badge.textContent = "AWAITING SCAN";
+    if (frame) frame.innerHTML = `<div class="ytt-aiheatmap-tv-empty">Run Scan Now to load the ${state.mode === "stocks" ? "stock" : "crypto"} TradingView chart.</div>`;
+  }
 }
 
 function selectSymbol(symbol = "") {
@@ -385,7 +423,19 @@ function selectSymbol(symbol = "") {
   renderDetail();
   renderHeatmap();
   renderTradingView(row);
-  window.dispatchEvent(new CustomEvent("ytt:aiheatmap-select", { detail: compactContextRow(row) }));
+  publishSelectionContext(row);
+}
+
+function publishSelectionContext(row = getSelectedRow()) {
+  window.dispatchEvent(new CustomEvent("ytt:aiheatmap-select", {
+    detail: {
+      mode: state.mode,
+      selectedAIHeatmapMode: state.mode,
+      selectedAIHeatmapSymbol: row?.symbol || "",
+      row: row ? compactContextRow(row) : null,
+      assetType: state.mode === "stocks" ? "stock" : "crypto",
+    },
+  }));
 }
 
 function renderTradingView(row) {
@@ -507,7 +557,7 @@ function renderHeatmap() {
   if (!grid || !slot) return;
   if (!state.rows.length) {
     grid.classList.remove("has-selection");
-    grid.innerHTML = `<div class="ytt-aiheatmap-empty">No scan rows yet. Click Scan Now to rebuild the AI heatmap.</div>`;
+    grid.innerHTML = `<div class="ytt-aiheatmap-empty">${state.mode === "stocks" ? "Stock" : "Crypto"} heatmap unavailable until Scan Now. No ${state.mode === "stocks" ? "crypto assets" : "stock tickers"} are shown in this subtab.</div>`;
     slot.innerHTML = "";
     return;
   }
@@ -633,17 +683,11 @@ function mount() {
   setConsoleStage({ index: -1 });
   renderDetail();
   renderHeatmap();
-  if ((document.body.dataset.activeTab || localStorage.getItem("activeTab")) === "aiheatmap") {
-    setTimeout(scanNow, 200);
-  }
+  publishSelectionContext();
 }
 
 function ensureReady() {
   if (!$("#tab-aiheatmap")) return;
-  if (!state.rows.length && !state.scanning) {
-    scanNow();
-    return;
-  }
   renderAll();
 }
 
