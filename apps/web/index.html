@@ -3000,13 +3000,14 @@
       z-index: 80;
       display: grid;
       grid-template-columns: 1fr;
-      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto minmax(72px, 1fr) auto;
       grid-template-areas:
         "brand"
         "nav"
+        "ambient"
         "footer";
-      gap: 16px;
-      padding: 18px 12px;
+      gap: 12px;
+      padding: 14px 12px 12px;
       overflow: hidden;
       border-right: 1px solid rgba(245,217,120,0.18);
       border-bottom: 0;
@@ -3024,7 +3025,10 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(100deg, transparent 0%, rgba(245,217,120,0.11) 48%, transparent 68%);
+      background:
+        linear-gradient(100deg, transparent 0%, rgba(245,217,120,0.11) 48%, transparent 68%),
+        repeating-linear-gradient(0deg, transparent 0 18px, rgba(245,217,120,0.018) 19px, transparent 20px),
+        repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,0.012) 23px, transparent 24px);
       transform: translateX(-112%);
       pointer-events: none;
       opacity: 0.7;
@@ -3049,32 +3053,72 @@
       grid-area: brand;
       position: relative;
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) 34px;
+      grid-template-columns: 58px minmax(0, 1fr) 30px;
       align-items: center;
-      gap: 10px;
-      min-height: 58px;
-      padding: 8px;
+      gap: 9px;
+      min-height: 78px;
+      padding: 8px 7px;
       border: 1px solid rgba(245,217,120,0.14);
-      background: rgba(255,255,255,0.028);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(245,217,120,0.13), transparent 56%),
+        rgba(255,255,255,0.028);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 0 30px rgba(212,175,55,0.08);
     }
 
-    .rail-mark {
+    .rail-brand::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: radial-gradient(circle at 24% 48%, rgba(245,217,120,0.24), transparent 36%);
+      opacity: 0.42;
+      pointer-events: none;
+      animation: railLogoAura 4.8s var(--ytt-ease-premium) infinite;
+    }
+
+    .rail-logo-frame {
+      position: relative;
+      z-index: 1;
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
+      width: 56px;
+      height: 56px;
       border: 1px solid rgba(245,217,120,0.34);
+      border-radius: 12px;
       color: var(--gold-bright);
       background:
         radial-gradient(circle at 50% 0%, rgba(245,217,120,0.24), transparent 58%),
         rgba(9,10,12,0.86);
       font: 800 14px var(--mono);
       letter-spacing: 0.08em;
-      box-shadow: 0 0 24px rgba(212,175,55,0.12);
+      overflow: hidden;
+      box-shadow: 0 0 24px rgba(212,175,55,0.16);
+      animation: railLogoPulse 5.6s var(--ytt-ease-premium) infinite;
+    }
+
+    .rail-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.08);
+      filter: saturate(1.08) contrast(1.04);
+    }
+
+    .rail-logo-fallback {
+      padding: 4px;
+      color: var(--gold-bright);
+      font: 800 10px/1.1 var(--ui);
+      letter-spacing: 0.07em;
+      text-align: center;
+      text-transform: uppercase;
     }
 
     .rail-wordmark {
+      position: relative;
+      z-index: 1;
       min-width: 0;
       overflow: hidden;
       transition: opacity var(--ytt-motion-base) var(--ytt-ease-premium), transform var(--ytt-motion-base) var(--ytt-ease-premium);
@@ -3082,19 +3126,21 @@
 
     .rail-wordmark .logo {
       display: block;
-      font: 800 19px var(--ui);
-      letter-spacing: 0.11em;
+      font: 800 17px var(--ui);
+      letter-spacing: 0.045em;
       color: var(--gold-bright);
       white-space: nowrap;
+      text-transform: uppercase;
     }
 
     .rail-wordmark .subtitle {
       display: block;
       margin-top: 0;
       color: rgba(245,245,240,0.62);
-      font: 700 10px var(--mono);
-      letter-spacing: 0.32em;
+      font: 700 9px var(--mono);
+      letter-spacing: 0.12em;
       white-space: nowrap;
+      text-transform: uppercase;
     }
 
     .nav-collapse-toggle {
@@ -3120,7 +3166,7 @@
       min-width: 0;
       display: grid;
       align-content: start;
-      gap: 7px;
+      gap: 6px;
       padding: 0;
       overflow: visible auto;
       border: 0;
@@ -3136,7 +3182,7 @@
       position: relative;
       width: 100%;
       min-width: 0;
-      height: 44px;
+      height: 41px;
       display: grid;
       grid-template-columns: 36px minmax(0, 1fr);
       align-items: center;
@@ -3253,6 +3299,137 @@
     .rail-footer {
       grid-area: footer;
       min-width: 0;
+      display: grid;
+      gap: 9px;
+    }
+
+    .rail-ambient {
+      grid-area: ambient;
+      position: relative;
+      min-height: 92px;
+      overflow: hidden;
+      border: 1px solid rgba(245,217,120,0.10);
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 52% 18%, rgba(245,217,120,0.10), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.006));
+    }
+
+    .rail-ambient::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 13px, rgba(245,217,120,0.026) 14px, transparent 15px),
+        repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,0.018) 19px, transparent 20px);
+      opacity: 0.54;
+      animation: railGridDrift 12s linear infinite;
+    }
+
+    .rail-ambient::after {
+      content: "";
+      position: absolute;
+      left: -20%;
+      right: -20%;
+      top: -34%;
+      height: 38%;
+      background: linear-gradient(180deg, transparent, rgba(245,217,120,0.13), transparent);
+      transform: translateY(-40%);
+      animation: railScanline 8.8s var(--ytt-ease-premium) infinite;
+    }
+
+    .rail-pulse-line {
+      position: absolute;
+      inset: 12px auto 12px 14px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(245,217,120,0.82), rgba(0,200,5,0.24), transparent);
+      opacity: 0.66;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,0.34));
+      animation: railPulseLine 4.8s var(--ytt-ease-premium) infinite;
+    }
+
+    .rail-grid-map {
+      position: absolute;
+      inset: 16px 14px 16px 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+
+    .rail-grid-map span {
+      min-height: 9px;
+      border: 1px solid rgba(245,217,120,0.10);
+      background: rgba(245,217,120,0.025);
+      opacity: 0.58;
+    }
+
+    .rail-grid-map span:nth-child(3n) {
+      background: rgba(0,200,5,0.045);
+      border-color: rgba(0,200,5,0.12);
+    }
+
+    .rail-source-dots {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 5px;
+      padding: 8px;
+      border: 1px solid rgba(245,217,120,0.12);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.020);
+    }
+
+    .rail-source-dots span {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      min-width: 0;
+      color: rgba(245,245,240,0.52);
+      font: 800 8px var(--mono);
+      letter-spacing: 0.06em;
+    }
+
+    .source-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(245,217,120,0.72);
+      box-shadow: 0 0 12px rgba(245,217,120,0.26);
+      animation: railStatusPulse 4.2s var(--ytt-ease-premium) infinite;
+    }
+
+    .source-dot.data { background: rgba(0,200,5,0.72); box-shadow: 0 0 12px rgba(0,200,5,0.22); }
+    .source-dot.local { background: rgba(122,162,255,0.72); box-shadow: 0 0 12px rgba(122,162,255,0.22); }
+    .source-dot.web { background: rgba(245,217,120,0.72); }
+
+    .rail-safety-stack {
+      display: grid;
+      gap: 5px;
+      padding: 9px;
+      border: 1px solid rgba(245,217,120,0.14);
+      border-radius: 10px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.038), rgba(255,255,255,0.012)),
+        rgba(0,0,0,0.16);
+    }
+
+    .rail-safety-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      color: rgba(245,245,240,0.62);
+      font: 800 8.5px var(--mono);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .rail-safety-row b {
+      color: rgba(0,200,5,0.92);
+      font-weight: 900;
+    }
+
+    .rail-safety-row.danger b {
+      color: rgba(255,127,88,0.92);
     }
 
     .version {
@@ -3277,15 +3454,28 @@
       grid-template-columns: 44px;
       justify-content: center;
       padding-inline: 5px;
+      min-height: 58px;
     }
 
     body.nav-collapsed .rail-wordmark,
     body.nav-collapsed .nav-label,
-    body.nav-collapsed .version {
+    body.nav-collapsed .version,
+    body.nav-collapsed .rail-safety-stack,
+    body.nav-collapsed .rail-source-dots span {
       opacity: 0;
       transform: translateX(-8px);
       pointer-events: none;
       width: 0;
+    }
+
+    body.nav-collapsed .rail-logo-frame {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+    }
+
+    body.nav-collapsed .rail-ambient {
+      min-height: 142px;
     }
 
     body.nav-collapsed .nav-collapse-toggle {
@@ -3300,6 +3490,12 @@
       grid-template-columns: 36px;
       justify-content: center;
       padding-inline: 8px;
+    }
+
+    body.nav-collapsed .rail-source-dots {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      padding: 8px 0;
     }
 
     .main {
@@ -3353,10 +3549,28 @@
     .topbar-brand {
       min-width: 0;
       display: grid;
-      gap: 2px;
+      grid-template-columns: 34px minmax(0, auto);
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "logo kicker"
+        "logo title";
+      align-items: center;
+      gap: 2px 9px;
+    }
+
+    .topbar-brand-logo {
+      grid-area: logo;
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border: 1px solid rgba(245,217,120,0.20);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.28);
+      box-shadow: 0 0 16px rgba(212,175,55,0.10);
     }
 
     .topbar-brand strong {
+      grid-area: title;
       color: var(--gold-bright);
       font: 800 18px var(--ui);
       letter-spacing: 0.08em;
@@ -3367,6 +3581,7 @@
     }
 
     .topbar-kicker {
+      grid-area: kicker;
       color: rgba(245,245,240,0.58);
       font: 700 10px var(--mono);
       letter-spacing: 0.18em;
@@ -3524,7 +3739,9 @@
 
       .rail-wordmark,
       .nav-label,
-      .version {
+      .version,
+      .rail-safety-stack,
+      .rail-source-dots span {
         opacity: 0;
         width: 0;
         pointer-events: none;
@@ -3535,6 +3752,11 @@
         justify-content: center;
       }
 
+      .rail-logo-frame {
+        width: 42px;
+        height: 42px;
+      }
+
       .nav-collapse-toggle {
         display: none;
       }
@@ -3543,6 +3765,12 @@
         grid-template-columns: 36px;
         justify-content: center;
         padding-inline: 8px;
+      }
+
+      .rail-source-dots {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 8px 0;
       }
 
       .terminal-topbar {
@@ -3563,6 +3791,38 @@
       .sidebar {
         width: min(282px, 86vw);
         transform: translateX(-100%);
+      }
+
+      .rail-wordmark,
+      .nav-label,
+      .version,
+      .rail-safety-stack,
+      .rail-source-dots span {
+        opacity: 1;
+        width: auto;
+        pointer-events: auto;
+      }
+
+      .rail-brand {
+        grid-template-columns: 58px minmax(0, 1fr) 30px;
+        justify-content: stretch;
+      }
+
+      .rail-logo-frame {
+        width: 56px;
+        height: 56px;
+      }
+
+      .nav-btn {
+        grid-template-columns: 36px minmax(0, 1fr);
+        justify-content: start;
+        padding-inline: 12px;
+      }
+
+      .rail-source-dots {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        justify-items: stretch;
+        padding: 8px;
       }
 
       body.mobile-nav-open .sidebar {
@@ -3613,6 +3873,37 @@
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
       }
+    }
+
+    @keyframes railLogoPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.12); filter: brightness(1); }
+      50% { box-shadow: 0 0 34px rgba(212,175,55,0.24); filter: brightness(1.08); }
+    }
+
+    @keyframes railLogoAura {
+      0%, 100% { opacity: 0.24; transform: scale(0.98); }
+      50% { opacity: 0.52; transform: scale(1.025); }
+    }
+
+    @keyframes railGridDrift {
+      from { transform: translate3d(0,0,0); }
+      to { transform: translate3d(0,20px,0); }
+    }
+
+    @keyframes railScanline {
+      0%, 18% { transform: translateY(-70%); opacity: 0; }
+      38% { opacity: 0.72; }
+      72%, 100% { transform: translateY(360%); opacity: 0; }
+    }
+
+    @keyframes railPulseLine {
+      0%, 100% { opacity: 0.42; transform: scaleY(0.92); }
+      50% { opacity: 0.9; transform: scaleY(1); }
+    }
+
+    @keyframes railStatusPulse {
+      0%, 100% { opacity: 0.58; transform: scale(0.94); }
+      50% { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -3774,10 +4065,13 @@
 
   <aside class="sidebar" aria-label="Primary navigation">
     <div class="rail-brand">
-      <div class="rail-mark" aria-hidden="true">YT</div>
+      <div class="rail-logo-frame" title="YucaTana Trades">
+        <img class="rail-logo-img" src="assets/brand/yucatana-trades-logo.png" alt="YucaTana Trades" loading="eager" decoding="async" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+        <span class="rail-logo-fallback" hidden>YucaTana Trades</span>
+      </div>
       <div class="rail-wordmark">
-        <div class="logo">YUCATANA</div>
-        <div class="subtitle">TRADES</div>
+        <div class="logo">YucaTana Trades</div>
+        <div class="subtitle">Read-Only Intelligence</div>
       </div>
       <button id="nav-collapse-toggle" class="nav-collapse-toggle" type="button" aria-label="Collapse navigation" aria-pressed="false">‹</button>
     </div>
@@ -3794,7 +4088,26 @@
       <button class="nav-btn" data-tab="charts" onclick="showTab('charts')" title="Charts"><span class="nav-icon">◫</span><span class="nav-label">Charts</span></button>
       <button class="nav-btn" data-tab="settings" onclick="showTab('settings')" title="Settings"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></button>
     </nav>
+    <div class="rail-ambient" aria-hidden="true">
+      <div class="rail-pulse-line"></div>
+      <div class="rail-grid-map">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
     <div class="rail-footer">
+      <div class="rail-source-dots" aria-label="Source health summary">
+        <span><i class="source-dot ai"></i>AI</span>
+        <span><i class="source-dot data"></i>DATA</span>
+        <span><i class="source-dot local"></i>LOCAL</span>
+        <span><i class="source-dot web"></i>WEB</span>
+      </div>
+      <div class="rail-safety-stack" aria-label="Execution safety status">
+        <div class="rail-safety-row"><span>READ ONLY</span><b>ON</b></div>
+        <div class="rail-safety-row danger"><span>LIVE TRADING</span><b>OFF</b></div>
+        <div class="rail-safety-row"><span>DATA MODE</span><b>MIXED</b></div>
+      </div>
       <div class="version">v1.0 · OBSERVE</div>
     </div>
   </aside>
@@ -3803,6 +4116,7 @@
     <header class="terminal-topbar" aria-label="Terminal utility bar">
       <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-label="Open navigation">☰</button>
       <div class="topbar-brand">
+        <img class="topbar-brand-logo" src="assets/brand/yucatana-trades-logo.png" alt="" aria-hidden="true" loading="eager" decoding="async">
         <span class="topbar-kicker">YucaTanaTrades Terminal</span>
         <strong>Market Command Center</strong>
       </div>

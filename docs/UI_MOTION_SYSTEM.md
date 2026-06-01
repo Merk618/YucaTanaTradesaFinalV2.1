@@ -23,6 +23,10 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Button press microinteractions
 - Settings/status pill transitions
 - Existing AI assistant and AIheatmap polish from the prior pass
+- Sidebar logo gold pulse
+- Sidebar-only scanline sweep
+- Sidebar-only terminal grid shimmer
+- Bottom safety/status dot pulse
 
 ## Performance Rules
 
@@ -31,6 +35,8 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Do not animate TradingView iframes.
 - Avoid large animated blur layers.
 - Keep interactions fast and subtle.
+- Keep sidebar ambience scoped to `.sidebar`.
+- Do not add global canvas effects.
 
 ## Reduced Motion
 

@@ -5,6 +5,7 @@ YucaTanaTrades now uses a left-side collapsible navigation rail for the primary 
 ## Structure
 
 Left rail:
+- Premium YucaTana Trades logo block
 - Dashboard
 - Meridian
 - News
@@ -16,9 +17,12 @@ Left rail:
 - Portfolio
 - Charts
 - Settings
+- Ambient terminal area
+- Read-only / live-trading-off safety cluster
+- Source-health dot row
 
 Top utility bar:
-- YucaTanaTrades Terminal brand context
+- Compact YucaTanaTrades Terminal brand context
 - Market status and Central Time clock
 - Read-only / live-trading-off safety chips
 - Profile/account settings
@@ -36,6 +40,8 @@ Desktop:
 - The rail can collapse to icon-only mode.
 - Active sections receive a gold edge, glow, and icon emphasis.
 - Tab routing still uses the existing `showTab()` path.
+- Collapsed mode keeps the compact logo visible.
+- The bottom status cluster remains safety-focused and does not add extra data providers.
 
 Mobile:
 - The rail becomes a slide-out drawer.
