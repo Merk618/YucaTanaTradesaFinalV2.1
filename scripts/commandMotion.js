@@ -17,7 +17,13 @@ const REVEAL_SELECTOR = [
   ".vault-provider-section",
   ".market-mini-card",
   ".stock-thesis-card",
-  ".feed-card"
+  ".feed-card",
+  ".ytt-aiheatmap-chart-card",
+  ".ytt-aiheatmap-detail-panel",
+  ".ytt-aiheatmap-heatmap-card",
+  ".ytt-aiheatmap-scan-console",
+  ".ytt-crypto-scanner-pro .yt-card",
+  ".ytt-crypto-scanner-pro .tv-chart-card"
 ].join(",");
 
 function activeTabElement(tabId) {
@@ -63,10 +69,13 @@ function ensureMotionBackgrounds() {
 
 function markReveals(root = document) {
   if (!document.body?.classList.contains("ytt-signed-in")) return;
+  let index = 0;
   root.querySelectorAll?.(REVEAL_SELECTOR).forEach((element) => {
     if (element.closest("#tab-dashboard, #tab-meridian, .signin-shell")) return;
+    element.style.setProperty("--ytt-reveal-index", String(Math.min(index, 8)));
     element.classList.add("ytt-reveal");
     revealObserver?.observe(element);
+    index += 1;
   });
 }
 

@@ -17,6 +17,7 @@
   <script type="module" src="scripts/stockDeepDive.js"></script>
   <script type="module" src="scripts/aiHeatmapTab.js"></script>
   <script type="module" src="scripts/cryptoScannerProTab.js"></script>
+  <script type="module" src="scripts/tradingViewWidgetLoader.js"></script>
   <script type="module" src="scripts/commandMotion.js"></script>
   <style>
     :root {
@@ -4170,6 +4171,270 @@
     body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) .detail-card:hover::after {
       animation: commandPanelSweep 1.1s var(--ytt-ease-premium) both;
     }
+
+    /* Premium workspace refinement: post-login modules only. Dashboard, Meridian, and sign-in surfaces stay untouched. */
+    body.ytt-signed-in .content {
+      padding: clamp(18px, 1.9vw, 34px);
+      background:
+        radial-gradient(circle at 7% 0%, rgba(245,215,110,0.045), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(0,229,160,0.026), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.012), transparent 18%);
+    }
+
+    body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      width: 100%;
+      max-width: min(1840px, calc(100vw - var(--ytt-rail-expanded) - clamp(36px, 3.8vw, 68px)));
+      margin-inline: 0 auto;
+      padding: clamp(76px, 6.8vw, 92px) clamp(18px, 1.8vw, 30px) clamp(24px, 2.1vw, 38px);
+      border-radius: 16px;
+      background-color: rgba(5, 7, 5, 0.70);
+      box-shadow:
+        inset 0 0 0 1px rgba(245,215,110,0.10),
+        inset 0 0 56px rgba(0,229,160,0.020),
+        0 22px 70px rgba(0,0,0,0.24);
+    }
+
+    body.ytt-signed-in.nav-collapsed .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      max-width: min(1840px, calc(100vw - var(--ytt-rail-collapsed) - clamp(36px, 3.8vw, 68px)));
+    }
+
+    body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian)::before {
+      min-height: 58px;
+      padding-inline: clamp(16px, 1.6vw, 26px);
+      border-color: rgba(245,215,110,0.22);
+      background:
+        linear-gradient(90deg, rgba(245,215,110,0.11), rgba(0,229,160,0.035), transparent 76%),
+        rgba(11,14,10,0.92);
+    }
+
+    body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian)::after {
+      left: clamp(32px, 2.6vw, 48px);
+      top: 38px;
+      color: rgba(225,218,190,0.72);
+    }
+
+    body.ytt-signed-in .ytt-motion-bg,
+    body.ytt-signed-in .ytt-page-motion-bg {
+      opacity: min(var(--motion-panel-opacity), 0.26);
+    }
+
+    body.ytt-signed-in .ytt-motion-bg__grid,
+    body.ytt-signed-in .ytt-motion-bg__scanline,
+    body.ytt-signed-in .ytt-motion-bg__tickerstream {
+      opacity: 0.10;
+    }
+
+    body.ytt-signed-in .ytt-motion-bg__glow,
+    body.ytt-signed-in .ytt-motion-bg__accent,
+    body.ytt-signed-in .ytt-motion-bg__particles {
+      opacity: 0.16;
+    }
+
+    body.ytt-signed-in :is(.panel, .detail-card, .kpi-card, .vault-provider-section, .market-mini-card):not(#tab-dashboard *):not(#tab-meridian *) {
+      border-color: rgba(245,215,110,0.22);
+      background:
+        linear-gradient(145deg, rgba(245,215,110,0.060), rgba(255,255,255,0.014) 38%, rgba(0,229,160,0.020)),
+        rgba(13,16,11,0.92);
+      box-shadow:
+        0 18px 48px rgba(0,0,0,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.060),
+        inset 0 -1px 0 rgba(245,215,110,0.045);
+    }
+
+    body.ytt-signed-in :is(.panel, .detail-card, .kpi-card, .vault-provider-section, .market-mini-card):not(#tab-dashboard *):not(#tab-meridian *):hover {
+      transform: translateY(-1px);
+      border-color: rgba(245,215,110,0.34);
+      box-shadow:
+        0 22px 58px rgba(0,0,0,0.34),
+        0 0 26px rgba(245,215,110,0.055),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    body.ytt-signed-in .panel-header,
+    body.ytt-signed-in .stock-deep-dive-header .section-label,
+    body.ytt-signed-in .vault-section-title,
+    body.ytt-signed-in .kpi-label {
+      letter-spacing: 0.13em;
+      color: rgba(245,215,110,0.94);
+    }
+
+    body.ytt-signed-in .detail-card p,
+    body.ytt-signed-in .vault-copy,
+    body.ytt-signed-in .news-feed-subtitle,
+    body.ytt-signed-in .stock-deep-dive-copy {
+      color: rgba(225,218,190,0.74);
+    }
+
+    body.ytt-signed-in .data-table th {
+      font-size: 10px;
+      letter-spacing: 0.11em;
+    }
+
+    body.ytt-signed-in .data-table td {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    body.ytt-signed-in .stocks-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 9fr) minmax(280px, 3fr);
+      gap: clamp(16px, 1.7vw, 26px);
+      align-items: start;
+    }
+
+    body.ytt-signed-in .right-rail {
+      width: auto;
+      min-width: 0;
+    }
+
+    body.ytt-signed-in .stock-legacy-shell,
+    body.ytt-signed-in .ytt-crypto-scanner-pro,
+    body.ytt-signed-in .ytt-aiheatmap-shell,
+    body.ytt-signed-in .editorial-news,
+    body.ytt-signed-in .options-grid,
+    body.ytt-signed-in .portfolio-grid,
+    body.ytt-signed-in .charts-grid,
+    body.ytt-signed-in .settings-columns {
+      width: 100%;
+      max-width: none;
+    }
+
+    body.ytt-signed-in .stock-tab-heading {
+      max-width: 1160px;
+    }
+
+    body.ytt-signed-in .detail-grid {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: clamp(14px, 1.3vw, 22px);
+    }
+
+    body.ytt-signed-in .detail-grid.three {
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+    }
+
+    body.ytt-signed-in .kpi-grid {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: clamp(14px, 1.2vw, 20px);
+    }
+
+    body.ytt-signed-in .options-grid,
+    body.ytt-signed-in .portfolio-grid,
+    body.ytt-signed-in .charts-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: clamp(14px, 1.3vw, 22px);
+    }
+
+    body.ytt-signed-in .options-grid > *,
+    body.ytt-signed-in .portfolio-grid > *,
+    body.ytt-signed-in .charts-grid > * {
+      grid-column: 1 / -1;
+    }
+
+    body.ytt-signed-in .portfolio-grid .kpi-grid,
+    body.ytt-signed-in .portfolio-grid .detail-grid,
+    body.ytt-signed-in .charts-grid .detail-grid,
+    body.ytt-signed-in .charts-grid .summary-grid {
+      grid-column: 1 / -1;
+    }
+
+    body.ytt-signed-in .portfolio-grid > .panel:nth-last-child(2),
+    body.ytt-signed-in .charts-grid > .tv-panel {
+      grid-column: span 8;
+    }
+
+    body.ytt-signed-in .portfolio-grid > .panel:last-child,
+    body.ytt-signed-in .charts-grid > .summary-grid {
+      grid-column: span 4;
+    }
+
+    body.ytt-signed-in .settings-columns {
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(16px, 1.4vw, 24px);
+    }
+
+    body.ytt-signed-in .vault-provider-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: clamp(14px, 1.2vw, 20px);
+    }
+
+    body.ytt-signed-in .vault-provider-section {
+      grid-column: span 6;
+    }
+
+    body.ytt-signed-in .vault-provider-section.span-2 {
+      grid-column: 1 / -1;
+    }
+
+    body.ytt-signed-in .vault-field-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    body.ytt-signed-in .editorial-news {
+      grid-template-columns: minmax(210px, 0.9fr) minmax(0, 3.2fr) minmax(280px, 1fr);
+      gap: clamp(16px, 1.4vw, 24px);
+    }
+
+    body.ytt-signed-in .news-feed-column,
+    body.ytt-signed-in .market-context-panel,
+    body.ytt-signed-in .news-source-panel {
+      min-width: 0;
+    }
+
+    body.ytt-signed-in #ai-drawer.ai-drawer {
+      width: min(590px, calc(100vw - 32px));
+      border-color: rgba(245,215,110,0.32);
+      background:
+        linear-gradient(180deg, rgba(245,215,110,0.055), transparent 24%),
+        rgba(8,10,8,0.98);
+    }
+
+    body.ytt-signed-in #ai-fab.ai-fab {
+      width: 78px;
+      height: 78px;
+    }
+
+    @media (min-width: 1500px) {
+      body.ytt-signed-in .content {
+        padding-right: clamp(24px, 2.2vw, 42px);
+      }
+
+      body.ytt-signed-in .ytt-aiheatmap-terminal {
+        grid-template-columns: minmax(0, 1.65fr) minmax(360px, 0.55fr);
+      }
+
+      body.ytt-signed-in .ytt-aiheatmap-heatmap-grid {
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      }
+    }
+
+    @media (max-width: 1180px) {
+      body.ytt-signed-in .stocks-layout,
+      body.ytt-signed-in .editorial-news {
+        grid-template-columns: 1fr;
+      }
+
+      body.ytt-signed-in .portfolio-grid > .panel:nth-last-child(2),
+      body.ytt-signed-in .portfolio-grid > .panel:last-child,
+      body.ytt-signed-in .charts-grid > .tv-panel,
+      body.ytt-signed-in .charts-grid > .summary-grid {
+        grid-column: 1 / -1;
+      }
+
+      body.ytt-signed-in .vault-provider-section {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body.ytt-signed-in .content {
+        padding: 14px;
+      }
+
+      body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: none;
+        padding-inline: 14px;
+      }
+    }
   </style>
 </head>
 <body data-command-theme="active" data-motion-system="active" data-active-tab="dashboard">
@@ -4653,7 +4918,7 @@
                       <div class="key-hint">Route preview: /perplexity/finance</div>
                     </div>
                     <div class="vault-field-block">
-                      <label for="vault-ollama-enabled">Enable Local AI</label>
+                      <label for="vault-ollama-enabled">Enable Local Ollama</label>
                       <select id="vault-ollama-enabled" class="field vault-field"><option value="false">Disabled</option><option value="true">Enabled</option></select>
                       <div class="key-hint">Ollama requires no API key.</div>
                     </div>
@@ -4812,24 +5077,24 @@
     </div>
   </main>
 
-  <aside id="ai-drawer" class="ai-drawer" aria-label="YucaTana AI assistant">
+  <aside id="ai-drawer" class="ai-drawer" aria-label="MomentumAI market brain">
     <div class="ai-head">
       <div>
-        <div class="ai-title">YucaTana AI</div>
+        <div class="ai-title">MomentumAI</div>
         <div class="ai-subtitle">Source-aware stock intelligence. No fabricated prices.</div>
       </div>
-      <button class="ai-close" type="button" onclick="closeAIAssistant()" aria-label="Close AI assistant">✕</button>
+      <button class="ai-close" type="button" onclick="closeAIAssistant()" aria-label="Close MomentumAI">✕</button>
     </div>
     <div id="ai-lab-perplexity-research" data-perplexity-panel data-panel-context="ai-lab"></div>
     <div id="ai-messages" class="ai-messages">
-      <div class="ai-msg assistant"><strong>YucaTana AI online.</strong><br>Ask about a ticker, source health, news, risk, or why a panel is still shimmered. I only use loaded data or clearly mark unavailable fields.</div>
+      <div class="ai-msg assistant"><strong>MomentumAI online.</strong><br>Ask about a ticker, source health, news, risk, or why a panel is still shimmered. I only use loaded data or clearly mark unavailable fields.</div>
     </div>
     <form class="ai-form" onsubmit="submitAIQuestion(event)">
       <input id="ai-input" class="ai-input" placeholder="Ask about NVDA, market risk, source health..." autocomplete="off">
       <button class="ai-send" type="submit">ASK</button>
     </form>
   </aside>
-  <button id="ai-fab" class="ai-fab" type="button" onclick="openAIAssistant()">YucaTana AI</button>
+  <button id="ai-fab" class="ai-fab" type="button" onclick="openAIAssistant()">MomentumAI</button>
   <aside id="ytt-deep-dive-drawer" class="ytt-deep-dive-drawer" aria-label="Deep dive drawer"></aside>
 
   <script>

@@ -26,14 +26,13 @@
 
 .ytt-aiheatmap-shell {
   min-height: calc(100vh - 58px);
-  padding: 22px;
+  width: 100%;
+  padding: clamp(18px, 1.7vw, 30px);
   background:
-    linear-gradient(90deg, rgba(255, 215, 128, 0.03) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(255, 215, 128, 0.025) 1px, transparent 1px),
-    radial-gradient(circle at 12% 0%, rgba(215, 181, 109, 0.13), transparent 28%),
-    radial-gradient(circle at 84% 18%, rgba(0, 233, 154, 0.055), transparent 26%),
-    #050505;
-  background-size: 54px 54px, 54px 54px, auto, auto, auto;
+    radial-gradient(circle at 12% 0%, rgba(215, 181, 109, 0.07), transparent 28%),
+    radial-gradient(circle at 84% 18%, rgba(0, 233, 154, 0.035), transparent 26%),
+    rgba(5, 5, 5, 0.24);
+  background-size: auto, auto, auto;
 }
 
 .ytt-aiheatmap-hero {
@@ -225,7 +224,7 @@
 
 .ytt-aiheatmap-terminal {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
+  grid-template-columns: minmax(0, 1.58fr) minmax(340px, 0.52fr);
   grid-template-areas:
     "heatmap detail"
     "chart detail"
@@ -240,8 +239,9 @@
 .ytt-aiheatmap-scan-console,
 .ytt-aiheatmap-expanded-panel {
   border: 1px solid var(--aih-line);
-  background: linear-gradient(180deg, var(--aih-panel), rgba(7, 7, 8, 0.99));
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background:
+    linear-gradient(180deg, rgba(25, 23, 20, 0.96), rgba(7, 7, 8, 0.97));
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.055);
   clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 13px 100%, 0 calc(100% - 13px));
 }
 
@@ -470,14 +470,14 @@
 
 .ytt-aiheatmap-heatmap-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-  gap: 8px;
-  padding: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  padding: clamp(14px, 1.2vw, 20px);
 }
 
 .ytt-aiheatmap-cell {
   position: relative;
-  min-height: 98px;
+  min-height: 108px;
   padding: 12px 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));

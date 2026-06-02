@@ -136,7 +136,7 @@ function bindUnifiedAssistantLauncher() {
     launcher.setAttribute("aria-controls", "ai-drawer");
     launcher.setAttribute("aria-expanded", document.getElementById("ai-drawer")?.classList.contains("open") ? "true" : "false");
     launcher.dataset.aiStatus = launcher.dataset.aiStatus || "yellow";
-    launcher.innerHTML = '<span class="ytt-ai-orb-mark">YTT</span><span class="ytt-ai-orb-copy">YucaTana AI</span><span class="ytt-ai-orb-dot" aria-hidden="true"></span>';
+    launcher.innerHTML = '<span class="ytt-ai-orb-mark">M-AI</span><span class="ytt-ai-orb-copy">MomentumAI</span><span class="ytt-ai-orb-dot" aria-hidden="true"></span>';
     launcher.addEventListener("click", toggleUnifiedAssistant);
   }
 
@@ -376,7 +376,7 @@ function compactPanelTemplate(hostId, contextName, settings, status, providerSta
   return `<section class="ytt-perplexity-panel" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
-        <div class="ytt-perplexity-title">YucaTana AI Research</div>
+        <div class="ytt-perplexity-title">MomentumAI Research</div>
         <div class="ytt-perplexity-subtitle">Context-aware research from Perplexity or Local Ollama using supplied YTT data.</div>
       </div>
       <div class="ytt-perplexity-head-actions">
@@ -396,7 +396,7 @@ function compactPanelTemplate(hostId, contextName, settings, status, providerSta
         <button class="ytt-perplexity-btn" type="button" data-perplexity-retry>Retry</button>
       </div>
       <div class="ytt-perplexity-query-row">
-        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask YucaTana AI..." rows="3"></textarea>
+        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask MomentumAI..." rows="3"></textarea>
         <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
         <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>
       </div>
@@ -431,13 +431,13 @@ function panelTemplate(hostId, contextName) {
   return `<section class="ytt-perplexity-panel ytt-ai-command-center" data-perplexity-instance="${escapeHtml(hostId)}">
     <div class="ytt-perplexity-head">
       <div>
-        <div class="ytt-perplexity-title">YucaTana AI</div>
+        <div class="ytt-perplexity-title">MomentumAI</div>
         <div class="ytt-perplexity-subtitle">Market Brain</div>
       </div>
       <div class="ytt-perplexity-head-actions">
         <span class="ytt-provider-status" data-provider-status="${escapeHtml(settings.provider)}">${providerStatus}</span>
         <span class="ytt-perplexity-status" data-perplexity-quality data-quality="${status}">${status}</span>
-        <button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close AI assistant">Close</button>
+        <button class="ytt-perplexity-close" type="button" data-ai-panel-close aria-label="Close MomentumAI">Close</button>
       </div>
     </div>
     <div class="ytt-ai-status-row" data-ytt-intel-strip>
@@ -457,7 +457,7 @@ function panelTemplate(hostId, contextName) {
         <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-ytt-analyze-selected>Analyze Selected</button>
       </div>
       <div class="ytt-perplexity-query-row">
-        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask YucaTana AI about a ticker, setup, scanner, risk, catalyst, or portfolio move..." rows="3"></textarea>
+        <textarea class="ytt-perplexity-input" data-perplexity-query placeholder="Ask MomentumAI about a ticker, setup, scanner, risk, catalyst, or portfolio move..." rows="3"></textarea>
         <div class="ytt-ai-input-actions">
           <button class="ytt-perplexity-btn" type="submit" data-perplexity-submit>Ask</button>
           <button class="ytt-perplexity-btn ytt-perplexity-btn-ghost" type="button" data-perplexity-clear>Clear</button>

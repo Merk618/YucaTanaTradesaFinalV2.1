@@ -24,15 +24,16 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   position: relative;
   display: grid;
-  gap: 18px;
+  gap: clamp(18px, 1.35vw, 26px);
   min-height: 100%;
-  padding: 18px;
+  width: 100%;
+  padding: clamp(18px, 1.45vw, 28px);
   border: 1px solid rgba(245,200,66,0.18);
   border-radius: 12px;
   background:
-    linear-gradient(180deg, rgba(245,200,66,0.05), transparent 260px),
-    radial-gradient(circle at 84% 0%, rgba(0,229,160,0.055), transparent 26%),
-    var(--bg-primary);
+    linear-gradient(180deg, rgba(245,200,66,0.038), transparent 260px),
+    radial-gradient(circle at 84% 0%, rgba(0,229,160,0.040), transparent 26%),
+    rgba(0,0,0,0.94);
   color: var(--text-primary);
   font-family: var(--font-body);
   overflow: hidden;
@@ -44,7 +45,7 @@
 .ytt-crypto-scanner-pro .live-price-badge,
 .ytt-crypto-scanner-pro .scan-modal {
   border: 1px solid rgba(245,200,66,0.22);
-  background: linear-gradient(180deg, rgba(245,200,66,0.035), transparent), rgba(8,8,8,0.985);
+  background: linear-gradient(180deg, rgba(245,200,66,0.040), transparent), rgba(8,8,8,0.965);
   box-shadow: 0 20px 48px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.035);
 }
 
