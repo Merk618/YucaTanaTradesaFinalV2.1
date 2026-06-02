@@ -31,6 +31,7 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Ticker token hover glow
 - Panel bracket/sweep treatment on non-protected tabs
 - Strong tab-specific motion backgrounds using glow, grid, scanline, particle, and tickerstream layers
+- Page-specific accent layers for macro news pulses, options ladders, sector tiles, crypto mesh, AI radar, risk gates, allocation rings, chart waves, and vault circuits
 - Visible tab transition crossfade/translate states
 - Vanilla IntersectionObserver reveal-on-scroll for non-protected panels
 
@@ -48,6 +49,8 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Do not use layout-thrashing scroll listeners.
 - Do not introduce blocking external animation scripts.
 - Keep `.ytt-motion-bg` layers pointer-events disabled.
+- Keep `.ytt-page-motion-bg` layers pointer-events disabled.
+- Track the current page with `body[data-active-tab]` for verification and future shell accents.
 - Keep Dashboard and Meridian out of the motion tab map.
 
 ## Reduced Motion

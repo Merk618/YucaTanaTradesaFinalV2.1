@@ -35,31 +35,41 @@ These tokens are applied to post-login app shell surfaces and do not intentional
 
 ## Tab Environments
 
-Each non-protected tab receives a visible scoped motion background made from real DOM layers:
+Each non-protected tab receives a visible scoped motion background made from real DOM layers. The injected root uses both compatibility and page-specific classes:
 
 - `.ytt-motion-bg`
+- `.ytt-page-motion-bg`
+- `.ytt-motion-bg--{tab}`
+- `.ytt-page-motion-bg--{tab}`
+
+Each background includes these moving layers:
+
 - `.ytt-motion-bg__glow`
 - `.ytt-motion-bg__grid`
 - `.ytt-motion-bg__scanline`
 - `.ytt-motion-bg__particles`
 - `.ytt-motion-bg__tickerstream`
+- `.ytt-motion-bg__accent`
+
+The layer spans also expose `motion-layer--glow`, `motion-layer--grid`, `motion-layer--scan`, and `motion-layer--accent` aliases.
 
 The app shell also marks the active visual system with non-visible body attributes:
 
 - `data-command-theme="active"`
 - `data-motion-system="active"`
+- `data-active-tab="{tab}"`
 
 The tab identities are:
 
-- News: macro pulse grid and headline-band sweep
-- Option Flows: options-chain grid and delta/gamma-inspired glow
-- Stocks: graphite/gold sector-map texture
-- Crypto: digital asset node/liquidity texture
-- AIheatmap: tile field and radar-like heat glow
-- Crypto Hunter: bot/risk-gate scanline environment
-- Portfolio: account-sleeve stability grid
-- Charts: technical chart grid and signal-line texture
-- Settings/Admin: vault/security grid
+- News: amber macro-grid, RSS-style bands, and official-release pulse rings
+- Option Flows: purple/gold options-chain grid, strike ladder rails, and delta/gamma curve motion
+- Stocks: graphite/gold sector tiles with green/red cell pulses and equity tape movement
+- Crypto: emerald liquidity stream, blockchain node constellation, and digital mesh drift
+- AIheatmap: animated tile field, radar sweep, and green/red/gold cell cluster motion
+- Crypto Hunter: amber scanlines, checkpoint nodes, and read-only risk-gate path motion
+- Portfolio: allocation rings, account sleeve grid, and calm blue/gold stability flow
+- Charts: candlestick silhouettes, wave lines, and technical grid movement
+- Settings/Admin: vault grid, lock/circuit keylines, and blue/gold security sweep
 
 Dashboard and Meridian are excluded from these environment layers and are not included in the motion tab map.
 

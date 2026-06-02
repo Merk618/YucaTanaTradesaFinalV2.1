@@ -26,14 +26,15 @@ function activeTabElement(tabId) {
 
 function createMotionLayer(tabId) {
   const layer = document.createElement("div");
-  layer.className = `ytt-motion-bg ytt-motion-bg--${MOTION_TABS[tabId]}`;
+  layer.className = `ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--${MOTION_TABS[tabId]} ytt-page-motion-bg--${MOTION_TABS[tabId]}`;
   layer.setAttribute("aria-hidden", "true");
   layer.innerHTML = [
-    '<div class="ytt-motion-bg__glow"></div>',
-    '<div class="ytt-motion-bg__grid"></div>',
-    '<div class="ytt-motion-bg__tickerstream"></div>',
-    '<div class="ytt-motion-bg__particles"></div>',
-    '<div class="ytt-motion-bg__scanline"></div>'
+    '<span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span>',
+    '<span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span>',
+    '<span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span>',
+    '<span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span>',
+    '<span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span>',
+    '<span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span>'
   ].join("");
   return layer;
 }
@@ -71,6 +72,7 @@ function markReveals(root = document) {
 
 function markActiveTab(tabId) {
   const tab = activeTabElement(tabId);
+  if (tabId) document.body.dataset.activeTab = tabId;
   if (!tab || PROTECTED_TABS.has(tabId)) return;
   ensureMotionBackgrounds();
   document.querySelectorAll(".tab-content.is-active, .tab-content.is-entering, .tab-content.is-leaving").forEach((element) => {
@@ -116,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ensureMotionBackgrounds();
   markReveals();
   const initialTab = document.body?.dataset?.activeTab || localStorage.getItem("activeTab") || "dashboard";
+  document.body.dataset.activeTab = initialTab;
   markActiveTab(initialTab);
 });
 
