@@ -197,6 +197,356 @@ body.ytt-signed-in .ytt-aiheatmap-cell:hover {
   transform: translateY(-1px);
 }
 
+.ytt-global-motion-environment {
+  display: none;
+}
+
+body.ytt-signed-in .main {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(245, 215, 110, 0.12), transparent 32%),
+    radial-gradient(circle at 82% 18%, rgba(0, 229, 160, 0.10), transparent 30%),
+    linear-gradient(135deg, #050705, #07120d 46%, #050705) !important;
+}
+
+body.ytt-signed-in .ytt-global-motion-environment {
+  display: block;
+  position: fixed;
+  inset: 0 0 0 var(--ytt-rail-expanded);
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(245, 215, 110, 0.08), transparent 32%),
+    linear-gradient(180deg, rgba(5, 7, 5, 0.08), rgba(5, 7, 5, 0.34));
+  transition: inset var(--ytt-motion-slow) var(--ytt-ease-premium);
+}
+
+body.nav-collapsed.ytt-signed-in .ytt-global-motion-environment {
+  left: var(--ytt-rail-collapsed);
+}
+
+body.ytt-signed-in .motion-env {
+  --env-a: var(--ytt-gold);
+  --env-b: var(--ytt-emerald);
+  --env-c: rgba(255, 77, 109, 0.72);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+  filter: saturate(1.12);
+  transform: scale(1.015);
+  transition: opacity 240ms var(--ytt-ease-premium), filter 240ms ease;
+}
+
+body.ytt-signed-in .motion-env::before,
+body.ytt-signed-in .motion-env::after,
+body.ytt-signed-in .motion-env span {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+body.ytt-signed-in .motion-env__glow {
+  opacity: 0.88;
+  background:
+    radial-gradient(ellipse at 18% 18%, color-mix(in srgb, var(--env-a) 38%, transparent), transparent 32%),
+    radial-gradient(ellipse at 82% 26%, color-mix(in srgb, var(--env-b) 34%, transparent), transparent 34%),
+    radial-gradient(ellipse at 52% 88%, color-mix(in srgb, var(--env-a) 24%, transparent), transparent 36%);
+  animation: envGlowFloat 7.5s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env__grid {
+  opacity: 0.48;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--env-a) 28%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--env-b) 22%, transparent) 1px, transparent 1px),
+    repeating-linear-gradient(135deg, transparent 0 54px, color-mix(in srgb, var(--env-a) 14%, transparent) 55px 57px, transparent 58px 116px);
+  background-size: 48px 48px, 48px 48px, 220px 220px;
+  animation: envGridMove 8s linear infinite;
+}
+
+body.ytt-signed-in .motion-env__scan {
+  top: -36%;
+  height: 42%;
+  opacity: 0.68;
+  background:
+    linear-gradient(180deg, transparent, color-mix(in srgb, var(--env-a) 34%, transparent), color-mix(in srgb, var(--env-b) 14%, transparent), transparent),
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(255,255,255,0.030) 6px, transparent 7px);
+  mix-blend-mode: screen;
+  animation: envScanDrop 3.9s var(--ytt-ease-premium) infinite;
+}
+
+body.ytt-signed-in .motion-env__accent {
+  opacity: 0.66;
+  background:
+    conic-gradient(from 110deg at 74% 38%, transparent 0 34%, color-mix(in srgb, var(--env-a) 30%, transparent) 42%, transparent 54%),
+    linear-gradient(105deg, transparent 12%, color-mix(in srgb, var(--env-b) 22%, transparent) 26%, transparent 42%, color-mix(in srgb, var(--env-a) 20%, transparent) 58%, transparent 72%);
+  animation: envAccentFloat 6.5s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env__signature {
+  opacity: 0.58;
+  background:
+    radial-gradient(circle at 22% 72%, color-mix(in srgb, var(--env-a) 46%, transparent) 0 2px, transparent 3px),
+    radial-gradient(circle at 44% 44%, color-mix(in srgb, var(--env-b) 40%, transparent) 0 2px, transparent 3px),
+    radial-gradient(circle at 76% 34%, color-mix(in srgb, var(--env-a) 38%, transparent) 0 2px, transparent 3px);
+  background-size: 184px 184px, 238px 238px, 292px 292px;
+  animation: envNodeDrift 6.8s linear infinite;
+}
+
+body.ytt-signed-in .motion-env::before {
+  opacity: 0.38;
+  background: linear-gradient(100deg, transparent 0 34%, color-mix(in srgb, var(--env-a) 22%, transparent) 46%, transparent 58%);
+  animation: envWideSweep 5.6s var(--ytt-ease-premium) infinite;
+}
+
+body.ytt-signed-in .motion-env::after {
+  opacity: 0.30;
+  background: repeating-linear-gradient(0deg, transparent 0 15px, rgba(255,255,255,0.028) 16px, transparent 17px);
+  animation: envNoiseDrift 4.4s linear infinite;
+}
+
+body.ytt-signed-in[data-active-tab="news"] .motion-env--news,
+body.ytt-signed-in[data-active-tab="options"] .motion-env--options,
+body.ytt-signed-in[data-active-tab="stocks"] .motion-env--stocks,
+body.ytt-signed-in[data-active-tab="crypto"] .motion-env--crypto,
+body.ytt-signed-in[data-active-tab="aiheatmap"] .motion-env--aiheatmap,
+body.ytt-signed-in[data-active-tab="crypto-hunter"] .motion-env--crypto-hunter,
+body.ytt-signed-in[data-active-tab="portfolio"] .motion-env--portfolio,
+body.ytt-signed-in[data-active-tab="charts"] .motion-env--charts,
+body.ytt-signed-in[data-active-tab="settings"] .motion-env--settings {
+  opacity: 1;
+}
+
+body.ytt-signed-in .motion-env--news {
+  --env-a: #f5d76e;
+  --env-b: #fff1a8;
+}
+
+body.ytt-signed-in .motion-env--news .motion-env__signature {
+  background:
+    radial-gradient(circle at 24% 30%, transparent 0 8%, rgba(245, 215, 110, 0.32) 9% 10%, transparent 11% 22%, rgba(255, 241, 168, 0.18) 23% 24%, transparent 25%),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(245, 215, 110, 0.20) 35px 37px, transparent 38px 72px);
+  animation: yttNewsReleasePulse 4.8s var(--ytt-ease-premium) infinite;
+}
+
+body.ytt-signed-in .motion-env--options {
+  --env-a: #b87cff;
+  --env-b: #f5d76e;
+}
+
+body.ytt-signed-in .motion-env--options .motion-env__signature {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(184, 124, 255, 0.28) 47px 50px, transparent 51px 96px),
+    linear-gradient(118deg, transparent 18%, rgba(184,124,255,0.30) 27%, transparent 36%, rgba(245,215,110,0.22) 52%, transparent 64%);
+  animation: yttOptionsLadder 4.6s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env--stocks {
+  --env-a: #f5d76e;
+  --env-b: #00e5a0;
+  --env-c: rgba(255, 77, 109, 0.76);
+}
+
+body.ytt-signed-in .motion-env--stocks .motion-env__signature {
+  background:
+    repeating-linear-gradient(0deg, rgba(0,229,160,0.18) 0 32px, rgba(255,77,109,0.14) 33px 64px, rgba(245,215,110,0.14) 65px 98px),
+    repeating-linear-gradient(90deg, transparent 0 64px, rgba(255,255,255,0.055) 65px 66px);
+  background-size: 260px 196px, 66px 66px;
+  animation: yttSectorTiles 4.8s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env--crypto {
+  --env-a: #00e5a0;
+  --env-b: #f5d76e;
+}
+
+body.ytt-signed-in .motion-env--crypto .motion-env__signature {
+  background:
+    radial-gradient(circle at 18% 38%, rgba(0,229,160,0.48) 0 2px, transparent 3px),
+    radial-gradient(circle at 44% 54%, rgba(245,215,110,0.36) 0 2px, transparent 3px),
+    radial-gradient(circle at 74% 30%, rgba(0,229,160,0.42) 0 2px, transparent 3px),
+    linear-gradient(128deg, transparent 20%, rgba(0,229,160,0.30) 21% 22%, transparent 23% 40%, rgba(245,215,110,0.20) 41% 42%, transparent 43%);
+  background-size: 190px 190px, 230px 230px, 270px 270px, 100% 100%;
+  animation: yttCryptoMesh 4.8s linear infinite;
+}
+
+body.ytt-signed-in .motion-env--aiheatmap {
+  --env-a: #f5d76e;
+  --env-b: #00e5a0;
+  --env-c: rgba(255,77,109,0.86);
+}
+
+body.ytt-signed-in .motion-env--aiheatmap .motion-env__signature {
+  background:
+    conic-gradient(from 0deg at 68% 42%, transparent 0 48%, rgba(245,215,110,0.34) 52%, transparent 58%),
+    repeating-linear-gradient(90deg, rgba(0,229,160,0.18) 0 36px, rgba(255,77,109,0.18) 37px 72px, rgba(245,215,110,0.16) 73px 108px);
+  background-size: auto, 216px 216px;
+  animation: yttRadarSweep 5.2s linear infinite;
+}
+
+body.ytt-signed-in .motion-env--crypto-hunter {
+  --env-a: #f5d76e;
+  --env-b: #00e5a0;
+}
+
+body.ytt-signed-in .motion-env--crypto-hunter .motion-env__signature {
+  background:
+    radial-gradient(circle at 18% 72%, rgba(245,215,110,0.42) 0 3px, transparent 4px),
+    radial-gradient(circle at 42% 54%, rgba(0,229,160,0.32) 0 3px, transparent 4px),
+    radial-gradient(circle at 70% 38%, rgba(245,215,110,0.38) 0 3px, transparent 4px),
+    linear-gradient(128deg, transparent 26%, rgba(245,215,110,0.32) 27% 28%, transparent 29% 45%, rgba(0,229,160,0.22) 46% 47%, transparent 48%);
+  animation: yttRiskGatePath 4.8s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env--portfolio {
+  --env-a: #7aa2ff;
+  --env-b: #f5d76e;
+}
+
+body.ytt-signed-in .motion-env--portfolio .motion-env__signature {
+  background:
+    radial-gradient(circle at 52% 56%, transparent 0 14%, rgba(122,162,255,0.34) 15% 16%, transparent 17% 25%, rgba(245,215,110,0.28) 26% 27%, transparent 28% 39%, rgba(122,162,255,0.20) 40% 41%, transparent 42%),
+    linear-gradient(90deg, transparent, rgba(122,162,255,0.18), transparent);
+  animation: yttAllocationRings 5.6s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .motion-env--charts {
+  --env-a: #00e5a0;
+  --env-b: #f5d76e;
+}
+
+body.ytt-signed-in .motion-env--charts .motion-env__signature {
+  background:
+    linear-gradient(92deg, transparent 0 10%, rgba(0,229,160,0.25) 11% 12%, transparent 13% 18%, rgba(245,215,110,0.26) 19% 21%, transparent 22% 34%, rgba(0,229,160,0.22) 35% 36%, transparent 37%),
+    repeating-linear-gradient(0deg, transparent 0 38px, rgba(245,215,110,0.16) 39px 41px, transparent 42px 76px);
+  animation: yttChartWave 4.8s linear infinite;
+}
+
+body.ytt-signed-in .motion-env--settings {
+  --env-a: #7aa2ff;
+  --env-b: #f5d76e;
+}
+
+body.ytt-signed-in .motion-env--settings .motion-env__signature {
+  background:
+    linear-gradient(90deg, transparent 12%, rgba(122,162,255,0.34) 13% 14%, transparent 15% 64%, rgba(245,215,110,0.28) 65% 66%, transparent 67%),
+    linear-gradient(0deg, transparent 18%, rgba(122,162,255,0.25) 19% 20%, transparent 21% 80%, rgba(245,215,110,0.18) 81% 82%, transparent 83%),
+    radial-gradient(circle at 70% 30%, transparent 0 10%, rgba(245,215,110,0.30) 11% 12%, transparent 13%);
+  animation: yttVaultCircuit 5.4s var(--ytt-ease-premium) infinite alternate;
+}
+
+body.ytt-signed-in .content {
+  position: relative;
+  z-index: 2;
+  background: transparent !important;
+}
+
+body.ytt-signed-in .market-ribbon {
+  position: relative;
+  z-index: 30;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card, .vault-provider-section, .banner, .source-card) {
+  background:
+    linear-gradient(180deg, rgba(16, 21, 15, 0.84), rgba(8, 12, 8, 0.78)) !important;
+  -webkit-backdrop-filter: blur(2px) saturate(1.08);
+  backdrop-filter: blur(2px) saturate(1.08);
+  border-color: rgba(245, 215, 110, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 18px 46px rgba(0,0,0,0.28);
+}
+
+body.ytt-signed-in.motion-debug .ytt-global-motion-environment {
+  z-index: 5;
+}
+
+body.ytt-signed-in.motion-debug .motion-env {
+  filter: saturate(1.45) brightness(1.18);
+}
+
+body.ytt-signed-in.motion-debug[data-active-tab="news"] .motion-env--news,
+body.ytt-signed-in.motion-debug[data-active-tab="options"] .motion-env--options,
+body.ytt-signed-in.motion-debug[data-active-tab="stocks"] .motion-env--stocks,
+body.ytt-signed-in.motion-debug[data-active-tab="crypto"] .motion-env--crypto,
+body.ytt-signed-in.motion-debug[data-active-tab="aiheatmap"] .motion-env--aiheatmap,
+body.ytt-signed-in.motion-debug[data-active-tab="crypto-hunter"] .motion-env--crypto-hunter,
+body.ytt-signed-in.motion-debug[data-active-tab="portfolio"] .motion-env--portfolio,
+body.ytt-signed-in.motion-debug[data-active-tab="charts"] .motion-env--charts,
+body.ytt-signed-in.motion-debug[data-active-tab="settings"] .motion-env--settings {
+  opacity: 1;
+}
+
+body.ytt-signed-in.motion-debug .motion-env__glow,
+body.ytt-signed-in.motion-debug .motion-env__grid,
+body.ytt-signed-in.motion-debug .motion-env__scan,
+body.ytt-signed-in.motion-debug .motion-env__accent,
+body.ytt-signed-in.motion-debug .motion-env__signature {
+  opacity: 1;
+}
+
+body.ytt-signed-in .motion-debug-label {
+  display: none;
+  position: fixed;
+  left: calc(var(--ytt-rail-expanded) + 16px);
+  bottom: 14px;
+  z-index: 80;
+  padding: 8px 10px;
+  border: 1px solid rgba(245, 215, 110, 0.50);
+  border-radius: 8px;
+  color: #fff5bf;
+  background: rgba(5, 7, 5, 0.86);
+  box-shadow: 0 0 26px rgba(245, 215, 110, 0.24);
+  font: 900 10px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+body.ytt-signed-in.motion-debug .motion-debug-label {
+  display: block;
+}
+
+@keyframes envGlowFloat {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); opacity: 0.74; }
+  50% { transform: translate3d(1.5%, 1.2%, 0) scale(1.05); opacity: 1; }
+  100% { transform: translate3d(2.5%, -0.8%, 0) scale(1.02); opacity: 0.82; }
+}
+
+@keyframes envGridMove {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 96px 48px, -48px 96px, 220px 0; }
+}
+
+@keyframes envScanDrop {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  16% { opacity: 0.88; }
+  100% { transform: translate3d(0, 360%, 0); opacity: 0; }
+}
+
+@keyframes envAccentFloat {
+  0% { transform: translate3d(-2%, 1%, 0) rotate(0deg) scale(1); opacity: 0.54; }
+  100% { transform: translate3d(2%, -1.2%, 0) rotate(0.5deg) scale(1.04); opacity: 0.84; }
+}
+
+@keyframes envNodeDrift {
+  0% { background-position: 0 0, 0 0, 0 0; transform: translate3d(0,0,0); }
+  100% { background-position: 184px -184px, -238px 238px, 292px -292px; transform: translate3d(1.2%, -1%, 0); }
+}
+
+@keyframes envWideSweep {
+  0% { transform: translate3d(-48%, 0, 0); opacity: 0; }
+  24% { opacity: 0.54; }
+  72%, 100% { transform: translate3d(56%, 0, 0); opacity: 0; }
+}
+
+@keyframes envNoiseDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 64px; }
+}
+
 body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
   position: relative;
   isolation: isolate;
