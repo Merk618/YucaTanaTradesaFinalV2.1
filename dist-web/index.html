@@ -3068,13 +3068,15 @@
     .rail-brand {
       grid-area: brand;
       position: relative;
-      display: grid;
-      place-items: center;
-      min-height: clamp(150px, 18vh, 186px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: clamp(178px, 20vh, 210px);
       margin-bottom: 14px;
-      padding: 13px 12px;
+      padding: 14px;
       border: 1px solid rgba(245,217,120,0.24);
       border-radius: 15px;
+      overflow: visible;
       background:
         radial-gradient(circle at 50% 26%, rgba(245,217,120,0.22), transparent 56%),
         linear-gradient(145deg, rgba(245,217,120,0.08), rgba(255,255,255,0.018) 44%, rgba(0,0,0,0.28)),
@@ -3099,10 +3101,13 @@
     .rail-logo-frame {
       position: relative;
       z-index: 1;
-      display: grid;
-      place-items: center;
-      width: min(100%, 218px);
-      height: clamp(118px, 14.8vh, 156px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(100%, 188px);
+      min-height: 164px;
+      height: auto;
+      padding: 8px 10px;
       border: 1px solid rgba(245,217,120,0.30);
       border-radius: 14px;
       color: var(--gold-bright);
@@ -3112,7 +3117,7 @@
         rgba(9,10,12,0.78);
       font: 800 14px var(--mono);
       letter-spacing: 0.08em;
-      overflow: hidden;
+      overflow: visible;
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,0.03),
         0 0 28px rgba(212,175,55,0.18),
@@ -3121,10 +3126,15 @@
     }
 
     .rail-logo-img {
-      width: 100%;
-      height: 100%;
+      display: block;
+      width: auto;
+      max-width: 175px;
+      height: auto;
+      max-height: 156px;
       object-fit: contain;
-      transform: scale(1.03);
+      object-position: center center;
+      margin: 0 auto;
+      transform: none;
       filter: saturate(1.08) contrast(1.04);
     }
 
@@ -3429,7 +3439,7 @@
     }
 
     body.nav-collapsed .rail-brand {
-      min-height: 82px;
+      min-height: 92px;
       margin-bottom: 8px;
       padding-inline: 5px;
     }
@@ -3445,9 +3455,15 @@
     }
 
     body.nav-collapsed .rail-logo-frame {
-      width: 50px;
-      height: 58px;
+      width: 52px;
+      min-height: 70px;
+      padding: 5px;
       border-radius: 10px;
+    }
+
+    body.nav-collapsed .rail-logo-img {
+      max-width: 44px;
+      max-height: 62px;
     }
 
     body.nav-collapsed .rail-ambient {
@@ -3723,14 +3739,15 @@
       }
 
       .rail-brand {
-        min-height: 86px;
+        min-height: 96px;
         margin-bottom: 8px;
         padding-inline: 5px;
       }
 
       .rail-logo-frame {
-        width: 50px;
-        height: 58px;
+        width: 52px;
+        min-height: 70px;
+        padding: 5px;
       }
 
       .nav-collapse-toggle {
@@ -3779,14 +3796,15 @@
       }
 
       .rail-brand {
-        min-height: 152px;
+        min-height: 178px;
         margin-bottom: 14px;
-        padding: 12px;
+        padding: 14px;
       }
 
       .rail-logo-frame {
-        width: min(100%, 212px);
-        height: 122px;
+        width: min(100%, 188px);
+        min-height: 164px;
+        height: auto;
       }
 
       .nav-btn {
@@ -4422,6 +4440,7 @@
       </div>
 
       <div id="tab-stocks" class="tab-content" data-command-title="STOCKS MODULE READY" data-command-meta="DATA SOURCE: READ ONLY · AI CONTEXT: LOCAL / WEB / MIXED · EXECUTION: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--stocks ytt-page-motion-bg--stocks" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="stock-legacy-shell">
           <header class="stock-tab-heading" aria-label="Stock market intelligence heading">
             <h1>Institutional-Grade Stock Market Intelligence</h1>
@@ -4465,18 +4484,21 @@
       </div>
 
       <section id="tab-crypto" class="tab-content tab-panel" data-command-title="CRYPTO SCANNER READY" data-command-meta="SCAN MODE: MANUAL · DATA SOURCE: PUBLIC / VAULT · EXECUTION: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--crypto ytt-page-motion-bg--crypto" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div id="crypto-scanner-pro-root" class="ytt-crypto-scanner-pro">
           <div class="crypto-scanner-pro-loading">Loading Crypto Scanner Pro...</div>
         </div>
       </section>
 
       <section id="tab-aiheatmap" class="tab-content ytt-aiheatmap-tab" aria-label="AIheatmap" data-command-title="AIHEATMAP MODULE READY" data-command-meta="CONTEXT: CRYPTO / STOCKS · PROVIDER CALLS: LAZY · EXECUTION: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--aiheatmap ytt-page-motion-bg--aiheatmap" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="ytt-aiheatmap-shell">
           <div class="ytt-aiheatmap-empty">AIheatmap terminal is initializing.</div>
         </div>
       </section>
 
       <div id="tab-crypto-hunter" class="tab-content" data-command-title="CRYPTO HUNTER LINK READY" data-command-meta="BOT MODE: READ ONLY OBSERVATION · RISK GATES: LOCKED · EXECUTION: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--crypto-hunter ytt-page-motion-bg--crypto-hunter" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <iframe class="standalone-frame" src="about:blank" data-src="legacy/CryptoHunter.html" title="Crypto Hunter Bot Trader" style="width:100%;border:none;display:block;background:#030508;"></iframe>
         <section class="premium-deck" style="background:#030508;">
           <div class="detail-grid">
@@ -4489,6 +4511,7 @@
       </div>
 
       <div id="tab-news" class="tab-content" data-command-title="NEWS INTELLIGENCE READY" data-command-meta="SOURCE-BACKED RSS · NO SYNTHETIC STORIES · REFRESH: MANUAL / SCHEDULED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--news ytt-page-motion-bg--news" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="editorial-news">
           <button id="news-drawer-toggle" class="news-drawer-toggle" type="button" onclick="toggleNewsDrawer()">Sources</button>
 
@@ -4551,6 +4574,7 @@
       </div>
 
       <div id="tab-options" class="tab-content" data-command-title="OPTIONS FLOW CONSOLE READY" data-command-meta="DATA SOURCE: AWAITING PROVIDER · EXECUTION: DISABLED · SCENARIOS: READ ONLY">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--options ytt-page-motion-bg--options" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="options-grid">
           <input class="option-search" placeholder="Search symbol... e.g. NVDA">
           <div class="pill-row"><button class="pill active">NEXT EXP</button><button class="pill">WEEKLY</button><button class="pill">MONTHLY</button><button class="pill">45 DTE</button><button class="pill">90 DTE</button></div>
@@ -4567,6 +4591,7 @@
       </div>
 
       <div id="tab-portfolio" class="tab-content" data-command-title="PORTFOLIO COMMAND READY" data-command-meta="ACCOUNT DATA: SOURCE-GATED · BROKER EXECUTION: DISABLED · READ ONLY">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--portfolio ytt-page-motion-bg--portfolio" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="portfolio-grid">
           <div class="banner">AWAITING ALPACA API KEY</div>
           <div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">Equity</div><div class="kpi-value shimmer"></div><div class="kpi-change gold">ALPACA</div></div><div class="kpi-card"><div class="kpi-label">Cash</div><div class="kpi-value shimmer"></div><div class="kpi-change gold">ALPACA</div></div><div class="kpi-card"><div class="kpi-label">Day P&amp;L</div><div class="kpi-value shimmer"></div><div class="kpi-change gold">ALPACA</div></div><div class="kpi-card"><div class="kpi-label">Total Return</div><div class="kpi-value shimmer"></div><div class="kpi-change gold">ALPACA</div></div></div>
@@ -4582,6 +4607,7 @@
       </div>
 
       <div id="tab-charts" class="tab-content" data-command-title="CHART WORKSPACE READY" data-command-meta="TRADINGVIEW: LAZY WIDGET · TECHNICALS: READ ONLY · EXECUTION: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--charts ytt-page-motion-bg--charts" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="charts-grid">
           <div class="panel"><div class="panel-header">Symbol Search <span class="source-tag">TRADINGVIEW</span></div><div style="display:flex;gap:10px;"><input id="chart-symbol-input" class="field" placeholder="Symbol..."><button class="small-btn" onclick="changeChartSymbol()">GO</button></div></div>
           <div class="detail-grid">
@@ -4600,6 +4626,7 @@
       </div>
 
       <div id="tab-settings" class="tab-content" data-command-title="SETTINGS VAULT READY" data-command-meta="SECRETS: LOCAL / SERVER-SIDE ONLY · PROVIDERS: READ ONLY · BROKERS: DISABLED">
+        <div class="ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--settings ytt-page-motion-bg--settings" aria-hidden="true"><span class="ytt-motion-bg__glow motion-layer motion-layer--glow"></span><span class="ytt-motion-bg__grid motion-layer motion-layer--grid"></span><span class="ytt-motion-bg__tickerstream motion-layer motion-layer--tickerstream"></span><span class="ytt-motion-bg__particles motion-layer motion-layer--particles"></span><span class="ytt-motion-bg__scanline motion-layer motion-layer--scan"></span><span class="ytt-motion-bg__accent motion-layer motion-layer--accent"></span></div>
         <div class="settings-columns">
           <div id="api-vault-panel" class="panel vault-panel vault-wide">
             <div class="panel-header" style="color:var(--gold)">YucaTana Data &amp; AI Vault <span id="vault-status" class="vault-status">LOCKED</span></div>

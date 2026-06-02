@@ -226,10 +226,37 @@ body.ytt-signed-in .ytt-page-motion-bg {
   overflow: hidden;
   pointer-events: none;
   opacity: var(--motion-panel-opacity);
+  contain: paint;
   background:
     radial-gradient(circle at 14% 8%, color-mix(in srgb, var(--motion-accent) 26%, transparent), transparent 34%),
     radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--motion-accent-2) 24%, transparent), transparent 32%),
     linear-gradient(135deg, rgba(5, 7, 5, 0.96), rgba(7, 18, 13, 0.82) 46%, rgba(5, 7, 5, 0.95));
+}
+
+body.ytt-signed-in :is(
+  .stock-legacy-shell,
+  .editorial-news,
+  .options-grid,
+  .portfolio-grid,
+  .charts-grid,
+  .settings-columns,
+  .ytt-aiheatmap-shell,
+  .ytt-crypto-scanner-pro
+):not(#tab-dashboard *):not(#tab-meridian *) {
+  position: relative;
+  z-index: 2;
+}
+
+body.ytt-signed-in :is(
+  .stock-legacy-shell,
+  .options-grid,
+  .portfolio-grid,
+  .charts-grid,
+  .settings-columns
+):not(#tab-dashboard *):not(#tab-meridian *) {
+  background:
+    linear-gradient(180deg, rgba(5, 7, 5, 0.48), rgba(5, 7, 5, 0.20)),
+    transparent;
 }
 
 body.ytt-signed-in .ytt-motion-bg::before,
