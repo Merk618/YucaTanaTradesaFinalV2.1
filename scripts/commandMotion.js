@@ -1,4 +1,15 @@
 const PROTECTED_TABS = new Set(["dashboard", "meridian"]);
+const MOTION_TABS = {
+  news: "news",
+  options: "options",
+  stocks: "stocks",
+  crypto: "crypto",
+  aiheatmap: "aiheatmap",
+  "crypto-hunter": "crypto-hunter",
+  portfolio: "portfolio",
+  charts: "charts",
+  settings: "settings"
+};
 const REVEAL_SELECTOR = [
   ".panel",
   ".detail-card",
@@ -13,6 +24,42 @@ function activeTabElement(tabId) {
   return document.getElementById(`tab-${tabId}`);
 }
 
+function createMotionLayer(tabId) {
+  const layer = document.createElement("div");
+  layer.className = `ytt-motion-bg ytt-motion-bg--${MOTION_TABS[tabId]}`;
+  layer.setAttribute("aria-hidden", "true");
+  layer.innerHTML = [
+    '<div class="ytt-motion-bg__glow"></div>',
+    '<div class="ytt-motion-bg__grid"></div>',
+    '<div class="ytt-motion-bg__tickerstream"></div>',
+    '<div class="ytt-motion-bg__particles"></div>',
+    '<div class="ytt-motion-bg__scanline"></div>'
+  ].join("");
+  return layer;
+}
+
+function ensureCommandHeader(tab) {
+  if (!tab?.dataset?.commandTitle || tab.querySelector(":scope > .ytt-command-header")) return;
+  const header = document.createElement("div");
+  header.className = "ytt-command-header";
+  header.innerHTML = `
+    <div class="ytt-command-header__prompt">&gt; ${tab.dataset.commandTitle}</div>
+    <div class="ytt-command-header__meta">${tab.dataset.commandMeta || "MODE: READ ONLY"}</div>
+  `;
+  tab.prepend(header);
+}
+
+function ensureMotionBackgrounds() {
+  Object.keys(MOTION_TABS).forEach((tabId) => {
+    const tab = activeTabElement(tabId);
+    if (!tab || PROTECTED_TABS.has(tabId)) return;
+    if (!tab.querySelector(":scope > .ytt-motion-bg")) {
+      tab.prepend(createMotionLayer(tabId));
+    }
+    ensureCommandHeader(tab);
+  });
+}
+
 function markReveals(root = document) {
   if (!document.body?.classList.contains("ytt-signed-in")) return;
   root.querySelectorAll?.(REVEAL_SELECTOR).forEach((element) => {
@@ -25,6 +72,7 @@ function markReveals(root = document) {
 function markActiveTab(tabId) {
   const tab = activeTabElement(tabId);
   if (!tab || PROTECTED_TABS.has(tabId)) return;
+  ensureMotionBackgrounds();
   document.querySelectorAll(".tab-content.is-active, .tab-content.is-entering, .tab-content.is-leaving").forEach((element) => {
     if (element !== tab) {
       element.classList.remove("is-active", "is-entering");
@@ -35,7 +83,11 @@ function markActiveTab(tabId) {
     }
   });
   tab.classList.add("is-active", "is-entering");
-  window.setTimeout(() => tab.classList.remove("is-entering"), 260);
+  tab.querySelector(":scope > .ytt-command-header")?.classList.remove("is-booted");
+  window.requestAnimationFrame(() => {
+    tab.querySelector(":scope > .ytt-command-header")?.classList.add("is-booted");
+  });
+  window.setTimeout(() => tab.classList.remove("is-entering"), 320);
   markReveals(tab);
 }
 
@@ -59,6 +111,9 @@ const revealObserver = "IntersectionObserver" in window
   : null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.body?.setAttribute("data-command-theme", "active");
+  document.body?.setAttribute("data-motion-system", "active");
+  ensureMotionBackgrounds();
   markReveals();
   const initialTab = document.body?.dataset?.activeTab || localStorage.getItem("activeTab") || "dashboard";
   markActiveTab(initialTab);

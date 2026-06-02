@@ -30,7 +30,8 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Command header entrance and gold edge treatment
 - Ticker token hover glow
 - Panel bracket/sweep treatment on non-protected tabs
-- Tab-specific background environment drift
+- Strong tab-specific motion backgrounds using glow, grid, scanline, particle, and tickerstream layers
+- Visible tab transition crossfade/translate states
 - Vanilla IntersectionObserver reveal-on-scroll for non-protected panels
 
 ## Performance Rules
@@ -46,6 +47,8 @@ YucaTanaTrades uses a restrained terminal motion system for non-protected app su
 - Do not animate TradingView iframes directly.
 - Do not use layout-thrashing scroll listeners.
 - Do not introduce blocking external animation scripts.
+- Keep `.ytt-motion-bg` layers pointer-events disabled.
+- Keep Dashboard and Meridian out of the motion tab map.
 
 ## Reduced Motion
 

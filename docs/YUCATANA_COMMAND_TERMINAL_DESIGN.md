@@ -35,7 +35,21 @@ These tokens are applied to post-login app shell surfaces and do not intentional
 
 ## Tab Environments
 
-Each non-protected tab receives a subtle scoped background identity:
+Each non-protected tab receives a visible scoped motion background made from real DOM layers:
+
+- `.ytt-motion-bg`
+- `.ytt-motion-bg__glow`
+- `.ytt-motion-bg__grid`
+- `.ytt-motion-bg__scanline`
+- `.ytt-motion-bg__particles`
+- `.ytt-motion-bg__tickerstream`
+
+The app shell also marks the active visual system with non-visible body attributes:
+
+- `data-command-theme="active"`
+- `data-motion-system="active"`
+
+The tab identities are:
 
 - News: macro pulse grid and headline-band sweep
 - Option Flows: options-chain grid and delta/gamma-inspired glow
@@ -47,7 +61,7 @@ Each non-protected tab receives a subtle scoped background identity:
 - Charts: technical chart grid and signal-line texture
 - Settings/Admin: vault/security grid
 
-Dashboard and Meridian are excluded from these environment layers.
+Dashboard and Meridian are excluded from these environment layers and are not included in the motion tab map.
 
 ## Command Language
 
@@ -62,7 +76,7 @@ Each command header includes read-only / manual / provider state metadata. These
 
 ## Motion
 
-The command terminal uses CSS transitions first, with a small vanilla `IntersectionObserver` helper for reveal-on-scroll. It does not add GSAP, Lenis, Lottie, Three.js, Spline, video, or blocking external animation scripts.
+The command terminal uses CSS transitions and keyframes first, with a small vanilla `IntersectionObserver` helper for reveal-on-scroll and tab boot states. It does not add GSAP, Lenis, Lottie, Three.js, Spline, video, or blocking external animation scripts.
 
 ## Protected Areas
 
