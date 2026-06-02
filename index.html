@@ -3069,19 +3069,20 @@
       grid-area: brand;
       position: relative;
       display: grid;
-      grid-template-columns: 58px minmax(0, 1fr) 30px;
-      align-items: center;
-      gap: 9px;
-      min-height: 78px;
-      padding: 8px 7px;
-      border: 1px solid rgba(245,217,120,0.14);
-      border-radius: 12px;
+      place-items: center;
+      min-height: clamp(150px, 18vh, 186px);
+      margin-bottom: 14px;
+      padding: 13px 12px;
+      border: 1px solid rgba(245,217,120,0.24);
+      border-radius: 15px;
       background:
-        radial-gradient(circle at 30% 0%, rgba(245,217,120,0.13), transparent 56%),
-        rgba(255,255,255,0.028);
+        radial-gradient(circle at 50% 26%, rgba(245,217,120,0.22), transparent 56%),
+        linear-gradient(145deg, rgba(245,217,120,0.08), rgba(255,255,255,0.018) 44%, rgba(0,0,0,0.28)),
+        rgba(5,6,8,0.88);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.06),
-        0 0 30px rgba(212,175,55,0.08);
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 0 34px rgba(245,217,120,0.045),
+        0 0 34px rgba(212,175,55,0.12);
     }
 
     .rail-brand::after {
@@ -3100,18 +3101,22 @@
       z-index: 1;
       display: grid;
       place-items: center;
-      width: 56px;
-      height: 56px;
-      border: 1px solid rgba(245,217,120,0.34);
-      border-radius: 12px;
+      width: min(100%, 218px);
+      height: clamp(118px, 14.8vh, 156px);
+      border: 1px solid rgba(245,217,120,0.30);
+      border-radius: 14px;
       color: var(--gold-bright);
       background:
-        radial-gradient(circle at 50% 0%, rgba(245,217,120,0.24), transparent 58%),
-        rgba(9,10,12,0.86);
+        radial-gradient(circle at 50% 42%, rgba(245,217,120,0.20), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.26)),
+        rgba(9,10,12,0.78);
       font: 800 14px var(--mono);
       letter-spacing: 0.08em;
       overflow: hidden;
-      box-shadow: 0 0 24px rgba(212,175,55,0.16);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        0 0 28px rgba(212,175,55,0.18),
+        0 18px 34px rgba(0,0,0,0.28);
       animation: railLogoPulse 5.6s var(--ytt-ease-premium) infinite;
     }
 
@@ -3119,7 +3124,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.08);
+      transform: scale(1.03);
       filter: saturate(1.08) contrast(1.04);
     }
 
@@ -3132,34 +3137,11 @@
       text-transform: uppercase;
     }
 
-    .rail-wordmark {
-      position: relative;
-      z-index: 1;
-      min-width: 0;
-      overflow: hidden;
-      transition: opacity var(--ytt-motion-base) var(--ytt-ease-premium), transform var(--ytt-motion-base) var(--ytt-ease-premium);
-    }
-
-    .rail-wordmark .logo {
-      display: block;
-      font: 800 17px var(--ui);
-      letter-spacing: 0.045em;
-      color: var(--gold-bright);
-      white-space: nowrap;
-      text-transform: uppercase;
-    }
-
-    .rail-wordmark .subtitle {
-      display: block;
-      margin-top: 0;
-      color: rgba(245,245,240,0.62);
-      font: 700 9px var(--mono);
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-      text-transform: uppercase;
-    }
-
     .nav-collapse-toggle {
+      position: absolute;
+      z-index: 2;
+      right: 10px;
+      top: 10px;
       width: 32px;
       height: 32px;
       border: 1px solid rgba(245,217,120,0.22);
@@ -3183,7 +3165,7 @@
       display: grid;
       align-content: start;
       gap: 6px;
-      padding: 0;
+      padding: 4px 0 0;
       overflow: visible auto;
       border: 0;
       border-radius: 0;
@@ -3324,11 +3306,11 @@
       position: relative;
       min-height: 92px;
       overflow: hidden;
-      border: 1px solid rgba(245,217,120,0.10);
-      border-radius: 12px;
+      border: 0;
+      border-radius: 0;
       background:
-        radial-gradient(circle at 52% 18%, rgba(245,217,120,0.10), transparent 34%),
-        linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.006));
+        radial-gradient(ellipse at 62% 20%, rgba(245,217,120,0.075), transparent 44%),
+        linear-gradient(180deg, transparent, rgba(245,217,120,0.018) 46%, transparent);
     }
 
     .rail-ambient::before {
@@ -3338,7 +3320,7 @@
       background:
         repeating-linear-gradient(0deg, transparent 0 13px, rgba(245,217,120,0.026) 14px, transparent 15px),
         repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,0.018) 19px, transparent 20px);
-      opacity: 0.54;
+      opacity: 0.22;
       animation: railGridDrift 12s linear infinite;
     }
 
@@ -3362,26 +3344,6 @@
       opacity: 0.66;
       filter: drop-shadow(0 0 8px rgba(212,175,55,0.34));
       animation: railPulseLine 4.8s var(--ytt-ease-premium) infinite;
-    }
-
-    .rail-grid-map {
-      position: absolute;
-      inset: 16px 14px 16px 28px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-    }
-
-    .rail-grid-map span {
-      min-height: 9px;
-      border: 1px solid rgba(245,217,120,0.10);
-      background: rgba(245,217,120,0.025);
-      opacity: 0.58;
-    }
-
-    .rail-grid-map span:nth-child(3n) {
-      background: rgba(0,200,5,0.045);
-      border-color: rgba(0,200,5,0.12);
     }
 
     .rail-source-dots {
@@ -3467,13 +3429,11 @@
     }
 
     body.nav-collapsed .rail-brand {
-      grid-template-columns: 44px;
-      justify-content: center;
+      min-height: 82px;
+      margin-bottom: 8px;
       padding-inline: 5px;
-      min-height: 58px;
     }
 
-    body.nav-collapsed .rail-wordmark,
     body.nav-collapsed .nav-label,
     body.nav-collapsed .version,
     body.nav-collapsed .rail-safety-stack,
@@ -3485,8 +3445,8 @@
     }
 
     body.nav-collapsed .rail-logo-frame {
-      width: 42px;
-      height: 42px;
+      width: 50px;
+      height: 58px;
       border-radius: 10px;
     }
 
@@ -3753,7 +3713,6 @@
         --ytt-rail-expanded: 76px;
       }
 
-      .rail-wordmark,
       .nav-label,
       .version,
       .rail-safety-stack,
@@ -3764,13 +3723,14 @@
       }
 
       .rail-brand {
-        grid-template-columns: 44px;
-        justify-content: center;
+        min-height: 86px;
+        margin-bottom: 8px;
+        padding-inline: 5px;
       }
 
       .rail-logo-frame {
-        width: 42px;
-        height: 42px;
+        width: 50px;
+        height: 58px;
       }
 
       .nav-collapse-toggle {
@@ -3809,7 +3769,6 @@
         transform: translateX(-100%);
       }
 
-      .rail-wordmark,
       .nav-label,
       .version,
       .rail-safety-stack,
@@ -3820,13 +3779,14 @@
       }
 
       .rail-brand {
-        grid-template-columns: 58px minmax(0, 1fr) 30px;
-        justify-content: stretch;
+        min-height: 152px;
+        margin-bottom: 14px;
+        padding: 12px;
       }
 
       .rail-logo-frame {
-        width: 56px;
-        height: 56px;
+        width: min(100%, 212px);
+        height: 122px;
       }
 
       .nav-btn {
@@ -4356,10 +4316,6 @@
         <img class="rail-logo-img" src="assets/brand/yucatana-trades-logo.png" alt="YucaTana Trades" loading="eager" decoding="async" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
         <span class="rail-logo-fallback" hidden>YucaTana Trades</span>
       </div>
-      <div class="rail-wordmark">
-        <div class="logo">YucaTana Trades</div>
-        <div class="subtitle">Read-Only Intelligence</div>
-      </div>
       <button id="nav-collapse-toggle" class="nav-collapse-toggle" type="button" aria-label="Collapse navigation" aria-pressed="false">‹</button>
     </div>
     <nav class="nav" aria-label="Main sections">
@@ -4377,11 +4333,6 @@
     </nav>
     <div class="rail-ambient" aria-hidden="true">
       <div class="rail-pulse-line"></div>
-      <div class="rail-grid-map">
-        <span></span><span></span><span></span><span></span>
-        <span></span><span></span><span></span><span></span>
-        <span></span><span></span><span></span><span></span>
-      </div>
     </div>
     <div class="rail-footer">
       <div class="rail-source-dots" aria-label="Source health summary">
