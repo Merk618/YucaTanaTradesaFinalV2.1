@@ -24,24 +24,6 @@ function activeTabElement(tabId) {
   return document.getElementById(`tab-${tabId}`);
 }
 
-function updateMotionDebugLabel(tabId) {
-  const label = document.getElementById("motion-debug-label");
-  if (label && tabId) {
-    label.textContent = `MOTION DEBUG: ACTIVE TAB = ${tabId}`;
-  }
-}
-
-function initMotionDebugMode() {
-  const enabled = new URLSearchParams(window.location.search).get("motionDebug") === "1";
-  document.body?.classList.toggle("motion-debug", enabled);
-  if (enabled) {
-    document.body?.setAttribute("data-motion-debug", "active");
-  } else {
-    document.body?.removeAttribute("data-motion-debug");
-  }
-  updateMotionDebugLabel(document.body?.dataset?.activeTab || localStorage.getItem("activeTab") || "dashboard");
-}
-
 function createMotionLayer(tabId) {
   const layer = document.createElement("div");
   layer.className = `ytt-motion-bg ytt-page-motion-bg ytt-motion-bg--${MOTION_TABS[tabId]} ytt-page-motion-bg--${MOTION_TABS[tabId]}`;
@@ -91,7 +73,6 @@ function markReveals(root = document) {
 function markActiveTab(tabId) {
   const tab = activeTabElement(tabId);
   if (tabId) document.body.dataset.activeTab = tabId;
-  updateMotionDebugLabel(tabId);
   if (!tab || PROTECTED_TABS.has(tabId)) return;
   ensureMotionBackgrounds();
   document.querySelectorAll(".tab-content.is-active, .tab-content.is-entering, .tab-content.is-leaving").forEach((element) => {
@@ -134,7 +115,6 @@ const revealObserver = "IntersectionObserver" in window
 document.addEventListener("DOMContentLoaded", () => {
   document.body?.setAttribute("data-command-theme", "active");
   document.body?.setAttribute("data-motion-system", "active");
-  initMotionDebugMode();
   ensureMotionBackgrounds();
   markReveals();
   const initialTab = document.body?.dataset?.activeTab || localStorage.getItem("activeTab") || "dashboard";
