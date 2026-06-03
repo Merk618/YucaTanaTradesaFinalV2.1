@@ -3072,20 +3072,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: clamp(178px, 20vh, 210px);
-      margin-bottom: 14px;
-      padding: 14px;
-      border: 1px solid rgba(245,217,120,0.24);
+      min-height: clamp(178px, 19vh, 222px);
+      margin-bottom: 20px;
+      padding: clamp(7px, 0.8vw, 12px);
+      border: 1px solid rgba(245,217,120,0.34);
       border-radius: 15px;
       overflow: visible;
       background:
-        radial-gradient(circle at 50% 26%, rgba(245,217,120,0.22), transparent 56%),
-        linear-gradient(145deg, rgba(245,217,120,0.08), rgba(255,255,255,0.018) 44%, rgba(0,0,0,0.28)),
+        radial-gradient(circle at 50% 35%, rgba(245,217,120,0.27), transparent 62%),
+        linear-gradient(145deg, rgba(245,217,120,0.105), rgba(255,255,255,0.018) 44%, rgba(0,0,0,0.34)),
         rgba(5,6,8,0.88);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        inset 0 0 34px rgba(245,217,120,0.045),
-        0 0 34px rgba(212,175,55,0.12);
+        inset 0 0 42px rgba(245,217,120,0.070),
+        0 0 38px rgba(212,175,55,0.16);
     }
 
     .rail-brand::after {
@@ -3105,15 +3105,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: min(100%, 188px);
-      min-height: 164px;
+      width: 100%;
+      min-height: clamp(154px, 16.5vh, 202px);
       height: auto;
-      padding: 8px 10px;
-      border: 1px solid rgba(245,217,120,0.30);
+      padding: clamp(4px, 0.45vw, 8px);
+      border: 1px solid rgba(245,217,120,0.42);
       border-radius: 14px;
       color: var(--gold-bright);
       background:
-        radial-gradient(circle at 50% 42%, rgba(245,217,120,0.20), transparent 62%),
+        radial-gradient(circle at 50% 48%, rgba(245,217,120,0.24), transparent 66%),
         linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.26)),
         rgba(9,10,12,0.78);
       font: 800 14px var(--mono);
@@ -3128,10 +3128,10 @@
 
     .rail-logo-img {
       display: block;
-      width: auto;
-      max-width: 175px;
+      width: 96%;
+      max-width: 214px;
       height: auto;
-      max-height: 156px;
+      max-height: 190px;
       object-fit: contain;
       object-position: center center;
       margin: 0 auto;
@@ -3440,9 +3440,9 @@
     }
 
     body.nav-collapsed .rail-brand {
-      min-height: 92px;
-      margin-bottom: 8px;
-      padding-inline: 5px;
+      min-height: 96px;
+      margin-bottom: 10px;
+      padding: 5px;
     }
 
     body.nav-collapsed .nav-label,
@@ -3456,15 +3456,16 @@
     }
 
     body.nav-collapsed .rail-logo-frame {
-      width: 52px;
-      min-height: 70px;
+      width: 54px;
+      min-height: 78px;
       padding: 5px;
       border-radius: 10px;
     }
 
     body.nav-collapsed .rail-logo-img {
-      max-width: 44px;
-      max-height: 62px;
+      width: 100%;
+      max-width: 48px;
+      max-height: 68px;
     }
 
     body.nav-collapsed .rail-ambient {
@@ -3660,6 +3661,87 @@
     #tab-charts,
     #tab-crypto-hunter {
       padding-top: 2px;
+    }
+
+    /* Premium responsive workspace frame: post-login, non-protected tabs only. */
+    body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      width: 100%;
+      max-width: min(1840px, calc(100vw - var(--ytt-rail-expanded) - 44px));
+    }
+
+    body.ytt-signed-in.nav-collapsed .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      max-width: min(1900px, calc(100vw - var(--ytt-rail-collapsed) - 44px));
+    }
+
+    body.ytt-signed-in .premium-workspace-grid,
+    body.ytt-signed-in .vault-provider-grid,
+    body.ytt-signed-in .stocks-layout,
+    body.ytt-signed-in .options-layout,
+    body.ytt-signed-in .portfolio-grid,
+    body.ytt-signed-in .charts-grid {
+      --ytt-workspace-gap: clamp(16px, 1.2vw, 24px);
+      gap: var(--ytt-workspace-gap);
+    }
+
+    @media (min-width: 1600px) {
+      body.ytt-signed-in .content {
+        padding-inline: clamp(24px, 2vw, 38px);
+      }
+
+      body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(1960px, calc(100vw - var(--ytt-rail-expanded) - 60px));
+      }
+
+      body.ytt-signed-in.nav-collapsed .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(2040px, calc(100vw - var(--ytt-rail-collapsed) - 60px));
+      }
+    }
+
+    @media (min-width: 1920px) {
+      body.ytt-signed-in .content {
+        padding-inline: clamp(30px, 2.2vw, 48px);
+      }
+
+      body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(2160px, calc(100vw - var(--ytt-rail-expanded) - 72px));
+      }
+
+      body.ytt-signed-in.nav-collapsed .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(2240px, calc(100vw - var(--ytt-rail-collapsed) - 72px));
+      }
+    }
+
+    @media (min-aspect-ratio: 21 / 9) and (min-width: 1800px) {
+      body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(2320px, calc(100vw - var(--ytt-rail-expanded) - 80px));
+      }
+
+      body.ytt-signed-in.nav-collapsed .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+        max-width: min(2400px, calc(100vw - var(--ytt-rail-collapsed) - 80px));
+      }
+    }
+
+    @media (max-height: 850px) and (min-width: 900px) {
+      .rail-brand {
+        min-height: 128px;
+        margin-bottom: 12px;
+      }
+
+      .rail-logo-frame {
+        min-height: 112px;
+      }
+
+      .rail-logo-img {
+        max-height: 106px;
+      }
+
+      .nav-btn {
+        height: 38px;
+      }
+
+      body.ytt-signed-in .content {
+        padding-block: 16px;
+      }
     }
 
     .panel,
