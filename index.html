@@ -5017,6 +5017,263 @@
         justify-content: flex-start;
       }
     }
+
+    /* v0 visual reference port: design language only, no routing/provider/auth changes. */
+    body.ytt-signed-in {
+      --ytt-v0-bg: #151511;
+      --ytt-v0-card: #1b1b16;
+      --ytt-v0-muted: #24241d;
+      --ytt-v0-border: rgba(245, 215, 110, 0.18);
+      --ytt-v0-border-strong: rgba(245, 215, 110, 0.38);
+      --ytt-v0-copy: rgba(238, 232, 208, 0.92);
+      --ytt-v0-subtle: rgba(199, 190, 160, 0.66);
+    }
+
+    body.ytt-signed-in .sidebar {
+      width: clamp(236px, 13vw, 280px);
+      background:
+        linear-gradient(180deg, rgba(245, 215, 110, 0.045), transparent 28%),
+        linear-gradient(145deg, rgba(27, 27, 22, 0.98), rgba(12, 13, 10, 0.98));
+      border-right: 1px solid rgba(245, 215, 110, 0.18);
+    }
+
+    body.nav-collapsed .sidebar {
+      width: var(--ytt-rail-collapsed);
+    }
+
+    body.ytt-signed-in .rail-brand {
+      min-height: clamp(132px, 14vh, 172px);
+      padding: 10px;
+      border-color: rgba(245, 215, 110, 0.24);
+      border-radius: 9px;
+      background:
+        linear-gradient(180deg, rgba(27, 27, 22, 0.92), rgba(5, 7, 5, 0.95)),
+        radial-gradient(circle at 50% 12%, rgba(245, 215, 110, 0.14), transparent 54%);
+    }
+
+    body.ytt-signed-in .rail-logo-frame {
+      min-height: clamp(112px, 12vh, 150px);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(245, 215, 110, 0.14), transparent 56%),
+        rgba(5, 7, 5, 0.82);
+    }
+
+    body.ytt-signed-in .rail-logo-img {
+      max-height: 138px;
+    }
+
+    body.ytt-signed-in .nav {
+      gap: 4px;
+      padding-top: 2px;
+    }
+
+    body.ytt-signed-in .nav-section-label {
+      margin: 12px 8px 4px;
+      color: rgba(199, 190, 160, 0.62);
+      font: 800 10px/1 var(--mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    body.nav-collapsed .nav-section-label {
+      width: 0;
+      height: 0;
+      margin: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    body.ytt-signed-in .nav-btn {
+      min-height: 38px;
+      height: 38px;
+      border-radius: 7px;
+      color: rgba(238, 232, 208, 0.70);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    body.ytt-signed-in .nav-btn.active {
+      background: rgba(245, 215, 110, 0.085);
+      border-color: rgba(245, 215, 110, 0.20);
+      border-left-color: var(--ytt-gold);
+      box-shadow: inset 0 0 0 1px rgba(245, 215, 110, 0.08);
+    }
+
+    body.ytt-signed-in .nav-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(5, 7, 5, 0.54);
+    }
+
+    body.ytt-signed-in .terminal-topbar {
+      background: rgba(21, 21, 17, 0.88);
+      backdrop-filter: blur(14px);
+    }
+
+    body.ytt-signed-in .market-box,
+    body.ytt-signed-in .topbar-status .status-chip,
+    body.ytt-signed-in .account-btn {
+      border-radius: 7px;
+      background: rgba(27, 27, 22, 0.88);
+    }
+
+    body.ytt-signed-in .tab-content:not(#tab-dashboard):not(#tab-meridian) {
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 4% 0%, rgba(245, 215, 110, 0.065), transparent 28%),
+        rgba(15, 16, 12, 0.78);
+    }
+
+    body.ytt-signed-in :is(.panel, .detail-card, .kpi-card, .market-mini-card, .vault-provider-section, .news-source-panel, .market-context-panel):not(#tab-dashboard *):not(#tab-meridian *) {
+      border-radius: 9px;
+      border-color: var(--ytt-v0-border);
+      background:
+        linear-gradient(180deg, rgba(31, 31, 25, 0.96), rgba(20, 20, 16, 0.96)),
+        var(--ytt-v0-card);
+      color: var(--ytt-v0-copy);
+    }
+
+    body.ytt-signed-in .status-chip,
+    body.ytt-signed-in .source-tag,
+    body.ytt-signed-in .ytt-aiheatmap-pill,
+    body.ytt-signed-in .vault-status {
+      padding: 4px 9px;
+      border-color: rgba(245, 215, 110, 0.24);
+      background: rgba(245, 215, 110, 0.070);
+      color: rgba(245, 215, 110, 0.92);
+      font-size: 10px;
+    }
+
+    body.ytt-signed-in .status-chip.red {
+      border-color: rgba(255, 77, 109, 0.30);
+      background: rgba(255, 77, 109, 0.10);
+      color: #ff8da1;
+    }
+
+    body.ytt-signed-in .status-chip.green {
+      border-color: rgba(0, 229, 160, 0.28);
+      background: rgba(0, 229, 160, 0.09);
+      color: #63ffd0;
+    }
+
+    body.ytt-signed-in .data-table {
+      overflow: hidden;
+      border: 1px solid rgba(245, 215, 110, 0.13);
+      border-radius: 9px;
+      background: rgba(21, 21, 17, 0.82);
+    }
+
+    body.ytt-signed-in .data-table thead th {
+      background: rgba(36, 36, 29, 0.96);
+      color: rgba(199, 190, 160, 0.86);
+    }
+
+    body.ytt-signed-in .data-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.018);
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-shell {
+      padding: clamp(18px, 1.35vw, 28px);
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-hero {
+      border-radius: 10px;
+      clip-path: none;
+      background:
+        linear-gradient(180deg, rgba(36, 36, 29, 0.94), rgba(15, 16, 12, 0.98)),
+        radial-gradient(circle at 12% 0%, rgba(245, 215, 110, 0.12), transparent 36%);
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-title {
+      font-size: clamp(32px, 3.1vw, 58px);
+      letter-spacing: -0.03em;
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-terminal {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+      gap: clamp(14px, 1vw, 20px);
+    }
+
+    body.ytt-signed-in #tab-aiheatmap :is(.ytt-aiheatmap-chart-card, .ytt-aiheatmap-detail-panel, .ytt-aiheatmap-heatmap-card, .ytt-aiheatmap-scan-console, .ytt-aiheatmap-expanded-panel) {
+      clip-path: none;
+      border-radius: 10px;
+      border-color: rgba(245, 215, 110, 0.18);
+      background: linear-gradient(180deg, rgba(31, 31, 25, 0.96), rgba(16, 17, 13, 0.98));
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-heatmap-grid {
+      grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+    }
+
+    body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-cell {
+      clip-path: none;
+      border-radius: 7px;
+      background: rgba(36, 36, 29, 0.72);
+    }
+
+    body.ytt-signed-in #tab-settings .vault-provider-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    body.ytt-signed-in #tab-settings .vault-provider-section {
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(31, 31, 25, 0.98), rgba(18, 19, 15, 0.98)),
+        var(--ytt-v0-card);
+    }
+
+    body.ytt-signed-in #tab-settings .vault-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(245, 215, 110, 0.13);
+    }
+
+    body.ytt-signed-in #tab-settings .vault-field-block {
+      border: 1px solid rgba(245, 215, 110, 0.10);
+      border-radius: 9px;
+      background: rgba(9, 10, 8, 0.46);
+      padding: 12px;
+    }
+
+    body.ytt-signed-in #ai-drawer.ai-drawer {
+      width: min(430px, calc(100vw - 32px));
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(31, 31, 25, 0.98), rgba(14, 15, 12, 0.99));
+    }
+
+    body.ytt-signed-in #ai-fab.ai-fab {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      color: transparent;
+      font-size: 0;
+    }
+
+    body.ytt-signed-in #ai-fab.ai-fab::before {
+      content: "M";
+      color: var(--ytt-gold);
+      font: 900 18px/1 var(--mono);
+    }
+
+    @media (min-width: 1920px) {
+      body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-terminal {
+        grid-template-columns: minmax(0, 1fr) minmax(330px, 380px);
+      }
+
+      body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-heatmap-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
+
+    @media (max-width: 1280px) {
+      body.ytt-signed-in #tab-aiheatmap .ytt-aiheatmap-terminal {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body data-command-theme="active" data-motion-system="active" data-active-tab="dashboard">
@@ -5185,14 +5442,17 @@
       <button id="nav-collapse-toggle" class="nav-collapse-toggle" type="button" aria-label="Collapse navigation" aria-pressed="false">‹</button>
     </div>
     <nav class="nav" aria-label="Main sections">
+      <div class="nav-section-label">Core Command</div>
       <button class="nav-btn" data-tab="dashboard" onclick="showTab('dashboard')" title="Dashboard"><span class="nav-icon">▦</span><span class="nav-label">Dashboard</span></button>
       <button class="nav-btn" data-tab="meridian" onclick="showTab('meridian')" title="Meridian"><span class="nav-icon">★</span><span class="nav-label">Meridian</span></button>
       <button class="nav-btn" data-tab="news" onclick="showTab('news')" title="News"><span class="nav-icon">◬</span><span class="nav-label">News</span></button>
+      <div class="nav-section-label">Markets</div>
       <button class="nav-btn" data-tab="options" onclick="showTab('options')" title="Option Flows"><span class="nav-icon">⊕</span><span class="nav-label">Option Flows</span></button>
       <button class="nav-btn" data-tab="stocks" onclick="showTab('stocks')" title="Stocks"><span class="nav-icon">◈</span><span class="nav-label">Stocks</span></button>
       <button class="nav-btn" data-tab="crypto" onclick="showTab('crypto')" title="Crypto"><span class="nav-icon">◎</span><span class="nav-label">Crypto</span></button>
       <button class="nav-btn" data-tab="aiheatmap" onclick="showTab('aiheatmap')" title="AIheatmap"><span class="nav-icon">◩</span><span class="nav-label">AIheatmap</span></button>
       <button class="nav-btn" data-tab="crypto-hunter" onclick="showTab('crypto-hunter')" title="Crypto Hunter"><span class="nav-icon">✦</span><span class="nav-label">Crypto Hunter</span></button>
+      <div class="nav-section-label">Workspace</div>
       <button class="nav-btn" data-tab="portfolio" onclick="showTab('portfolio')" title="Portfolio"><span class="nav-icon">◻</span><span class="nav-label">Portfolio</span></button>
       <button class="nav-btn" data-tab="charts" onclick="showTab('charts')" title="Charts"><span class="nav-icon">◫</span><span class="nav-label">Charts</span></button>
       <button class="nav-btn" data-tab="settings" onclick="showTab('settings')" title="Settings"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></button>
