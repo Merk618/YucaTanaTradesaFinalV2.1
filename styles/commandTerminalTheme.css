@@ -1004,6 +1004,377 @@ body.ytt-signed-in #ai-drawer .ytt-ai-status-row span {
   100% { transform: scale(1); box-shadow: 0 0 12px rgba(0, 229, 160, 0.08); }
 }
 
+/* Premium UI parity pass: active production shell only.
+   Visual reference translated from quarantine; no data, auth, Meridian, or execution wiring. */
+body.ytt-signed-in {
+  --ytt-cyan: #22d3ee;
+  --ytt-cyan-soft: rgba(34, 211, 238, 0.12);
+  --ytt-cyan-edge: rgba(34, 211, 238, 0.28);
+  --ytt-card-radius: 14px;
+  --ytt-panel-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.052),
+    inset 0 0 0 1px rgba(245, 215, 110, 0.038);
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .terminal-topbar {
+  border-bottom-color: rgba(245, 215, 110, 0.15) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.070), rgba(34, 211, 238, 0.026), rgba(0, 229, 160, 0.026)),
+    rgba(3, 5, 4, 0.86) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(245, 215, 110, 0.11),
+    0 16px 46px rgba(0, 0, 0, 0.44),
+    0 0 36px rgba(34, 211, 238, 0.035) !important;
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .topbar-brand-logo {
+  border-color: rgba(245, 215, 110, 0.40) !important;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(245, 215, 110, 0.18), transparent 62%),
+    linear-gradient(145deg, rgba(245, 215, 110, 0.08), rgba(34, 211, 238, 0.04)),
+    rgba(3, 5, 4, 0.86) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 0 24px rgba(245, 215, 110, 0.12);
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .topbar-brand strong {
+  color: rgba(255, 246, 214, 0.96) !important;
+  text-shadow: 0 0 18px rgba(245, 215, 110, 0.12);
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]) {
+  border-radius: 12px !important;
+  transition:
+    transform 180ms var(--ytt-ease-premium),
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 220ms ease,
+    color 180ms ease;
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]):hover {
+  transform: translateX(2px);
+  border-color: rgba(245, 215, 110, 0.20) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.075), rgba(34, 211, 238, 0.025)),
+    rgba(255, 255, 255, 0.026) !important;
+  box-shadow: inset 2px 0 0 rgba(245, 215, 110, 0.28), 0 10px 30px rgba(0, 0, 0, 0.20);
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]).active {
+  box-shadow:
+    inset 2px 0 0 var(--ytt-gold),
+    inset 0 0 0 1px rgba(245, 215, 110, 0.12),
+    0 12px 34px rgba(0, 0, 0, 0.26),
+    0 0 24px rgba(245, 215, 110, 0.10) !important;
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian) {
+  border-radius: 18px !important;
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  background-color: #040605;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    inset 0 0 90px rgba(34, 211, 238, 0.018),
+    0 28px 90px rgba(0, 0, 0, 0.30);
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian)::before {
+  opacity: 0.58;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245, 215, 110, 0.095), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(34, 211, 238, 0.050), transparent 30%),
+    linear-gradient(120deg, transparent 0 36%, rgba(245, 215, 110, 0.035) 42%, transparent 54%) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel,
+  .news-source-panel
+) {
+  border-color: rgba(245, 215, 110, 0.15) !important;
+  border-radius: var(--ytt-card-radius) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.040), rgba(34, 211, 238, 0.014) 45%, transparent),
+    rgba(8, 10, 9, 0.965) !important;
+  box-shadow: var(--ytt-panel-shadow) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel
+):hover {
+  border-color: rgba(245, 215, 110, 0.28) !important;
+  transform: translateY(-2px);
+  box-shadow:
+    0 30px 86px rgba(0, 0, 0, 0.54),
+    0 0 32px rgba(245, 215, 110, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel-header, .vault-section-title, .news-panel-title, .section-label) {
+  color: rgba(255, 236, 172, 0.86) !important;
+  letter-spacing: 0.16em !important;
+  text-shadow: 0 0 18px rgba(245, 215, 110, 0.085);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel-header, .vault-section-title, .news-panel-title, .section-label)::before {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.42), rgba(245, 215, 110, 0.72)) !important;
+  box-shadow: 0 0 16px rgba(245, 215, 110, 0.18);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.status-row, .source-health-row, .vault-static-row) {
+  border: 1px solid rgba(245, 215, 110, 0.105) !important;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.032), rgba(34, 211, 238, 0.016), transparent),
+    rgba(255, 255, 255, 0.018);
+  padding: 10px 12px !important;
+}
+
+body.ytt-signed-in .source-health-grid {
+  gap: 8px !important;
+}
+
+body.ytt-signed-in .source-name,
+body.ytt-signed-in .status-row > span:first-child {
+  color: rgba(248, 242, 220, 0.90) !important;
+}
+
+body.ytt-signed-in .source-detail {
+  color: rgba(210, 204, 182, 0.68) !important;
+}
+
+body.ytt-signed-in .status-chip {
+  min-height: 22px;
+  border-color: rgba(245, 215, 110, 0.25) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.075), rgba(245, 215, 110, 0.024)),
+    rgba(8, 10, 9, 0.84) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.038);
+}
+
+body.ytt-signed-in .status-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.82;
+  box-shadow: 0 0 10px currentColor;
+}
+
+body.ytt-signed-in .status-chip.red {
+  border-color: rgba(255, 77, 109, 0.33) !important;
+  background: rgba(255, 77, 109, 0.070) !important;
+}
+
+body.ytt-signed-in .status-chip.green {
+  border-color: rgba(0, 229, 160, 0.33) !important;
+  background: rgba(0, 229, 160, 0.070) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.small-btn, .save-btn, .btn-primary, .scan-btn, .account-btn):not(.auth-panel *) {
+  border-radius: 11px !important;
+  border-color: rgba(245, 215, 110, 0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.12), rgba(245, 215, 110, 0.035)),
+    rgba(8, 10, 9, 0.92) !important;
+  color: rgba(255, 236, 172, 0.96) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.small-btn, .save-btn, .btn-primary, .scan-btn, .account-btn):not(.auth-panel *):hover {
+  border-color: rgba(245, 215, 110, 0.54) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.18), rgba(34, 211, 238, 0.044)),
+    rgba(12, 14, 12, 0.96) !important;
+  color: #fff3c4 !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.field, .option-search, textarea, select):not(.auth-input) {
+  border-radius: 10px !important;
+  border-color: rgba(245, 215, 110, 0.18) !important;
+  background: rgba(4, 6, 5, 0.96) !important;
+  color: rgba(248, 245, 232, 0.92) !important;
+}
+
+body.ytt-signed-in .data-table {
+  overflow: hidden;
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  border-radius: 12px;
+  background: rgba(4, 6, 5, 0.52);
+}
+
+body.ytt-signed-in .data-table thead th {
+  color: rgba(255, 236, 172, 0.72) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.070), rgba(255, 255, 255, 0.012)),
+    rgba(0, 0, 0, 0.22);
+}
+
+body.ytt-signed-in .data-table td,
+body.ytt-signed-in .data-table th {
+  border-bottom-color: rgba(245, 215, 110, 0.060) !important;
+}
+
+body.ytt-signed-in .data-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.010);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) {
+  position: relative;
+  overflow: hidden;
+  border: 1px dashed rgba(245, 215, 110, 0.28) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(245, 215, 110, 0.10), transparent 36%),
+    linear-gradient(135deg, rgba(34, 211, 238, 0.035), transparent 46%),
+    rgba(7, 9, 8, 0.94) !important;
+  color: rgba(226, 220, 198, 0.78) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 54px rgba(0, 0, 0, 0.32) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::after {
+  content: "CONNECT PROVIDER";
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 5px 9px;
+  border: 1px solid rgba(245, 215, 110, 0.24);
+  border-radius: 999px;
+  color: rgba(255, 236, 172, 0.82);
+  background: rgba(245, 215, 110, 0.060);
+  font: 800 9px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.14em;
+}
+
+body.ytt-signed-in .shimmer {
+  background:
+    linear-gradient(90deg, rgba(9, 11, 10, 0.92) 0%, rgba(245, 215, 110, 0.14) 42%, rgba(34, 211, 238, 0.10) 52%, rgba(9, 11, 10, 0.92) 100%) !important;
+  background-size: 440px 100% !important;
+  border: 1px solid rgba(245, 215, 110, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+body.ytt-signed-in .ticker-item {
+  border-color: rgba(245, 215, 110, 0.11) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.050), rgba(34, 211, 238, 0.020)),
+    rgba(5, 7, 6, 0.82) !important;
+}
+
+body.ytt-signed-in .ticker-item b {
+  color: rgba(255, 236, 172, 0.92);
+}
+
+body.ytt-signed-in #tab-dashboard :is(.panel, .detail-card, .kpi-card, .source-card) {
+  border-radius: 14px !important;
+}
+
+body.ytt-signed-in #ai-fab.ai-fab {
+  border: 1px solid rgba(245, 215, 110, 0.42) !important;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 236, 172, 0.26), transparent 58%),
+    linear-gradient(145deg, rgba(245, 215, 110, 0.18), rgba(34, 211, 238, 0.055)),
+    rgba(5, 7, 6, 0.96) !important;
+  color: rgba(255, 239, 188, 0.96) !important;
+  box-shadow:
+    0 24px 68px rgba(0, 0, 0, 0.62),
+    0 0 38px rgba(245, 215, 110, 0.17),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body.ytt-signed-in #ai-drawer.ai-drawer {
+  border-color: rgba(245, 215, 110, 0.28) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(245, 215, 110, 0.11), transparent 34%),
+    radial-gradient(circle at 100% 12%, rgba(34, 211, 238, 0.055), transparent 30%),
+    rgba(6, 7, 7, 0.985) !important;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, 0.72),
+    0 0 44px rgba(245, 215, 110, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(14px);
+}
+
+body.ytt-signed-in #ai-drawer .ai-title {
+  color: rgba(255, 239, 188, 0.96) !important;
+  letter-spacing: 0.10em;
+}
+
+body.ytt-signed-in #ai-drawer .ai-subtitle {
+  color: rgba(210, 204, 182, 0.66) !important;
+}
+
+body.ytt-signed-in #ai-drawer .ai-msg {
+  border: 1px solid rgba(245, 215, 110, 0.12);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.035), rgba(34, 211, 238, 0.015)),
+    rgba(10, 12, 11, 0.94);
+  color: rgba(238, 233, 215, 0.86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+body.ytt-signed-in #ai-drawer .ai-msg.assistant {
+  border-color: rgba(245, 215, 110, 0.18);
+  background:
+    linear-gradient(135deg, rgba(245, 215, 110, 0.060), rgba(34, 211, 238, 0.018)),
+    rgba(8, 10, 9, 0.98);
+}
+
+body.ytt-signed-in #ai-drawer .ai-input {
+  border-radius: 13px !important;
+  border-color: rgba(245, 215, 110, 0.22) !important;
+  background: rgba(2, 4, 3, 0.96) !important;
+  color: rgba(248, 245, 232, 0.94) !important;
+}
+
+body.ytt-signed-in .rail-source-dots span {
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.022);
+  padding: 4px 7px;
+}
+
+body.ytt-signed-in .source-dot.ai {
+  background: rgba(245, 215, 110, 0.78);
+  box-shadow: 0 0 14px rgba(245, 215, 110, 0.24);
+}
+
+body.ytt-signed-in .source-dot.web {
+  background: rgba(34, 211, 238, 0.78);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.22);
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.ytt-signed-in :is(.main, .main *):not(#tab-dashboard *):not(#tab-meridian *) {
     animation-duration: 0.001ms !important;
@@ -1013,5 +1384,10 @@ body.ytt-signed-in #ai-drawer .ytt-ai-status-row span {
 
   body.ytt-signed-in .ytt-motion-bg {
     display: none !important;
+  }
+
+  body.ytt-signed-in :is(.main, .main *, .terminal-topbar):not(#tab-meridian *) {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
   }
 }
