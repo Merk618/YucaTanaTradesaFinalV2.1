@@ -1004,6 +1004,997 @@ body.ytt-signed-in #ai-drawer .ytt-ai-status-row span {
   100% { transform: scale(1); box-shadow: 0 0 12px rgba(0, 229, 160, 0.08); }
 }
 
+/* Premium UI parity pass: active production shell only.
+   Visual reference translated from quarantine; no data, auth, Meridian, or execution wiring. */
+body.ytt-signed-in {
+  --ytt-cyan: #22d3ee;
+  --ytt-cyan-soft: rgba(34, 211, 238, 0.12);
+  --ytt-cyan-edge: rgba(34, 211, 238, 0.28);
+  --ytt-card-radius: 14px;
+  --ytt-panel-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.052),
+    inset 0 0 0 1px rgba(245, 215, 110, 0.038);
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .terminal-topbar {
+  border-bottom-color: rgba(245, 215, 110, 0.15) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.070), rgba(34, 211, 238, 0.026), rgba(0, 229, 160, 0.026)),
+    rgba(3, 5, 4, 0.86) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(245, 215, 110, 0.11),
+    0 16px 46px rgba(0, 0, 0, 0.44),
+    0 0 36px rgba(34, 211, 238, 0.035) !important;
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .topbar-brand-logo {
+  border-color: rgba(245, 215, 110, 0.40) !important;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(245, 215, 110, 0.18), transparent 62%),
+    linear-gradient(145deg, rgba(245, 215, 110, 0.08), rgba(34, 211, 238, 0.04)),
+    rgba(3, 5, 4, 0.86) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 0 24px rgba(245, 215, 110, 0.12);
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .topbar-brand strong {
+  color: rgba(255, 246, 214, 0.96) !important;
+  text-shadow: 0 0 18px rgba(245, 215, 110, 0.12);
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]) {
+  border-radius: 12px !important;
+  transition:
+    transform 180ms var(--ytt-ease-premium),
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 220ms ease,
+    color 180ms ease;
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]):hover {
+  transform: translateX(2px);
+  border-color: rgba(245, 215, 110, 0.20) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.075), rgba(34, 211, 238, 0.025)),
+    rgba(255, 255, 255, 0.026) !important;
+  box-shadow: inset 2px 0 0 rgba(245, 215, 110, 0.28), 0 10px 30px rgba(0, 0, 0, 0.20);
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]).active {
+  box-shadow:
+    inset 2px 0 0 var(--ytt-gold),
+    inset 0 0 0 1px rgba(245, 215, 110, 0.12),
+    0 12px 34px rgba(0, 0, 0, 0.26),
+    0 0 24px rgba(245, 215, 110, 0.10) !important;
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian) {
+  border-radius: 18px !important;
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  background-color: #040605;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.018),
+    inset 0 0 90px rgba(34, 211, 238, 0.018),
+    0 28px 90px rgba(0, 0, 0, 0.30);
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian)::before {
+  opacity: 0.58;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245, 215, 110, 0.095), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(34, 211, 238, 0.050), transparent 30%),
+    linear-gradient(120deg, transparent 0 36%, rgba(245, 215, 110, 0.035) 42%, transparent 54%) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel,
+  .news-source-panel
+) {
+  border-color: rgba(245, 215, 110, 0.15) !important;
+  border-radius: var(--ytt-card-radius) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.040), rgba(34, 211, 238, 0.014) 45%, transparent),
+    rgba(8, 10, 9, 0.965) !important;
+  box-shadow: var(--ytt-panel-shadow) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel
+):hover {
+  border-color: rgba(245, 215, 110, 0.28) !important;
+  transform: translateY(-2px);
+  box-shadow:
+    0 30px 86px rgba(0, 0, 0, 0.54),
+    0 0 32px rgba(245, 215, 110, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel-header, .vault-section-title, .news-panel-title, .section-label) {
+  color: rgba(255, 236, 172, 0.86) !important;
+  letter-spacing: 0.16em !important;
+  text-shadow: 0 0 18px rgba(245, 215, 110, 0.085);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel-header, .vault-section-title, .news-panel-title, .section-label)::before {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.42), rgba(245, 215, 110, 0.72)) !important;
+  box-shadow: 0 0 16px rgba(245, 215, 110, 0.18);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.status-row, .source-health-row, .vault-static-row) {
+  border: 1px solid rgba(245, 215, 110, 0.105) !important;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.032), rgba(34, 211, 238, 0.016), transparent),
+    rgba(255, 255, 255, 0.018);
+  padding: 10px 12px !important;
+}
+
+body.ytt-signed-in .source-health-grid {
+  gap: 8px !important;
+}
+
+body.ytt-signed-in .source-name,
+body.ytt-signed-in .status-row > span:first-child {
+  color: rgba(248, 242, 220, 0.90) !important;
+}
+
+body.ytt-signed-in .source-detail {
+  color: rgba(210, 204, 182, 0.68) !important;
+}
+
+body.ytt-signed-in .status-chip {
+  min-height: 22px;
+  border-color: rgba(245, 215, 110, 0.25) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.075), rgba(245, 215, 110, 0.024)),
+    rgba(8, 10, 9, 0.84) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.038);
+}
+
+body.ytt-signed-in .status-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.82;
+  box-shadow: 0 0 10px currentColor;
+}
+
+body.ytt-signed-in .status-chip.red {
+  border-color: rgba(255, 77, 109, 0.33) !important;
+  background: rgba(255, 77, 109, 0.070) !important;
+}
+
+body.ytt-signed-in .status-chip.green {
+  border-color: rgba(0, 229, 160, 0.33) !important;
+  background: rgba(0, 229, 160, 0.070) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.small-btn, .save-btn, .btn-primary, .scan-btn, .account-btn):not(.auth-panel *) {
+  border-radius: 11px !important;
+  border-color: rgba(245, 215, 110, 0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.12), rgba(245, 215, 110, 0.035)),
+    rgba(8, 10, 9, 0.92) !important;
+  color: rgba(255, 236, 172, 0.96) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.small-btn, .save-btn, .btn-primary, .scan-btn, .account-btn):not(.auth-panel *):hover {
+  border-color: rgba(245, 215, 110, 0.54) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.18), rgba(34, 211, 238, 0.044)),
+    rgba(12, 14, 12, 0.96) !important;
+  color: #fff3c4 !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.field, .option-search, textarea, select):not(.auth-input) {
+  border-radius: 10px !important;
+  border-color: rgba(245, 215, 110, 0.18) !important;
+  background: rgba(4, 6, 5, 0.96) !important;
+  color: rgba(248, 245, 232, 0.92) !important;
+}
+
+body.ytt-signed-in .data-table {
+  overflow: hidden;
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  border-radius: 12px;
+  background: rgba(4, 6, 5, 0.52);
+}
+
+body.ytt-signed-in .data-table thead th {
+  color: rgba(255, 236, 172, 0.72) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.070), rgba(255, 255, 255, 0.012)),
+    rgba(0, 0, 0, 0.22);
+}
+
+body.ytt-signed-in .data-table td,
+body.ytt-signed-in .data-table th {
+  border-bottom-color: rgba(245, 215, 110, 0.060) !important;
+}
+
+body.ytt-signed-in .data-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.010);
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) {
+  position: relative;
+  overflow: hidden;
+  border: 1px dashed rgba(245, 215, 110, 0.28) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(245, 215, 110, 0.10), transparent 36%),
+    linear-gradient(135deg, rgba(34, 211, 238, 0.035), transparent 46%),
+    rgba(7, 9, 8, 0.94) !important;
+  color: rgba(226, 220, 198, 0.78) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 54px rgba(0, 0, 0, 0.32) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::after {
+  content: "CONNECT PROVIDER";
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 5px 9px;
+  border: 1px solid rgba(245, 215, 110, 0.24);
+  border-radius: 999px;
+  color: rgba(255, 236, 172, 0.82);
+  background: rgba(245, 215, 110, 0.060);
+  font: 800 9px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.14em;
+}
+
+body.ytt-signed-in .shimmer {
+  background:
+    linear-gradient(90deg, rgba(9, 11, 10, 0.92) 0%, rgba(245, 215, 110, 0.14) 42%, rgba(34, 211, 238, 0.10) 52%, rgba(9, 11, 10, 0.92) 100%) !important;
+  background-size: 440px 100% !important;
+  border: 1px solid rgba(245, 215, 110, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+body.ytt-signed-in .ticker-item {
+  border-color: rgba(245, 215, 110, 0.11) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.050), rgba(34, 211, 238, 0.020)),
+    rgba(5, 7, 6, 0.82) !important;
+}
+
+body.ytt-signed-in .ticker-item b {
+  color: rgba(255, 236, 172, 0.92);
+}
+
+body.ytt-signed-in #tab-dashboard :is(.panel, .detail-card, .kpi-card, .source-card) {
+  border-radius: 14px !important;
+}
+
+body.ytt-signed-in #ai-fab.ai-fab {
+  border: 1px solid rgba(245, 215, 110, 0.42) !important;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 236, 172, 0.26), transparent 58%),
+    linear-gradient(145deg, rgba(245, 215, 110, 0.18), rgba(34, 211, 238, 0.055)),
+    rgba(5, 7, 6, 0.96) !important;
+  color: rgba(255, 239, 188, 0.96) !important;
+  box-shadow:
+    0 24px 68px rgba(0, 0, 0, 0.62),
+    0 0 38px rgba(245, 215, 110, 0.17),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body.ytt-signed-in #ai-drawer.ai-drawer {
+  border-color: rgba(245, 215, 110, 0.28) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(245, 215, 110, 0.11), transparent 34%),
+    radial-gradient(circle at 100% 12%, rgba(34, 211, 238, 0.055), transparent 30%),
+    rgba(6, 7, 7, 0.985) !important;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, 0.72),
+    0 0 44px rgba(245, 215, 110, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(14px);
+}
+
+body.ytt-signed-in #ai-drawer .ai-title {
+  color: rgba(255, 239, 188, 0.96) !important;
+  letter-spacing: 0.10em;
+}
+
+body.ytt-signed-in #ai-drawer .ai-subtitle {
+  color: rgba(210, 204, 182, 0.66) !important;
+}
+
+body.ytt-signed-in #ai-drawer .ai-msg {
+  border: 1px solid rgba(245, 215, 110, 0.12);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(245, 215, 110, 0.035), rgba(34, 211, 238, 0.015)),
+    rgba(10, 12, 11, 0.94);
+  color: rgba(238, 233, 215, 0.86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+body.ytt-signed-in #ai-drawer .ai-msg.assistant {
+  border-color: rgba(245, 215, 110, 0.18);
+  background:
+    linear-gradient(135deg, rgba(245, 215, 110, 0.060), rgba(34, 211, 238, 0.018)),
+    rgba(8, 10, 9, 0.98);
+}
+
+body.ytt-signed-in #ai-drawer .ai-input {
+  border-radius: 13px !important;
+  border-color: rgba(245, 215, 110, 0.22) !important;
+  background: rgba(2, 4, 3, 0.96) !important;
+  color: rgba(248, 245, 232, 0.94) !important;
+}
+
+body.ytt-signed-in .rail-source-dots span {
+  border: 1px solid rgba(245, 215, 110, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.022);
+  padding: 4px 7px;
+}
+
+body.ytt-signed-in .source-dot.ai {
+  background: rgba(245, 215, 110, 0.78);
+  box-shadow: 0 0 14px rgba(245, 215, 110, 0.24);
+}
+
+body.ytt-signed-in .source-dot.web {
+  background: rgba(34, 211, 238, 0.78);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.22);
+}
+
+/* Premium animation layer: tasteful motion only, scoped away from Meridian and auth. */
+body.ytt-signed-in:not([data-active-tab="meridian"]) .content {
+  position: relative;
+  isolation: isolate;
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before,
+body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after {
+  content: "";
+  position: fixed;
+  inset: var(--ytt-topbar-height, 78px) 0 0 var(--ytt-sidebar-width, 270px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.ytt-signed-in.nav-collapsed:not([data-active-tab="meridian"]) .content::before,
+body.ytt-signed-in.nav-collapsed:not([data-active-tab="meridian"]) .content::after {
+  left: var(--ytt-sidebar-collapsed-width, 78px);
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(245, 215, 110, 0.075) 0 1px, transparent 2px),
+    radial-gradient(circle at 54% 42%, rgba(34, 211, 238, 0.062) 0 1px, transparent 2px),
+    radial-gradient(circle at 84% 68%, rgba(0, 229, 160, 0.052) 0 1px, transparent 2px),
+    linear-gradient(112deg, transparent 0 38%, rgba(245, 215, 110, 0.030) 43%, transparent 52%);
+  background-size: 190px 190px, 260px 260px, 340px 340px, 100% 100%;
+  opacity: 0.34;
+  mix-blend-mode: screen;
+  animation: yttPremiumParticleField 34s linear infinite;
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after {
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(245, 215, 110, 0.055) 48%, transparent 100%),
+    repeating-linear-gradient(0deg, transparent 0 16px, rgba(255, 255, 255, 0.006) 17px, transparent 18px);
+  height: 42%;
+  opacity: 0.18;
+  transform: translate3d(0, -120%, 0);
+  mix-blend-mode: screen;
+  animation: yttPremiumScanDrift 14s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian)::before {
+  animation:
+    yttPremiumAuroraFlow 24s ease-in-out infinite alternate,
+    yttPremiumBreath 8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .tab-content.active:not(#tab-meridian)::after {
+  opacity: 0.42;
+  background:
+    conic-gradient(from 180deg at 72% 28%, transparent 0 42%, rgba(34, 211, 238, 0.045), transparent 55%),
+    radial-gradient(circle at 22% 82%, rgba(245, 215, 110, 0.060), transparent 26%),
+    repeating-linear-gradient(90deg, transparent 0 88px, rgba(245, 215, 110, 0.016) 89px 90px, transparent 91px 170px);
+  animation: yttPremiumOrbitalGlow 28s linear infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel,
+  .news-source-panel
+) {
+  background-size: 160% 160%, auto !important;
+  animation: yttPremiumCardGradient 14s ease-in-out infinite alternate;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel,
+  .news-source-panel
+)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, transparent 0 34%, rgba(255, 246, 214, 0.075) 44%, transparent 54%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 38%);
+  opacity: 0;
+  transform: translateX(-42%);
+  transition: opacity 180ms ease;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .panel,
+  .detail-card,
+  .kpi-card,
+  .source-card,
+  .news-source-card,
+  .vault-provider-section,
+  .market-mini-card,
+  .market-context-panel,
+  .news-source-panel
+):hover::after {
+  opacity: 1;
+  animation: yttPremiumCardSweep 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.status-row, .source-health-row, .vault-static-row) {
+  background-size: 200% 100%, auto;
+  animation: yttPremiumStatusLane 12s ease-in-out infinite alternate;
+}
+
+body.ytt-signed-in .source-health-row .status-chip,
+body.ytt-signed-in .status-row .status-chip,
+body.ytt-signed-in .vault-static-row .status-chip {
+  position: relative;
+  overflow: hidden;
+}
+
+body.ytt-signed-in .source-health-row .status-chip::after,
+body.ytt-signed-in .status-row .status-chip::after,
+body.ytt-signed-in .vault-static-row .status-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  width: 52%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: skewX(-18deg);
+  animation: yttPremiumPillSweep 5.8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) {
+  background-size: auto, 180% 180%, auto !important;
+  animation: yttPremiumUnavailablePulse 7s ease-in-out infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty
+)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.055), transparent),
+    repeating-linear-gradient(90deg, transparent 0 30px, rgba(245, 215, 110, 0.016) 31px, transparent 32px);
+  opacity: 0.36;
+  transform: translateX(-35%);
+  animation: yttPremiumEmptySweep 11s linear infinite;
+}
+
+body.ytt-signed-in .shimmer {
+  animation: shimmer 1.55s linear infinite, yttPremiumShimmerGlow 4.2s ease-in-out infinite !important;
+}
+
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]).active .nav-icon,
+body.ytt-signed-in .nav-btn:not([data-tab="meridian"]):hover .nav-icon {
+  animation: yttPremiumIconHalo 3.8s ease-in-out infinite;
+}
+
+body.ytt-signed-in:not([data-active-tab="meridian"]) .terminal-topbar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 215, 110, 0.52), rgba(34, 211, 238, 0.24), transparent);
+  background-size: 220% 100%;
+  animation: yttPremiumTopbarTrace 9s ease-in-out infinite;
+}
+
+body.ytt-signed-in #ai-fab.ai-fab {
+  animation:
+    yttMomentumOrbPulse 4.2s var(--ytt-ease-premium) infinite,
+    yttPremiumOrbFloat 6s ease-in-out infinite !important;
+}
+
+body.ytt-signed-in #ai-fab.ai-fab::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  opacity: 0;
+  transform: scale(0.92);
+  animation: yttPremiumOrbRing 3.9s ease-in-out infinite;
+}
+
+body.ytt-signed-in #ai-drawer.ai-drawer {
+  background-size: auto, auto, 100% 100% !important;
+  animation: yttPremiumDrawerAura 11s ease-in-out infinite alternate;
+}
+
+body.ytt-signed-in #ai-drawer.ai-drawer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, transparent 0 36%, rgba(245, 215, 110, 0.065) 46%, transparent 56%),
+    repeating-linear-gradient(0deg, transparent 0 18px, rgba(34, 211, 238, 0.010) 19px, transparent 20px);
+  opacity: 0.26;
+  transform: translateX(-22%);
+  animation: yttPremiumDrawerSweep 12s ease-in-out infinite;
+}
+
+@keyframes yttPremiumParticleField {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; transform: translate3d(0, 0, 0); }
+  50% { opacity: 0.43; }
+  100% { background-position: 220px -180px, -260px 240px, 340px -300px, 0 0; transform: translate3d(1.2%, -0.8%, 0); }
+}
+
+@keyframes yttPremiumScanDrift {
+  0%, 16% { transform: translate3d(0, -125%, 0); opacity: 0; }
+  28% { opacity: 0.16; }
+  70% { opacity: 0.10; }
+  100% { transform: translate3d(0, 255%, 0); opacity: 0; }
+}
+
+@keyframes yttPremiumAuroraFlow {
+  0% { background-position: 0 0, 100% 0, 0 0; filter: saturate(0.95); }
+  100% { background-position: 90px 26px, calc(100% - 80px) 38px, 160px 0; filter: saturate(1.16); }
+}
+
+@keyframes yttPremiumBreath {
+  0%, 100% { opacity: 0.48; }
+  50% { opacity: 0.66; }
+}
+
+@keyframes yttPremiumOrbitalGlow {
+  0% { transform: translate3d(-1.2%, 0, 0) rotate(0deg); background-position: 0 0, 0 0, 0 0; }
+  50% { opacity: 0.54; }
+  100% { transform: translate3d(1.2%, -0.8%, 0) rotate(0.35deg); background-position: 0 0, 64px -42px, 180px 0; }
+}
+
+@keyframes yttPremiumCardGradient {
+  0% { background-position: 0% 0%, 0 0; }
+  100% { background-position: 100% 100%, 0 0; }
+}
+
+@keyframes yttPremiumCardSweep {
+  0% { transform: translateX(-55%) skewX(-10deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(62%) skewX(-10deg); opacity: 0; }
+}
+
+@keyframes yttPremiumStatusLane {
+  0% { background-position: 0% 50%, 0 0; border-color: rgba(245, 215, 110, 0.10); }
+  100% { background-position: 100% 50%, 0 0; border-color: rgba(34, 211, 238, 0.14); }
+}
+
+@keyframes yttPremiumPillSweep {
+  0%, 58% { transform: translateX(0) skewX(-18deg); opacity: 0; }
+  68% { opacity: 0.9; }
+  100% { transform: translateX(360%) skewX(-18deg); opacity: 0; }
+}
+
+@keyframes yttPremiumUnavailablePulse {
+  0%, 100% { border-color: rgba(245, 215, 110, 0.22); filter: saturate(0.95); }
+  50% { border-color: rgba(34, 211, 238, 0.22); filter: saturate(1.08); }
+}
+
+@keyframes yttPremiumEmptySweep {
+  0% { transform: translateX(-45%); opacity: 0.18; }
+  50% { opacity: 0.42; }
+  100% { transform: translateX(45%); opacity: 0.18; }
+}
+
+@keyframes yttPremiumShimmerGlow {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), 0 0 0 rgba(245, 215, 110, 0); }
+  50% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 0 16px rgba(245, 215, 110, 0.055); }
+}
+
+@keyframes yttPremiumIconHalo {
+  0%, 100% { box-shadow: 0 0 0 rgba(245, 215, 110, 0); }
+  50% { box-shadow: 0 0 18px rgba(245, 215, 110, 0.14), inset 0 0 12px rgba(34, 211, 238, 0.06); }
+}
+
+@keyframes yttPremiumTopbarTrace {
+  0%, 100% { background-position: 0% 50%; opacity: 0.28; }
+  50% { background-position: 100% 50%; opacity: 0.72; }
+}
+
+@keyframes yttPremiumOrbFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -4px, 0); }
+}
+
+@keyframes yttPremiumOrbRing {
+  0% { opacity: 0; transform: scale(0.90); }
+  30% { opacity: 0.64; }
+  100% { opacity: 0; transform: scale(1.16); }
+}
+
+@keyframes yttPremiumDrawerAura {
+  0% { box-shadow: 0 34px 110px rgba(0, 0, 0, 0.72), 0 0 34px rgba(245, 215, 110, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+  100% { box-shadow: 0 34px 110px rgba(0, 0, 0, 0.72), 0 0 46px rgba(34, 211, 238, 0.080), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+}
+
+@keyframes yttPremiumDrawerSweep {
+  0%, 20% { transform: translateX(-35%) skewX(-8deg); opacity: 0; }
+  42% { opacity: 0.28; }
+  100% { transform: translateX(35%) skewX(-8deg); opacity: 0; }
+}
+
+/* Data Mission Control life layer: honest disconnected states with premium system language. */
+body.ytt-signed-in {
+  --ytt-mission-dash: repeating-linear-gradient(
+    90deg,
+    transparent 0 12px,
+    rgba(245, 215, 110, 0.055) 13px,
+    transparent 14px 28px
+  );
+}
+
+body.ytt-signed-in .topbar-status {
+  position: relative;
+  isolation: isolate;
+}
+
+body.ytt-signed-in .topbar-status::before {
+  content: "";
+  position: absolute;
+  inset: -7px -9px;
+  z-index: -1;
+  border: 1px solid rgba(245, 215, 110, 0.085);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.050), rgba(34, 211, 238, 0.025), transparent),
+    rgba(0, 0, 0, 0.16);
+  opacity: 0.82;
+  animation: yttMissionSystemBreath 8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip {
+  position: relative;
+  overflow: hidden;
+  animation: yttMissionReadOnlyPulse 6.2s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip.red {
+  animation: yttMissionDisabledPulse 7.2s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -48%;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transform: skewX(-18deg);
+  animation: yttMissionTopPillSweep 7.5s ease-in-out infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) {
+  padding-block: max(18px, 1.2vw) !important;
+  min-height: 112px;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  text-wrap: balance;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) strong {
+  color: rgba(255, 239, 188, 0.94);
+  letter-spacing: 0.05em;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty
+)::after {
+  content: "DATA SOURCE REQUIRED · READ ONLY · NO MOCK DATA";
+  white-space: normal;
+  line-height: 1.35;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) {
+  border-style: solid !important;
+  border-color: rgba(245, 215, 110, 0.19) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245, 215, 110, 0.060), transparent 34%),
+    linear-gradient(180deg, rgba(245, 215, 110, 0.030), rgba(34, 211, 238, 0.012)),
+    rgba(8, 10, 9, 0.965) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) .panel-header::after,
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) h3::after {
+  content: "AWAITING PROVIDER";
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 4px 7px;
+  border: 1px solid rgba(245, 215, 110, 0.22);
+  border-radius: 999px;
+  color: rgba(255, 236, 172, 0.74);
+  background: rgba(245, 215, 110, 0.050);
+  font: 800 8px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.12em;
+  vertical-align: middle;
+}
+
+body.ytt-signed-in .source-health-row,
+body.ytt-signed-in .status-row,
+body.ytt-signed-in .vault-static-row {
+  position: relative;
+  overflow: hidden;
+}
+
+body.ytt-signed-in .source-health-row::after,
+body.ytt-signed-in .status-row::after,
+body.ytt-signed-in .vault-static-row::after {
+  content: "";
+  position: absolute;
+  inset: auto 10px 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(245, 215, 110, 0.30), rgba(34, 211, 238, 0.14), transparent);
+  opacity: 0.42;
+  transform: translateX(-35%);
+  animation: yttMissionStatusTrace 9.5s ease-in-out infinite;
+}
+
+body.ytt-signed-in .source-health-row:has(.status-chip.green),
+body.ytt-signed-in .status-row:has(.status-chip.green),
+body.ytt-signed-in .vault-static-row:has(.status-chip.green) {
+  border-color: rgba(0, 229, 160, 0.18) !important;
+  box-shadow: inset 3px 0 0 rgba(0, 229, 160, 0.26), 0 0 18px rgba(0, 229, 160, 0.035);
+}
+
+body.ytt-signed-in .source-health-row:has(.status-chip.red),
+body.ytt-signed-in .status-row:has(.status-chip.red),
+body.ytt-signed-in .vault-static-row:has(.status-chip.red) {
+  border-color: rgba(255, 77, 109, 0.20) !important;
+  box-shadow: inset 3px 0 0 rgba(255, 77, 109, 0.24), 0 0 18px rgba(255, 77, 109, 0.032);
+}
+
+body.ytt-signed-in .source-health-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)),
+body.ytt-signed-in .status-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)),
+body.ytt-signed-in .vault-static-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)) {
+  box-shadow: inset 3px 0 0 rgba(245, 215, 110, 0.18);
+}
+
+body.ytt-signed-in :is(
+  #health-proxy,
+  #health-stock-data,
+  #health-ai-providers,
+  #health-news,
+  #status-perplexity-card,
+  #status-ollama-card,
+  #status-finnhub-card,
+  #status-coingecko-card,
+  #status-binance-card
+) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 4px 8px;
+  border: 1px solid rgba(245, 215, 110, 0.20);
+  border-radius: 999px;
+  background: rgba(245, 215, 110, 0.050);
+  color: rgba(255, 236, 172, 0.82);
+  font: 800 9px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+body.ytt-signed-in #health-execution,
+body.ytt-signed-in .status-chip.red {
+  text-shadow: 0 0 14px rgba(255, 77, 109, 0.12);
+}
+
+body.ytt-signed-in .source-dot {
+  animation: yttMissionDotHeartbeat 4.8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .source-dot.data {
+  animation-delay: 0.3s;
+}
+
+body.ytt-signed-in .source-dot.local {
+  animation-delay: 0.6s;
+}
+
+body.ytt-signed-in .source-dot.web {
+  animation-delay: 0.9s;
+}
+
+body.ytt-signed-in .rail-source-dots {
+  position: relative;
+  border-radius: 14px;
+}
+
+body.ytt-signed-in .rail-source-dots::after {
+  content: "MISSION CONTROL";
+  display: block;
+  margin-top: 8px;
+  color: rgba(245, 215, 110, 0.46);
+  font: 800 8px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.16em;
+  text-align: center;
+}
+
+body.ytt-signed-in .scan-btn,
+body.ytt-signed-in .save-btn,
+body.ytt-signed-in .btn-primary {
+  background-size: 180% 180%, auto !important;
+  animation: yttMissionCtaGlow 7s ease-in-out infinite alternate;
+}
+
+body.ytt-signed-in .data-table {
+  position: relative;
+}
+
+body.ytt-signed-in .data-table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 215, 110, 0.025), transparent),
+    var(--ytt-mission-dash);
+  opacity: 0.22;
+  background-size: 180% 100%, auto;
+  animation: yttMissionTableSweep 14s ease-in-out infinite;
+}
+
+body.ytt-signed-in .data-table tbody tr:has(.shimmer) td {
+  color: rgba(210, 204, 182, 0.58);
+}
+
+body.ytt-signed-in .data-table tbody tr:has(.shimmer) td:last-child::after {
+  content: " · provider required";
+  color: rgba(245, 215, 110, 0.46);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@keyframes yttMissionSystemBreath {
+  0%, 100% { opacity: 0.62; box-shadow: 0 0 0 rgba(245, 215, 110, 0); }
+  50% { opacity: 0.94; box-shadow: 0 0 26px rgba(245, 215, 110, 0.075); }
+}
+
+@keyframes yttMissionReadOnlyPulse {
+  0%, 100% { border-color: rgba(0, 229, 160, 0.26); }
+  50% { border-color: rgba(245, 215, 110, 0.34); }
+}
+
+@keyframes yttMissionDisabledPulse {
+  0%, 100% { border-color: rgba(255, 77, 109, 0.28); }
+  50% { border-color: rgba(245, 215, 110, 0.26); }
+}
+
+@keyframes yttMissionTopPillSweep {
+  0%, 68% { opacity: 0; transform: translateX(0) skewX(-18deg); }
+  78% { opacity: 0.65; }
+  100% { opacity: 0; transform: translateX(390%) skewX(-18deg); }
+}
+
+@keyframes yttMissionStatusTrace {
+  0%, 100% { opacity: 0.22; transform: translateX(-38%); }
+  50% { opacity: 0.56; transform: translateX(38%); }
+}
+
+@keyframes yttMissionDotHeartbeat {
+  0%, 100% { transform: scale(1); filter: saturate(1); }
+  42% { transform: scale(1.16); filter: saturate(1.28); }
+  55% { transform: scale(0.94); }
+}
+
+@keyframes yttMissionCtaGlow {
+  0% { background-position: 0% 50%, 0 0; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), 0 0 0 rgba(245, 215, 110, 0); }
+  100% { background-position: 100% 50%, 0 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.30), 0 0 22px rgba(245, 215, 110, 0.095); }
+}
+
+@keyframes yttMissionTableSweep {
+  0%, 100% { background-position: -60% 0, 0 0; opacity: 0.14; }
+  50% { background-position: 160% 0, 0 0; opacity: 0.24; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.ytt-signed-in :is(.main, .main *):not(#tab-dashboard *):not(#tab-meridian *) {
     animation-duration: 0.001ms !important;
@@ -1013,5 +2004,47 @@ body.ytt-signed-in #ai-drawer .ytt-ai-status-row span {
 
   body.ytt-signed-in .ytt-motion-bg {
     display: none !important;
+  }
+
+  body.ytt-signed-in :is(.main, .main *, .terminal-topbar):not(#tab-meridian *) {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before,
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after,
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::before,
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::before,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .source-card, .news-source-card, .vault-provider-section, .market-mini-card, .market-context-panel, .news-source-panel)::after,
+  body.ytt-signed-in .source-health-row::after,
+  body.ytt-signed-in .status-row::after,
+  body.ytt-signed-in .vault-static-row::after,
+  body.ytt-signed-in #ai-fab.ai-fab::after,
+  body.ytt-signed-in #ai-drawer.ai-drawer::before {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before,
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after {
+    inset: var(--ytt-topbar-height, 70px) 0 0 0;
+    opacity: 0.16;
+  }
+
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::after {
+    opacity: 0.22;
+  }
+
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .source-card, .news-source-card, .vault-provider-section, .market-mini-card, .market-context-panel):hover {
+    transform: none;
+  }
+
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) .panel-header::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) h3::after {
+    display: none;
   }
 }
