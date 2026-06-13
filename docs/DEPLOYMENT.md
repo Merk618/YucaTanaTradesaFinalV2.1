@@ -1,42 +1,70 @@
 # Deployment
 
-## Static Web App
+YucaTanaTrades production deployment is a static GitHub Pages frontend plus an optional secure Cloudflare Worker for Perplexity Finance.
 
-Open `apps/web/index.html` for local static usage. The root `index.html` redirects there for compatibility.
+## Static Frontend
 
-Security limitation: local static HTML can store API keys only in browser storage. This is acceptable for local-only development with warnings, but production should use the proxy.
-
-## API Proxy
-
-Deploy `services/data/proxy/worker.js` with Cloudflare Workers. `wrangler.toml` already points at the modular Worker path.
-
-Set Worker secrets:
+Source:
 
 ```text
-FINNHUB_API_KEY=
-TRADIER_API_KEY=
-TRADIER_BASE_URL=https://sandbox.tradier.com/v1
-ALPACA_API_KEY=
-ALPACA_SECRET_KEY=
-ALPACA_BASE_URL=https://paper-api.alpaca.markets
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
+apps/web
 ```
 
-In the app, set `API PROXY BASE URL` in Settings.
+Build:
 
-## Python Services
-
-Environment files are supported at repo root:
-
-- `.env.local`
-- `.env.staging`
-- `.env.production`
-
-Run the compatibility entrypoint:
-
-```bash
-python main.py
+```powershell
+npm run build:web
 ```
 
-Live trading is disabled by default. Paper trading is enabled by default.
+Deployable output:
+
+```text
+dist-web/
+```
+
+The build script also mirrors `dist-web` to the repository root for GitHub Pages compatibility.
+
+## Secure AI Proxy
+
+Perplexity research must go through:
+
+```text
+workers/perplexity-proxy
+```
+
+Required Cloudflare Worker secret:
+
+```text
+PERPLEXITY_API_KEY
+```
+
+Set the secret with Wrangler:
+
+```powershell
+cd workers/perplexity-proxy
+wrangler secret put PERPLEXITY_API_KEY
+wrangler deploy
+```
+
+Frontend setting:
+
+```text
+Settings/Admin -> API_PROXY_BASE
+```
+
+The frontend endpoint contract is:
+
+```text
+POST API_PROXY_BASE/perplexity/finance
+```
+
+## Retired Production Paths
+
+The old generic proxy under `services/data/proxy`, Python scanner/strategy services, and broker execution experiments are not part of the active production deployment. They should remain quarantined for reference until explicitly reviewed.
+
+## Safety Rules
+
+- Do not store Perplexity keys in the frontend.
+- Do not add active broker/exchange keys to GitHub Pages.
+- Do not enable live trading.
+- Do not deploy prototype/mock-data pages as production source of truth.

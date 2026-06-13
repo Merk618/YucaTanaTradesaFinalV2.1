@@ -1,34 +1,34 @@
 # Roadmap
 
-## Phase 1: Modular Foundation
+## Phase 1: Production Consolidation
 
-- Preserve v2 app shell.
-- Move prototypes into `apps/web/legacy`.
-- Centralize data clients.
-- Add `AssetRow` and `DataQuality`.
-- Add production heatmap behavior without mock financial values.
+- Use `D:\YucaTanaTrades` as source of truth.
+- Keep Replit/CodePen/design-reference material as reference only.
+- Quarantine obsolete Python, broker execution, generated cache, and old proxy files.
+- Keep GitHub Pages static deployment as the primary frontend path.
 
-## Phase 2: Data Completeness
+## Phase 2: Provider Reliability
 
-- Expand Finnhub candle/profile/metric usage in stock scanners.
-- Add Tradier option-flow service under `services/scanners/options`.
-- Add Binance websocket hydration for crypto RSI/MACD fields.
-- Add cache freshness labels and retry state.
+- Harden CoinGecko/Binance scanner fallbacks.
+- Expand Finnhub fallback handling for stocks.
+- Keep MooMoo OpenD as read-only future primary stock/options provider through a local bridge.
+- Add provider failure regression tests for unavailable/rate-limited states.
 
-## Phase 3: Strategy Intelligence
+## Phase 3: AI Intelligence
 
-- Feed candles into strategy modules.
-- Calculate RSI, MACD, VWAP, support/resistance, and setup labels.
-- Add backtest reports to `services/strategies/backtesting`.
+- Continue improving Market Brain scoring with deterministic provider data.
+- Keep Ollama limited to supplied YucaTanaTrades context.
+- Keep Perplexity routed through the secure Worker proxy.
 
-## Phase 4: Execution Safety
+## Phase 4: Data Persistence
 
-- Build paper-trading workflows.
-- Add alert/webhook routing.
-- Keep live trading disabled until explicit deployment review.
+- Decide whether production needs a database.
+- If needed, add schema, migrations, and a server-side deployment target before storing user/system data.
+- Until then, use localStorage only for local preferences and manual signal overlays.
 
-## Phase 5: Production Deployment
+## Phase 5: Security Review
 
-- Deploy Cloudflare Worker proxy.
-- Move secrets out of frontend localStorage.
-- Add integration tests for provider failures and unavailable states.
+- Keep live trading disabled.
+- Keep broker/exchange credentials out of GitHub Pages.
+- Review any quarantined broker/execution code before restoring it.
+- Run secret, local-path, and build-output scans before every production release.

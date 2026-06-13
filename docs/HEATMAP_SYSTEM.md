@@ -35,7 +35,7 @@ The stock heatmap adapter reads `liveStockQuotes`, which is populated by the exi
 
 ## Crypto Adapter
 
-The crypto heatmap adapter reads `liveCryptoMarkets`, which is populated by the existing CoinGecko/proxy loader. Binance-only indicator fields stay unavailable until Binance/strategy services supply them.
+The crypto heatmap adapter reads `liveCryptoMarkets`, which is populated by CoinGecko/Binance provider modules. Binance-only indicator fields stay unavailable until connected provider data supplies them.
 
 ## Data Quality Labels
 
@@ -48,4 +48,4 @@ Every heatmap tile displays a subtle data-quality chip:
 
 ## Adding Metrics Safely
 
-Add a metric only after it exists in `AssetRow` and is calculated by `services/data` or `services/strategies`. Do not copy static values from legacy HTML prototypes.
+Add a metric only after it exists in active JavaScript provider output or Market Brain technical context. Do not copy static values from legacy HTML prototypes.

@@ -1,65 +1,34 @@
 # Data Accuracy
 
-The main repo data systems are the source of truth for YucaTanaTrades financial data.
+YucaTanaTrades production data must come from connected providers or deterministic calculations over provider data.
 
-## Source Of Truth
+## Active Sources
 
-Use:
+- Crypto prices and registry: CoinGecko and Binance public data.
+- Stock quotes: MooMoo local bridge when available, otherwise Finnhub fallback.
+- Options chains: MooMoo local bridge only when available.
+- AI research: Perplexity through the secure proxy.
+- Local reasoning: Ollama over supplied YucaTanaTrades context only.
+- External signals: manual overlays that require YucaTana confirmation.
 
-- `services/data` for provider API integrations.
-- `services/scanners` for candidate detection and ranking.
-- `services/strategies` for RSI, MACD, VWAP, support, resistance, setup scoring, backtests, and risk.
-- `services/execution` for guarded broker/order behavior.
+## Forbidden Production Behavior
 
-## Enhanced Heatmap Rule
+- Do not use imported prototype prices as live values.
+- Do not fabricate RSI, MACD, VWAP, support/resistance, targets, stops, catalysts, analyst ratings, filings, or earnings.
+- Do not silently substitute selected dashboard context when a user asks for an explicit symbol.
+- Do not route crypto symbols to stock providers.
+- Do not call broker/exchange execution from the frontend.
 
-`apps/web/legacy/YucaTanaTrades_Enhancedv23HeatmapExpandAnimation.html` is UI-only. It may inspire:
+## Missing Data Behavior
 
-- click interactions,
-- inline expansion,
-- ripple animation,
-- gold terminal styling,
-- deep-dive drawer behavior,
-- performance-lite/reduced-motion behavior.
-
-It must not supply production prices, rankings, RSI, MACD, support/resistance, volume, catalysts, conviction scores, or thesis text.
-
-## Mock/Static Values
-
-Mock/static financial values are forbidden in production views. If a provider is unavailable, show:
+If data is missing, display:
 
 ```text
-Data unavailable — retrying
+Unavailable
 ```
 
-or shimmer placeholders.
+or a source-specific unavailable/rate-limited/degraded state.
 
-## Data Quality
+## Prototype Material
 
-All production asset rows use:
-
-- `LIVE`
-- `DELAYED`
-- `FALLBACK`
-- `UNAVAILABLE`
-
-The UI displays this label subtly on heatmap tiles and detail panels.
-
-## API Failure Behavior
-
-API failures should:
-
-- keep the UI interactive,
-- leave missing cells shimmered or unavailable,
-- log or show a source-status message,
-- retry on the next scan.
-
-API failures should not:
-
-- crash the dashboard,
-- silently switch to mock values,
-- fabricate thesis or technical metrics.
-
-## Rate Limits
-
-When rate-limited, keep the last valid provider label if cached data exists and mark it `DELAYED` or `FALLBACK`. If no valid data exists, mark `UNAVAILABLE`.
+Legacy HTML, Replit/CodePen exports, and design-reference projects are UI references only. They are never a source of truth for prices, rankings, technicals, catalysts, or recommendations.

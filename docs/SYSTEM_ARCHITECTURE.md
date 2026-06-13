@@ -1,33 +1,46 @@
 # YucaTanaTrades System Architecture
 
-YucaTanaTrades is organized as a modular trading intelligence platform with clear boundaries between UI, data providers, scanners, strategies, and execution.
+YucaTanaTrades is a static, read-only fintech intelligence terminal. The active production system is the JavaScript frontend, modular browser-safe services, and the Perplexity Cloudflare Worker.
 
-## Primary App Shell
+## Source Of Truth
 
-The primary app shell is `apps/web/index.html`. It was chosen because it is the cleanest current v2 shell: it already includes the source-health command center, AI drawer, settings vault, TradingView widget usage, scanner tables, and deployment proxy support. The root `index.html` redirects to this shell for compatibility.
+Use `D:\YucaTanaTrades` as the production repo. Replit/CodePen exports and the `design-reference` prototype are reference-only material, not production code.
 
-## Applications
+## Active Frontend
 
-- `apps/web/index.html` is the production web shell.
-- `apps/web/legacy` preserves standalone prototypes and experiments.
-- `apps/web/components` contains UI-adjacent Python terminal components and future web component modules.
-- `apps/web/styles` and `apps/web/scripts` contain extracted production UI behavior such as the heatmap module.
+- `apps/web/index.html` is the app shell.
+- `apps/web/scripts` contains scoped modules for AI, heatmaps, Crypto Scanner Pro, Stock Deep-Dive, TradingView loading, and motion.
+- `apps/web/styles` contains scoped production CSS.
+- `scripts/build-dist-web.mjs` builds `dist-web` and mirrors it to the root for GitHub Pages.
 
-## Service Layers
+## Active Service Modules
 
-- `services/data` owns provider integrations and provider-to-AssetRow adapters.
-- `services/scanners` detects and ranks candidates only.
-- `services/strategies` calculates indicators, backtests, risk, support/resistance, setup labels, and portfolio logic.
-- `services/execution` owns broker adapters, order routing, alerts, webhooks, and execution guardrails.
-- `services/intelligence` is reserved for macro, news, sentiment, and AI research services.
+- `services/ai` - provider routing, Perplexity/Ollama clients, Market Brain, scoring, prompts, and symbol intent.
+- `services/crypto` - CoinGecko/Binance symbol resolution, scanner data, and signal classification.
+- `services/marketData` - MooMoo local bridge architecture, stock/options routers, AIheatmap data and technical engines.
+- `services/settings` - provider setting key map, defaults, aliases, and persistence helpers.
+- `services/signals` - manual external signal overlays and confirmation scoring.
+- `services/stocks` - Stock Deep-Dive data and thesis storage.
 
-## Shared Layer
+## Backend Boundary
 
-- `shared/types` defines the normalized `AssetRow` and `DataQuality` contract.
-- `shared/config` owns feature flags and environment-file loading.
-- `shared/constants` contains cross-layer constants.
-- `shared/utils` contains common utilities such as logging.
+The active backend is:
 
-## Safety Rule
+```text
+workers/perplexity-proxy
+```
 
-The UI must not place live trades directly. Broker calls live in `services/execution`, live trading is disabled by default, and execution requests must pass risk/feature-flag validation.
+It exposes:
+
+- `GET /health`
+- `POST /perplexity/finance`
+
+Perplexity credentials must be Cloudflare Worker secrets only.
+
+## Quarantined Material
+
+Old Python services, broker execution experiments, generic proxy code, generated caches, and imported design prototypes are not part of active production. They may remain in `archive/quarantine/...` for traceability.
+
+## Safety Boundary
+
+YucaTanaTrades is read-only decision support. It must not place orders, enable live trading, expose broker credentials, or fabricate market data.

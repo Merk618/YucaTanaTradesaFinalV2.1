@@ -78,4 +78,4 @@ Latency and last successful request timestamps are stored in the health detail w
 
 ## Safety Boundary
 
-AI research is informational only. Execution remains isolated under `services/execution`, and live trading remains disabled by default.
+AI research is informational only. Broker/exchange execution is not part of the active production frontend, and live trading remains disabled.
