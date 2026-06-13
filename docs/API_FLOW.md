@@ -2,34 +2,50 @@
 
 ## Frontend Flow
 
-1. `apps/web/index.html` loads scanner panels and heatmap containers.
-2. The settings vault stores local API keys or an `API_PROXY_BASE` URL.
-3. Quote loaders prefer the proxy when configured.
-4. Without provider data, visible values remain shimmered or display `Data unavailable — retrying`.
+1. `apps/web/index.html` loads the static terminal shell.
+2. Scoped modules mount only their own UI areas.
+3. Provider settings are read from the Data / AI Provider Vault via `services/settings/providerSettings.js`.
+4. Crypto Scanner Pro fetches CoinGecko/Binance data only when the user clicks Scan Now.
+5. AIheatmap scans only when the tab engine is activated.
+6. Direct price queries resolve explicit symbols before any LLM is used.
+7. Missing provider data displays unavailable states, never fake market data.
 
-## Proxy Flow
+## AI Flow
 
-`services/data/proxy/worker.js` exposes:
+Perplexity:
 
-- `GET /health`
-- `GET /finnhub/quote?symbol=NVDA`
-- `GET /coingecko/ping`
-- `GET /coingecko/markets?...`
-- `GET /tradier/quotes?symbols=NVDA,TSLA`
-- `GET /alpaca/account`
-- `POST /ai/stock-assistant`
+```text
+Frontend -> API_PROXY_BASE/perplexity/finance -> Cloudflare Worker -> Perplexity API
+```
 
-`wrangler.toml` points to `services/data/proxy/worker.js`.
+Local Ollama:
 
-## Python Service Flow
+```text
+Frontend -> http://127.0.0.1:11434/api/chat
+```
 
-- Stocks: `services/data/finnhub/client.py` -> `services/data/adapters.py` -> `services/scanners/stocks/scanner.py`.
-- Crypto: `services/data/coingecko/client.py` -> `services/data/adapters.py` -> `services/scanners/crypto/scanner.py`.
-- Binance candles/websocket: `services/data/binance/feed.py`.
-- Indicators: `services/strategies/signals/indicators.py`.
-- Backtests: `services/strategies/backtesting/backtest.py`.
-- Execution: `services/execution/brokers` and `services/execution/routing`.
+Ollama is local-only and receives structured YucaTanaTrades context. Perplexity is used for cited/latest research through the proxy.
 
-## Error Behavior
+## Market Data Flow
 
-Provider errors must not break the UI. Return unavailable rows or leave cells shimmered. Do not fabricate prices, volume, RSI, MACD, support, resistance, or catalyst values.
+Crypto:
+
+```text
+CoinGecko registry/snapshots + Binance public pairs/ticks
+```
+
+Stocks/options:
+
+```text
+MooMoo local bridge when enabled/running -> Finnhub fallback -> unavailable
+```
+
+Options:
+
+```text
+MooMoo options bridge only -> unavailable
+```
+
+## Retired Flow
+
+The old generic `services/data/proxy/worker.js` and Python scanner/execution pipeline are not active production API paths after consolidation.

@@ -1,70 +1,68 @@
 # YucaTanaTrades
 
-YucaTanaTrades is now organized as a modular trading intelligence platform.
+YucaTanaTrades is a static, read-only market intelligence terminal. The production source of truth is this repository, with `apps/web` as the web app source and `dist-web` plus the repository root as the GitHub Pages output.
 
-## Current Layout
+## Production Scope
 
-- `apps/web/index.html` is the primary app shell.
-- `apps/web/legacy` preserves standalone dashboard prototypes and enhanced UI experiments.
-- `services/data` owns provider integrations and proxy code.
-- `services/scanners` owns candidate detection/ranking.
-- `services/strategies` owns indicators, risk, support/resistance, backtesting, and portfolio logic.
-- `services/execution` owns broker adapters and guarded order routing.
-- `shared/types` contains the normalized `AssetRow` model and `DataQuality` labels.
-- `docs` explains architecture, API flow, heatmap behavior, data accuracy, roadmap, and deployment.
+- Static GitHub Pages frontend.
+- Provider-driven market data surfaces for stocks, crypto, heatmaps, scanner views, and deep-dive modules.
+- Perplexity Finance research through a Cloudflare Worker proxy only.
+- Local Ollama support for private local reasoning over supplied YucaTanaTrades context.
+- Read-only MooMoo OpenD bridge architecture for future stock/options data.
+- External signal overlays that must be confirmed by YucaTana Market Brain before ranking.
+- No live trading, no order placement, and no frontend broker/exchange credentials.
 
-The enhanced heatmap HTML is preserved for UI/animation reference only. It is not a source of truth for financial data.
+## Active Production Layout
 
-# YucaTanaTrades API Proxy
+- `apps/web/index.html` - primary application shell.
+- `apps/web/scripts` - scoped browser modules for AI, Crypto Scanner Pro, AIheatmap, TradingView loading, heatmaps, and stock deep dives.
+- `apps/web/styles` - scoped production styles.
+- `services/ai` - Perplexity/Ollama routing, Market Brain, scoring, prompts, and symbol intent resolution.
+- `services/crypto` - crypto scanner, symbol registry, CoinGecko/Binance resolver logic.
+- `services/marketData` - MooMoo bridge architecture, stock/options routing, AIheatmap data/technical engines.
+- `services/settings` - centralized provider setting keys and persistence helpers.
+- `services/signals` - manual external signal ingestion and YucaTana confirmation logic.
+- `services/stocks` - Stock Deep-Dive thesis data and store helpers.
+- `workers/perplexity-proxy` - secure Cloudflare Worker for `POST /perplexity/finance`.
+- `tests` - regression checks for provider settings, AI routing, Crypto Scanner Pro, AIheatmap, Stock Deep-Dive, Market Brain, and external signals.
+- `scripts/build-dist-web.mjs` - static build/copy pipeline for GitHub Pages.
 
-This folder contains a Cloudflare Worker proxy for YucaTanaTrades v2.
+## Reference And Quarantine Material
 
-## Why This Exists
+Prototype HTML, imported Replit/CodePen exports, old Python services, broker execution experiments, and generated cache files are not production source-of-truth code. They should live under `archive/quarantine/...` or `legacy` and must not be wired into the active frontend or deployment path.
 
-The browser app can run as a local HTML file, but production API keys should not live in localStorage or frontend JavaScript. Deploy this Worker and set the deployed URL as `API PROXY BASE URL` in the Settings vault.
+## Security Model
 
-Example:
+- Perplexity API keys stay server-side as the Cloudflare Worker secret `PERPLEXITY_API_KEY`.
+- Frontend settings may store local personal API keys in browser storage for local/private use, but production secrets should be proxied server-side.
+- Broker/exchange keys must not be stored in the GitHub Pages frontend.
+- Live trading remains disabled.
 
-```text
-https://yucatanatrades-api.yourname.workers.dev
+## Build
+
+```powershell
+npm install
+npm run build:web
 ```
 
-## Environment Variables
+The build writes `dist-web/` and mirrors deployable files to the repository root for GitHub Pages. The single-file export is preserved separately in `dist/YucaTanaTrades_SingleFile.html`.
 
-Set these as Worker secrets:
+## Validation
 
-```text
-FINNHUB_API_KEY=
-TRADIER_API_KEY=
-TRADIER_BASE_URL=https://sandbox.tradier.com/v1
-ALPACA_API_KEY=
-ALPACA_SECRET_KEY=
-ALPACA_BASE_URL=https://paper-api.alpaca.markets
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
+```powershell
+node tests/cryptoScannerProTab.test.mjs
+node tests/aiHeatmap.test.mjs
+node tests/stockDeepDive.test.mjs
+node tests/settingsPersistence.test.mjs
+node tests/symbolIntentResolver.test.mjs
+node tests/marketBrain.test.mjs
+node tests/externalSignals.test.mjs
+npm run build:web
 ```
 
-`OPENAI_API_KEY` is optional. If it is missing, `/ai/stock-assistant` returns a local source-aware fallback response instead of calling OpenAI.
+Run local-path and secret scans before release:
 
-## Routes
-
-```text
-GET  /health
-GET  /finnhub/quote?symbol=NVDA
-GET  /coingecko/ping
-GET  /coingecko/markets?...CoinGecko query params...
-GET  /tradier/quotes?symbols=NVDA,TSLA
-GET  /alpaca/account
-POST /ai/stock-assistant
+```powershell
+rg -n "local-drive-or-file-url-pattern" index.html dist-web apps/web scripts styles services docs tests
+rg -n "CG-[A-Za-z0-9_-]{16,}|sk-[A-Za-z0-9]{20,}|PERPLEXITY_API_KEY\s*=\s*" apps/web scripts styles services dist-web index.html
 ```
-
-## Deployment Sketch
-
-1. Create a Cloudflare Worker.
-2. Paste `worker.js`.
-3. Add the environment variables/secrets.
-4. Deploy.
-5. In YucaTanaTrades: Settings → unlock vault with `142010` → paste the Worker URL into `API PROXY BASE URL` → Save Keys.
-6. Click `REFRESH HEALTH` in Source Health Command.
-
-The app will prefer the proxy when `API_PROXY_BASE` is configured.

@@ -1,79 +1,86 @@
 # YucaTanaTrades Deployment
 
-## Local Development
+## Production Repo
 
-Install dependencies, then run Vite:
+Use `D:\YucaTanaTrades` as the source-of-truth production repo. Replit/CodePen exports and design-reference projects are reference material only and should not be imported as production code.
+
+## Local Development
 
 ```powershell
 npm install
 npm run dev
 ```
 
-Open the local URL Vite prints in the terminal. The dev server serves `apps/web/`.
+Vite serves `apps/web/`. Opening `apps/web/index.html` directly can provide a limited static preview, but module imports and browser security rules are better exercised through the dev server.
 
-If npm is not installed on the machine, open `apps/web/index.html` directly for a limited static preview, or install Node.js with npm before running the Vite scripts.
-
-## Modular GitHub Pages Build
-
-Build the deploy-ready modular site:
+## GitHub Pages Build
 
 ```powershell
 npm run build:web
 ```
 
-Direct Node fallback:
-
-```powershell
-node scripts/build-dist-web.mjs
-```
-
 Output:
 
 - `dist-web/index.html`
-- `dist-web/styles/heatmap.css`
-- `dist-web/scripts/heatmap.js`
-- `dist-web/legacy/*.html`
+- `dist-web/scripts/*`
+- `dist-web/styles/*`
+- `dist-web/services/*`
+- `dist-web/legacy/*`
 - `dist-web/.nojekyll`
+- mirrored root `index.html`, `scripts/`, `styles/`, `legacy/`, `.nojekyll`
 
-Deploy the contents of `dist-web/` as the GitHub Pages site root. This supports repository subpath hosting such as:
+The root mirror exists for GitHub Pages compatibility. Do not hand-edit root build output; edit `apps/web` and `services`, then rebuild.
 
-```text
-https://username.github.io/repository-name/
-```
+## Perplexity Worker
 
-## Single-File Export
-
-The single-file build remains separate:
+The production Perplexity proxy is:
 
 ```text
-dist/YucaTanaTrades_SingleFile.html
+workers/perplexity-proxy
 ```
 
-Use it when you need one portable HTML file. Do not replace the modular `dist-web/` build with the single-file export unless that is the intended deployment target.
+Deploy from that directory:
 
-## Environment And Config Notes
+```powershell
+cd workers/perplexity-proxy
+wrangler secret put PERPLEXITY_API_KEY
+wrangler deploy
+```
 
-The GitHub Pages build is static. It cannot safely store server secrets.
-
-Use local browser storage only for personal testing keys. For hosted production, configure an API proxy and set its URL in:
+The frontend calls:
 
 ```text
-Settings > API Proxy Base URL
+API_PROXY_BASE/perplexity/finance
 ```
 
-Expected behavior:
+Never place a Perplexity API key in frontend code, localStorage defaults, or GitHub Pages output.
 
-- CoinGecko crypto data loads from public API when available.
-- Binance crypto ticker updates use public WebSocket streams.
-- TradingView stays as an external embed script.
-- Finnhub stock quotes require a local key or server-side proxy.
-- Perplexity Finance research requires `API_PROXY_BASE/perplexity/finance`; never place a Perplexity API key in the frontend.
-- Missing or blocked APIs show unavailable states instead of fabricated values.
+## Provider Settings
 
-## Releasing Updates
+Provider configuration is managed in Settings/Admin and by `services/settings/providerSettings.js`.
 
-1. Edit source in `apps/web/`.
+Active frontend/provider settings include:
+
+- Finnhub fallback key
+- FRED key
+- Alpha Vantage key
+- FMP key
+- MarketAux key
+- optional CoinGecko key
+- SEC User-Agent contact
+- API proxy base URL
+- Local Ollama endpoint/model
+- MooMoo local bridge URL
+- External signal preferences
+
+Broker/exchange execution keys are not active production settings.
+
+## Release Checklist
+
+1. Run tests.
 2. Run `npm run build:web`.
-3. Check that `dist-web/index.html` has no `D:/`, `C:/`, or `file:///` paths.
-4. Commit the source and build output.
-5. Push to GitHub and update the Pages branch or deployment workflow.
+3. Confirm `.nojekyll` exists at root and in `dist-web`.
+4. Confirm `dist/YucaTanaTrades_SingleFile.html` still exists.
+5. Scan for local paths and hardcoded secrets.
+6. Browser smoke: Dashboard, Crypto, AIheatmap, Stocks, Settings/Admin, and YucaTana AI.
+7. Confirm live trading and broker/exchange execution remain disabled.

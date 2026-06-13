@@ -1,8 +1,8 @@
-name = "yucatanatrades-api"
-main = "services/data/proxy/worker.js"
-compatibility_date = "2026-05-12"
+name = "ytt-perplexity-proxy"
+main = "workers/perplexity-proxy/worker.js"
+compatibility_date = "2026-05-24"
+workers_dev = true
 
-[vars]
-TRADIER_BASE_URL = "https://sandbox.tradier.com/v1"
-ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
-OPENAI_MODEL = "gpt-4.1-mini"
+# Do not place PERPLEXITY_API_KEY here.
+# Add it as a Cloudflare Worker secret:
+# wrangler secret put PERPLEXITY_API_KEY
