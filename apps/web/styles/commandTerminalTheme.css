@@ -1700,6 +1700,301 @@ body.ytt-signed-in #ai-drawer.ai-drawer::before {
   100% { transform: translateX(35%) skewX(-8deg); opacity: 0; }
 }
 
+/* Data Mission Control life layer: honest disconnected states with premium system language. */
+body.ytt-signed-in {
+  --ytt-mission-dash: repeating-linear-gradient(
+    90deg,
+    transparent 0 12px,
+    rgba(245, 215, 110, 0.055) 13px,
+    transparent 14px 28px
+  );
+}
+
+body.ytt-signed-in .topbar-status {
+  position: relative;
+  isolation: isolate;
+}
+
+body.ytt-signed-in .topbar-status::before {
+  content: "";
+  position: absolute;
+  inset: -7px -9px;
+  z-index: -1;
+  border: 1px solid rgba(245, 215, 110, 0.085);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(245, 215, 110, 0.050), rgba(34, 211, 238, 0.025), transparent),
+    rgba(0, 0, 0, 0.16);
+  opacity: 0.82;
+  animation: yttMissionSystemBreath 8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip {
+  position: relative;
+  overflow: hidden;
+  animation: yttMissionReadOnlyPulse 6.2s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip.red {
+  animation: yttMissionDisabledPulse 7.2s ease-in-out infinite;
+}
+
+body.ytt-signed-in .topbar-status .status-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -48%;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transform: skewX(-18deg);
+  animation: yttMissionTopPillSweep 7.5s ease-in-out infinite;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) {
+  padding-block: max(18px, 1.2vw) !important;
+  min-height: 112px;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  text-wrap: balance;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty,
+  .stock-thesis-empty,
+  .ytt-ai-empty,
+  .empty-state,
+  .scanner-empty
+) strong {
+  color: rgba(255, 239, 188, 0.94);
+  letter-spacing: 0.05em;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(
+  .feed-error,
+  .api-notice,
+  .ytt-tv-lazy-placeholder,
+  .crypto-tv-empty
+)::after {
+  content: "DATA SOURCE REQUIRED · READ ONLY · NO MOCK DATA";
+  white-space: normal;
+  line-height: 1.35;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) {
+  border-style: solid !important;
+  border-color: rgba(245, 215, 110, 0.19) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245, 215, 110, 0.060), transparent 34%),
+    linear-gradient(180deg, rgba(245, 215, 110, 0.030), rgba(34, 211, 238, 0.012)),
+    rgba(8, 10, 9, 0.965) !important;
+}
+
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) .panel-header::after,
+body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) h3::after {
+  content: "AWAITING PROVIDER";
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 4px 7px;
+  border: 1px solid rgba(245, 215, 110, 0.22);
+  border-radius: 999px;
+  color: rgba(255, 236, 172, 0.74);
+  background: rgba(245, 215, 110, 0.050);
+  font: 800 8px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.12em;
+  vertical-align: middle;
+}
+
+body.ytt-signed-in .source-health-row,
+body.ytt-signed-in .status-row,
+body.ytt-signed-in .vault-static-row {
+  position: relative;
+  overflow: hidden;
+}
+
+body.ytt-signed-in .source-health-row::after,
+body.ytt-signed-in .status-row::after,
+body.ytt-signed-in .vault-static-row::after {
+  content: "";
+  position: absolute;
+  inset: auto 10px 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(245, 215, 110, 0.30), rgba(34, 211, 238, 0.14), transparent);
+  opacity: 0.42;
+  transform: translateX(-35%);
+  animation: yttMissionStatusTrace 9.5s ease-in-out infinite;
+}
+
+body.ytt-signed-in .source-health-row:has(.status-chip.green),
+body.ytt-signed-in .status-row:has(.status-chip.green),
+body.ytt-signed-in .vault-static-row:has(.status-chip.green) {
+  border-color: rgba(0, 229, 160, 0.18) !important;
+  box-shadow: inset 3px 0 0 rgba(0, 229, 160, 0.26), 0 0 18px rgba(0, 229, 160, 0.035);
+}
+
+body.ytt-signed-in .source-health-row:has(.status-chip.red),
+body.ytt-signed-in .status-row:has(.status-chip.red),
+body.ytt-signed-in .vault-static-row:has(.status-chip.red) {
+  border-color: rgba(255, 77, 109, 0.20) !important;
+  box-shadow: inset 3px 0 0 rgba(255, 77, 109, 0.24), 0 0 18px rgba(255, 77, 109, 0.032);
+}
+
+body.ytt-signed-in .source-health-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)),
+body.ytt-signed-in .status-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)),
+body.ytt-signed-in .vault-static-row:not(:has(.status-chip.green)):not(:has(.status-chip.red)) {
+  box-shadow: inset 3px 0 0 rgba(245, 215, 110, 0.18);
+}
+
+body.ytt-signed-in :is(
+  #health-proxy,
+  #health-stock-data,
+  #health-ai-providers,
+  #health-news,
+  #status-perplexity-card,
+  #status-ollama-card,
+  #status-finnhub-card,
+  #status-coingecko-card,
+  #status-binance-card
+) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 4px 8px;
+  border: 1px solid rgba(245, 215, 110, 0.20);
+  border-radius: 999px;
+  background: rgba(245, 215, 110, 0.050);
+  color: rgba(255, 236, 172, 0.82);
+  font: 800 9px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+body.ytt-signed-in #health-execution,
+body.ytt-signed-in .status-chip.red {
+  text-shadow: 0 0 14px rgba(255, 77, 109, 0.12);
+}
+
+body.ytt-signed-in .source-dot {
+  animation: yttMissionDotHeartbeat 4.8s ease-in-out infinite;
+}
+
+body.ytt-signed-in .source-dot.data {
+  animation-delay: 0.3s;
+}
+
+body.ytt-signed-in .source-dot.local {
+  animation-delay: 0.6s;
+}
+
+body.ytt-signed-in .source-dot.web {
+  animation-delay: 0.9s;
+}
+
+body.ytt-signed-in .rail-source-dots {
+  position: relative;
+  border-radius: 14px;
+}
+
+body.ytt-signed-in .rail-source-dots::after {
+  content: "MISSION CONTROL";
+  display: block;
+  margin-top: 8px;
+  color: rgba(245, 215, 110, 0.46);
+  font: 800 8px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.16em;
+  text-align: center;
+}
+
+body.ytt-signed-in .scan-btn,
+body.ytt-signed-in .save-btn,
+body.ytt-signed-in .btn-primary {
+  background-size: 180% 180%, auto !important;
+  animation: yttMissionCtaGlow 7s ease-in-out infinite alternate;
+}
+
+body.ytt-signed-in .data-table {
+  position: relative;
+}
+
+body.ytt-signed-in .data-table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(245, 215, 110, 0.025), transparent),
+    var(--ytt-mission-dash);
+  opacity: 0.22;
+  background-size: 180% 100%, auto;
+  animation: yttMissionTableSweep 14s ease-in-out infinite;
+}
+
+body.ytt-signed-in .data-table tbody tr:has(.shimmer) td {
+  color: rgba(210, 204, 182, 0.58);
+}
+
+body.ytt-signed-in .data-table tbody tr:has(.shimmer) td:last-child::after {
+  content: " · provider required";
+  color: rgba(245, 215, 110, 0.46);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@keyframes yttMissionSystemBreath {
+  0%, 100% { opacity: 0.62; box-shadow: 0 0 0 rgba(245, 215, 110, 0); }
+  50% { opacity: 0.94; box-shadow: 0 0 26px rgba(245, 215, 110, 0.075); }
+}
+
+@keyframes yttMissionReadOnlyPulse {
+  0%, 100% { border-color: rgba(0, 229, 160, 0.26); }
+  50% { border-color: rgba(245, 215, 110, 0.34); }
+}
+
+@keyframes yttMissionDisabledPulse {
+  0%, 100% { border-color: rgba(255, 77, 109, 0.28); }
+  50% { border-color: rgba(245, 215, 110, 0.26); }
+}
+
+@keyframes yttMissionTopPillSweep {
+  0%, 68% { opacity: 0; transform: translateX(0) skewX(-18deg); }
+  78% { opacity: 0.65; }
+  100% { opacity: 0; transform: translateX(390%) skewX(-18deg); }
+}
+
+@keyframes yttMissionStatusTrace {
+  0%, 100% { opacity: 0.22; transform: translateX(-38%); }
+  50% { opacity: 0.56; transform: translateX(38%); }
+}
+
+@keyframes yttMissionDotHeartbeat {
+  0%, 100% { transform: scale(1); filter: saturate(1); }
+  42% { transform: scale(1.16); filter: saturate(1.28); }
+  55% { transform: scale(0.94); }
+}
+
+@keyframes yttMissionCtaGlow {
+  0% { background-position: 0% 50%, 0 0; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26), 0 0 0 rgba(245, 215, 110, 0); }
+  100% { background-position: 100% 50%, 0 0; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.30), 0 0 22px rgba(245, 215, 110, 0.095); }
+}
+
+@keyframes yttMissionTableSweep {
+  0%, 100% { background-position: -60% 0, 0 0; opacity: 0.14; }
+  50% { background-position: 160% 0, 0 0; opacity: 0.24; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.ytt-signed-in :is(.main, .main *):not(#tab-dashboard *):not(#tab-meridian *) {
     animation-duration: 0.001ms !important;
@@ -1714,5 +2009,42 @@ body.ytt-signed-in #ai-drawer.ai-drawer::before {
   body.ytt-signed-in :is(.main, .main *, .terminal-topbar):not(#tab-meridian *) {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+  }
+
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before,
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after,
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::before,
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::before,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.feed-error, .api-notice, .ytt-tv-lazy-placeholder, .crypto-tv-empty)::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .source-card, .news-source-card, .vault-provider-section, .market-mini-card, .market-context-panel, .news-source-panel)::after,
+  body.ytt-signed-in .source-health-row::after,
+  body.ytt-signed-in .status-row::after,
+  body.ytt-signed-in .vault-static-row::after,
+  body.ytt-signed-in #ai-fab.ai-fab::after,
+  body.ytt-signed-in #ai-drawer.ai-drawer::before {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::before,
+  body.ytt-signed-in:not([data-active-tab="meridian"]) .content::after {
+    inset: var(--ytt-topbar-height, 70px) 0 0 0;
+    opacity: 0.16;
+  }
+
+  body.ytt-signed-in .tab-content.active:not(#tab-meridian)::after {
+    opacity: 0.22;
+  }
+
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .source-card, .news-source-card, .vault-provider-section, .market-mini-card, .market-context-panel):hover {
+    transform: none;
+  }
+
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) .panel-header::after,
+  body.ytt-signed-in .tab-content:not(#tab-meridian) :is(.panel, .detail-card, .kpi-card, .market-mini-card):has(.shimmer) h3::after {
+    display: none;
   }
 }
